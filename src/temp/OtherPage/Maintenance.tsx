@@ -13,8 +13,18 @@ export default function Maintenance() {
     <div className="relative flex flex-col items-center justify-center min-h-screen p-6 overflow-hidden z-1 bg-gray-50 dark:bg-gray-900">
       <GridShape />
       <div className="mx-auto w-full max-w-[500px] text-center relative z-10">
-        <div className="mx-auto mb-8 flex h-24 w-24 items-center justify-center rounded-full bg-warning-100 text-warning-600 dark:bg-warning-500/20 dark:text-warning-400 shadow-sm border border-warning-200 dark:border-warning-800">
-          <svg className="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+        <div className="mb-8 flex justify-center">
+          <img
+            src="/images/error/maintenance.svg"
+            alt="Maintenance"
+            className="w-64 dark:hidden"
+          />
+
+          <img
+            src="/images/error/maintenance-dark.svg"
+            alt="Maintenance"
+            className="hidden w-64 dark:block"
+          />
         </div>
 
         <h1 className="mb-4 font-bold text-gray-800 text-3xl dark:text-white/90">
