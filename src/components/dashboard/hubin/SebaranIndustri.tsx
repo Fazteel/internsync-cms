@@ -3,11 +3,22 @@ import { Dropdown } from "../../ui/dropdown/Dropdown";
 import { DropdownItem } from "../../ui/dropdown/DropdownItem";
 import { MoreDotIcon } from "../../../icons";
 import SebaranWilayahChart from "../SebaranWilayahChart";
+import { useDashboardStore } from "../../../store/useDashboardStore";
 
 export default function SebaranIndustri() {
   const [isOpen, setIsOpen] = useState(false);
   const toggleDropdown = () => setIsOpen(!isOpen);
   const closeDropdown = () => setIsOpen(false);
+
+  const { hubinSebaran } = useDashboardStore();
+
+  const barColors = [
+    "bg-brand-500 shadow-[0_0_8px_rgba(0,104,55,0.4)]",
+    "bg-accent-500 shadow-[0_0_8px_rgba(247,181,0,0.4)]",
+    "bg-blue-500 shadow-[0_0_8px_rgba(59,130,246,0.4)]",
+    "bg-error-500 shadow-[0_0_8px_rgba(220,38,38,0.4)]",
+    "bg-purple-500 shadow-[0_0_8px_rgba(168,85,247,0.4)]"
+  ];
 
   return (
     <div className="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] sm:p-6">
@@ -37,37 +48,29 @@ export default function SebaranIndustri() {
       </div>
 
       <div className="space-y-5">
-        
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div>
-              <p className="font-semibold text-gray-800 text-theme-sm dark:text-white/90">Kab. Karawang</p>
-              <span className="block text-gray-500 text-theme-xs dark:text-gray-400">25 Perusahaan</span>
+        {hubinSebaran.length === 0 ? (
+          <p className="text-center text-sm text-gray-500">Belum ada data industri yang bisa dipetakan.</p>
+        ) : (
+          hubinSebaran.map((item, index) => (
+            <div key={index} className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div>
+                  <p className="font-semibold text-gray-800 text-theme-sm dark:text-white/90">{item.name}</p>
+                  <span className="block text-gray-500 text-theme-xs dark:text-gray-400">{item.count} Perusahaan</span>
+                </div>
+              </div>
+              <div className="flex w-full max-w-[140px] items-center gap-3">
+                <div className="relative block h-2.5 w-full max-w-[100px] rounded-full bg-gray-100 dark:bg-gray-700">
+                  <div 
+                    className={`absolute left-0 top-0 flex h-full rounded-full ${barColors[index % barColors.length]}`} 
+                    style={{ width: `${item.percentage}%` }}
+                  ></div>
+                </div>
+                <p className="font-medium text-gray-800 text-theme-sm dark:text-gray-300">{item.percentage}%</p>
+              </div>
             </div>
-          </div>
-          <div className="flex w-full max-w-[140px] items-center gap-3">
-            <div className="relative block h-2.5 w-full max-w-[100px] rounded-full bg-brand-100 dark:bg-gray-700">
-              <div className="absolute left-0 top-0 flex h-full w-[60%] rounded-full bg-brand-500 shadow-[0_0_8px_rgba(0,104,55,0.4)]"></div>
-            </div>
-            <p className="font-medium text-gray-800 text-theme-sm dark:text-gray-300">60%</p>
-          </div>
-        </div>
-
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div>
-              <p className="font-semibold text-gray-800 text-theme-sm dark:text-white/90">Kab. Bekasi</p>
-              <span className="block text-gray-500 text-theme-xs dark:text-gray-400">12 Perusahaan</span>
-            </div>
-          </div>
-          <div className="flex w-full max-w-[140px] items-center gap-3">
-            <div className="relative block h-2.5 w-full max-w-[100px] rounded-full bg-brand-100 dark:bg-gray-700">
-              <div className="absolute left-0 top-0 flex h-full w-[28%] rounded-full bg-accent-500 shadow-[0_0_8px_rgba(247,181,0,0.4)]"></div>
-            </div>
-            <p className="font-medium text-gray-800 text-theme-sm dark:text-gray-300">28%</p>
-          </div>
-        </div>
-
+          ))
+        )}
       </div>
     </div>
   );

@@ -1,14 +1,20 @@
 import Chart from "react-apexcharts";
 import { ApexOptions } from "apexcharts";
+import { useDashboardStore } from "../../store/useDashboardStore";
 
 export default function SebaranWilayahChart() {
+  const { hubinSebaran } = useDashboardStore();
+
+  const chartLabels = hubinSebaran.length > 0 ? hubinSebaran.map(item => item.name) : ["Belum ada data"];
+  const chartSeries = hubinSebaran.length > 0 ? hubinSebaran.map(item => item.count) : [0];
+
   const options: ApexOptions = {
     chart: {
       fontFamily: "Outfit, sans-serif",
       type: "donut",
     },
-    colors: ["#465FFF", "#10B981", "#F59E0B", "#64748B"], 
-    labels: ["Kab. Karawang", "Kab. Bekasi", "Kab. Purwakarta", "Daerah Lainnya"],
+    colors: ["#006837", "#F59E0B", "#3B82F6", "#DC2626", "#A855F7", "#64748B"],
+    labels: chartLabels,
     legend: {
       show: false,
     },
@@ -56,11 +62,9 @@ export default function SebaranWilayahChart() {
     },
   };
 
-  const series = [25, 12, 5, 3];
-
   return (
     <div className="flex items-center justify-center w-full h-full">
-      <Chart options={options} series={series} type="donut" width={280} />
+      <Chart options={options} series={chartSeries} type="donut" width={280} />
     </div>
   );
 }

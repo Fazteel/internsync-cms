@@ -17,6 +17,26 @@ interface AuditLog {
   user?: { name: string };
 }
 
+// --- INTERFACE HUBIN ---
+interface HubinMetrics {
+  total_industri: number;
+  total_requests: number;
+}
+
+interface HubinApprovalEntry {
+  id: number;
+  requester: string;
+  role: string;
+  type: string;
+  date: string;
+}
+
+interface SebaranIndustri {
+  name: string;
+  count: number;
+  percentage: number;
+}
+
 // --- INTERFACE KOORDINATOR ---
 interface KoordinatorMetrics {
   total_aktif: number;
@@ -42,6 +62,11 @@ interface DashboardState {
   // State Admin
   stats: SystemStats;
   logs: AuditLog[];
+
+  // State Hubin
+  hubinMetrics: HubinMetrics;
+  hubinTable: HubinApprovalEntry[];
+  hubinSebaran: SebaranIndustri[];
   
   // State Koordinator
   koordinatorMetrics: KoordinatorMetrics;
@@ -55,6 +80,9 @@ interface DashboardState {
   fetchDashboardData: () => Promise<void>; 
   fetchLogs: () => Promise<void>; 
   
+  // Actions Hubin
+  fetchHubinDashboard: () => Promise<void>;
+
   // Actions Koordinator
   fetchKoordinatorDashboard: () => Promise<void>; 
 }
@@ -68,6 +96,14 @@ export const useDashboardStore = create<DashboardState>((set) => ({
     systemStatus: "Memuat...",
   },
   logs: [],
+
+  // --- INITIAL STATE HUBIN ---
+  hubinMetrics: {
+    total_industri: 0,
+    total_requests: 0
+  },
+  hubinTable: [],
+  hubinSebaran: [],
 
   // --- INITIAL STATE KOORDINATOR ---
   koordinatorMetrics: { total_aktif: 0, belum_ditempatkan: 0, industri_aktif: 0 },
@@ -93,6 +129,23 @@ export const useDashboardStore = create<DashboardState>((set) => ({
       set({ logs: response.data, isLoading: false });
     } catch (error) {
       console.error("Gagal load logs admin", error);
+      set({ isLoading: false });
+    }
+  },
+
+  // --- FUNGSI FETCH HUBIN ---
+  fetchHubinDashboard: async () => {
+    set({ isLoading: true });
+    try {
+      const response = await api.get('/api/v1/hubin/dashboard/stats');
+      set({
+        hubinMetrics: response.data.metrics,
+        hubinTable: response.data.table,
+        hubinSebaran: response.data.sebaran,
+        isLoading: false
+      });
+    } catch (error) {
+      console.error("Gagal load data hubin", error);
       set({ isLoading: false });
     }
   },

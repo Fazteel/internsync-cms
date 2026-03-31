@@ -281,10 +281,7 @@ export default function KelolaIndustri() {
 
             <div>
               <label className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">Nama HRD / Kontak <span className="text-error-500">*</span></label>
-              <input type="text" value={hrName} onChange={(e) => {
-                const value = e.target.value.replace(/[^0-9]/g, "");
-                setHrName(value);
-              }} placeholder="Nama lengkap PIC" className="w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm outline-none transition-all focus:border-brand-500 focus:ring-1 focus:ring-brand-500 dark:border-gray-700 dark:text-white" required />
+              <input type="text" value={hrName} onChange={(e) => setHrName(e.target.value)}placeholder="Nama lengkap PIC" className="w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm outline-none transition-all focus:border-brand-500 focus:ring-1 focus:ring-brand-500 dark:border-gray-700 dark:text-white" required />
             </div>
             
             <div>

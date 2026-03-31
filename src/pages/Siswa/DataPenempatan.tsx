@@ -1,8 +1,10 @@
-import { useState, useEffect } from "react";
-import PageMeta from "../../components/common/PageMeta";
-import Badge from "../../components/ui/badge/Badge";
+import api from "../../lib/axios";
 import { CalenderIcon } from "../../icons";
+import { useState, useEffect } from "react";
+import Badge from "../../components/ui/badge/Badge";
 import Alert from "../../components/ui/alert/Alert";
+import PageMeta from "../../components/common/PageMeta";
+import { useStudentPlacementStore } from "../../store/useStudentPlacementStore";
 
 type AlertVariant = "success" | "warning" | "info" | "error";
 
@@ -14,71 +16,79 @@ interface AlertInfo {
 }
 
 export default function DataPenempatan() {
-  const [alertInfo, setAlertInfo] = useState<AlertInfo>({
-    show: false,
-    variant: "success",
-    title: "",
-    message: "",
-  });
+  const { penempatanData, isLoading, error, fetchMyPlacement } = useStudentPlacementStore();
   
-  const handleDownloadLetter = () => {
-    setAlertInfo({
-      show: true,
-      variant: "info",
-      title: "Mendownload Surat Pengantar",
-      message: `Sedang menyiapkan surat pengantar...`,
-    });
+  const [alertInfo, setAlertInfo] = useState<AlertInfo>({ show: false, variant: "success", title: "", message: "" });
+  
+  useEffect(() => {
+    fetchMyPlacement();
+  }, [fetchMyPlacement]);
+
+  const handleDownloadLetter = async () => {
+    if (!penempatanData?.suratUrl) {
+      setAlertInfo({ show: true, variant: "warning", title: "Belum Tersedia", message: "Surat pengantar belum diterbitkan oleh Hubin." });
+      return;
+    }
+    setAlertInfo({ show: true, variant: "info", title: "Mengunduh...", message: "Sedang mengunduh dokumen dari server." });
+    try {
+      const response = await api.get('/api/v1/siswa/my-placement/download-letter', { 
+        responseType: 'blob' 
+      });
+      
+      const blob = new Blob([response.data]);
+      const url = window.URL.createObjectURL(blob);
+      
+      const link = document.createElement('a');
+      link.href = url;
+      
+      link.setAttribute('download', `Surat_Pengantar_${penempatanData.industri.nama}.pdf`);
+      
+      document.body.appendChild(link);
+      link.click();
+      
+      link.parentNode?.removeChild(link);
+      window.URL.revokeObjectURL(url);
+
+      setAlertInfo({ show: true, variant: "success", title: "Berhasil", message: "Surat pengantar berhasil diunduh ke perangkat Anda!" });
+    } catch (error) {
+      console.error("Gagal download surat:", error);
+      setAlertInfo({ show: true, variant: "error", title: "Gagal", message: "Terjadi kesalahan sistem atau file tidak ditemukan." });
+    }
   };
 
   useEffect(() => {
     if (alertInfo.show) {
-      const timer = setTimeout(() => {
-        setAlertInfo((prev) => ({ ...prev, show: false }));
-      }, 5000);
+      const timer = setTimeout(() => setAlertInfo((prev) => ({ ...prev, show: false })), 5000);
       return () => clearTimeout(timer);
     }
   }, [alertInfo.show]);
 
-  const penempatanData = {
-    status: "Aktif",
-    durasi: "3 Bulan",
-    tanggalMulai: "10 Agustus 2026",
-    tanggalSelesai: "10 November 2026",
-    industri: {
-      nama: "PT. Telkom Indonesia (Witel Karawang)",
-      alamat: "Jl. Tuparev No.123, Nagasari, Kec. Karawang Barat, Karawang, Jawa Barat 41312",
-      pembimbingLapangan: "Bpk. Hendra Gunawan",
-      kontak: "0812-3456-7890 (HRD)",
-    },
-    guruPembimbing: {
-      nama: "Mohammad Robihul Mufid, M.Tr.Kom",
-      kontak: "0857-1122-3344",
-    },
-  };
+  if (isLoading) {
+    return <div className="flex h-[400px] items-center justify-center text-gray-500">Memuat data penempatan...</div>;
+  }
+
+  if (error || !penempatanData) {
+    return (
+      <div className="flex flex-col items-center justify-center h-[400px] text-center space-y-4">
+         <div className="w-16 h-16 rounded-full bg-gray-100 flex items-center justify-center text-gray-400">
+            <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+         </div>
+         <p className="text-gray-600 dark:text-gray-400 font-medium">{error || "Data belum tersedia"}</p>
+      </div>
+    );
+  }
 
   return (
     <>
-      <PageMeta
-        title="Data Penempatan | Sistem Manajemen PKL"
-        description="Informasi detail mengenai lokasi industri, waktu pelaksanaan, dan guru pembimbing PKL."
-      />
+      <PageMeta title="Data Penempatan | Sistem Manajemen PKL" description="Informasi detail mengenai lokasi industri, waktu pelaksanaan, dan guru pembimbing PKL." />
 
       <div className="space-y-6">
-
-        {alertInfo.show && (
-          <div className="animate-fade-in">
-            <Alert variant={alertInfo.variant} title={alertInfo.title} message={alertInfo.message} />
-          </div>
-        )}
+        {alertInfo.show && <div className="animate-fade-in"><Alert variant={alertInfo.variant} title={alertInfo.title} message={alertInfo.message} /></div>}
 
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] sm:p-6 shadow-sm">
           <div>
-            <h2 className="text-xl font-bold text-gray-800 dark:text-white/90">
-              Informasi Penempatan PKL
-            </h2>
-            <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-              Detail lokasi dan waktu pelaksanaan magang Anda.
-            </p>
+            <h2 className="text-xl font-bold text-gray-800 dark:text-white/90">Informasi Penempatan PKL</h2>
+            <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">Detail lokasi dan waktu pelaksanaan magang Anda.</p>
           </div>
           <div>
             <Badge color={penempatanData.status === "Aktif" ? "success" : "warning"}>
@@ -93,9 +103,7 @@ export default function DataPenempatan() {
               <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-brand-50 dark:bg-brand-900/20">
                  <svg className="w-6 h-6 text-brand-600 dark:text-brand-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>
               </div>
-              <h3 className="text-lg font-bold text-gray-800 dark:text-white/90">
-                Lokasi Industri
-              </h3>
+              <h3 className="text-lg font-bold text-gray-800 dark:text-white/90">Lokasi Industri</h3>
             </div>
             <div className="space-y-5">
               <div className="bg-gray-50/50 p-4 rounded-xl border border-gray-100 dark:bg-gray-800/50 dark:border-gray-700">
@@ -119,9 +127,7 @@ export default function DataPenempatan() {
                 <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-accent-50 dark:bg-accent-900/20">
                   <CalenderIcon className="w-6 h-6 text-accent-600 dark:text-accent-400" />
                 </div>
-                <h3 className="text-lg font-bold text-gray-800 dark:text-white/90">
-                  Waktu Pelaksanaan
-                </h3>
+                <h3 className="text-lg font-bold text-gray-800 dark:text-white/90">Waktu Pelaksanaan</h3>
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div className="bg-gray-50/50 p-4 rounded-xl border border-gray-100 dark:bg-gray-800/50 dark:border-gray-700">
@@ -136,7 +142,6 @@ export default function DataPenempatan() {
                   <span className="block text-sm font-semibold text-gray-700 dark:text-gray-300">Durasi Program</span>
                   <Badge color="success">{penempatanData.durasi}</Badge>
                 </div>
-
               </div>
             </div>
 
@@ -173,11 +178,11 @@ export default function DataPenempatan() {
             </div>
             <button
               onClick={() => handleDownloadLetter()}
-              disabled={penempatanData.status !== "Aktif"}
+              disabled={!penempatanData.suratUrl}
               className="inline-flex flex-shrink-0 items-center justify-center gap-2 rounded-lg bg-brand-600 px-5 py-3 text-sm font-bold text-white shadow-theme-xs hover:bg-brand-700 transition-colors disabled:cursor-not-allowed disabled:opacity-50 dark:bg-brand-500 dark:hover:bg-brand-600"
             >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
-              Unduh Surat
+              {penempatanData.suratUrl ? "Unduh Surat" : "Belum Tersedia"}
             </button>
           </div>
         </div>

@@ -1,7 +1,15 @@
+import { useEffect } from "react";
 import { GroupIcon, PageIcon } from "../../../icons"; 
+import { useDashboardStore } from "../../../store/useDashboardStore";
 import Badge from "../../ui/badge/Badge";
 
 export default function HubinMetrics() {
+  const { hubinMetrics: metrics, fetchHubinDashboard } = useDashboardStore();
+
+  useEffect(() => {
+    fetchHubinDashboard();
+  }, [fetchHubinDashboard]);
+
   return (
     <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:gap-6">
       <div className="rounded-2xl border border-brand-100 bg-brand-50 p-5 dark:border-brand-900/30 dark:bg-brand-900/10 md:p-6 shadow-sm">
@@ -12,7 +20,7 @@ export default function HubinMetrics() {
           <div>
             <span className="text-sm font-medium text-brand-700 dark:text-brand-400/80">Total Industri Mitra</span>
             <h4 className="mt-1 font-bold text-gray-900 text-title-sm dark:text-white">
-              45 Perusahaan
+              {metrics.total_industri} Perusahaan
             </h4>
           </div>
           <Badge color="success">MoU Aktif</Badge>
@@ -27,7 +35,7 @@ export default function HubinMetrics() {
           <div>
             <span className="text-sm font-medium text-accent-800 dark:text-accent-400/80">Menunggu Persetujuan</span>
             <h4 className="mt-1 font-bold text-gray-900 text-title-sm dark:text-white">
-              5 Pengajuan
+              {metrics.total_requests} Pengajuan
             </h4>
           </div>
           <Badge color="warning">Cek Dokumen</Badge>
