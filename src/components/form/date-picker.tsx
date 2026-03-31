@@ -11,8 +11,9 @@ type PropsType = {
   mode?: "single" | "multiple" | "range" | "time";
   onChange?: Hook | Hook[];
   defaultDate?: DateOption;
-  label?: string;
+  label?: string | React.ReactNode;
   placeholder?: string;
+  value?: string;
 };
 
 export default function DatePicker({

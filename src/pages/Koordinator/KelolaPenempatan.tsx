@@ -339,9 +339,11 @@ export default function KelolaPenempatan() {
 
               <div>
                 <DatePicker
+                  key={selectedStudent ? selectedStudent.id : "new-date"} 
                   id="date-picker-start-date"
-                  label="Tanggal Mulai *"
+                  label={<>Tanggal Mulai <span className="text-error-500">*</span></>}
                   placeholder="Pilih tanggal mulai"
+                  defaultDate={startDate}
                   onChange={(dates: Date[], currentDateString: string) => {
                     setStartDate(currentDateString);
                   }}

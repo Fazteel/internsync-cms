@@ -16,7 +16,7 @@ interface AlertInfo {
 }
 
 export default function ApprovalKeberangkatan() {
-  const { departures, isLoading, fetchDepartures, verifyDeparture, downloadSurat } = useDepartureStore();
+  const { departures, isLoading, fetchDepartures, verifyDeparture } = useDepartureStore();
   
   const [searchTerm, setSearchTerm] = useState("");
   const [filterStatus, setFilterStatus] = useState<"All" | "Menunggu" | "Disetujui" | "Dibatalkan">("All");
@@ -28,7 +28,7 @@ export default function ApprovalKeberangkatan() {
 
   const [alertInfo, setAlertInfo] = useState<AlertInfo>({ show: false, variant: "success", title: "", message: "" });
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isPrinting, setIsPrinting] = useState<number | null>(null); // Nahan id yang lagi dicetak
+  const [isPrinting, setIsPrinting] = useState<number | null>(null);
 
   useEffect(() => {
     fetchDepartures();
@@ -77,22 +77,9 @@ export default function ApprovalKeberangkatan() {
         title: "Gagal",
         message: (error as { response?: { data?: { message?: string } } }).response?.data?.message || "Terjadi kesalahan server."
       });
+      handleCloseModal();
     } finally {
       setIsSubmitting(false);
-    }
-  };
-
-  const handlePrintSurat = async (data: DepartureData) => {
-    setIsPrinting(data.id);
-    setAlertInfo({ show: true, variant: "info", title: "Memproses...", message: `Sedang men-*generate* Surat Pengantar untuk ${data.studentName}...` });
-    
-    try {
-      await downloadSurat(data.id, data.studentName);
-      setAlertInfo({ show: true, variant: "success", title: "Berhasil", message: "Surat Pengantar berhasil diunduh!" });
-    } catch {
-      setAlertInfo({ show: true, variant: "error", title: "Gagal", message: "Gagal mencetak PDF. Hubungi admin." });
-    } finally {
-      setIsPrinting(null);
     }
   };
 
@@ -146,6 +133,7 @@ export default function ApprovalKeberangkatan() {
                   <TableCell isHeader className="py-3 font-medium text-gray-500 text-start text-theme-xs whitespace-nowrap min-w-[200px]">Nama Siswa</TableCell>
                   <TableCell isHeader className="py-3 font-medium text-gray-500 text-start text-theme-xs whitespace-nowrap min-w-[250px]">Industri Tujuan</TableCell>
                   <TableCell isHeader className="py-3 font-medium text-gray-500 text-start text-theme-xs whitespace-nowrap min-w-[150px]">Tgl Mulai</TableCell>
+                  <TableCell isHeader className="py-3 font-medium text-gray-500 text-start text-theme-xs whitespace-nowrap min-w-[150px]">Tgl Selesai</TableCell>
                   <TableCell isHeader className="py-3 font-medium text-gray-500 text-start text-theme-xs whitespace-nowrap">Status</TableCell>
                   <TableCell isHeader className="py-3 font-medium text-gray-500 text-center text-theme-xs whitespace-nowrap min-w-[200px]">Aksi</TableCell>
                 </TableRow>
@@ -169,8 +157,10 @@ export default function ApprovalKeberangkatan() {
                       <TableCell className="py-4 text-theme-sm text-gray-500 dark:text-gray-400 whitespace-nowrap">
                         {data.startDate}
                       </TableCell>
+                      <TableCell className="py-4 text-theme-sm text-gray-500 dark:text-gray-400 whitespace-nowrap">
+                        {data.endDate}
+                      </TableCell>
                       <TableCell className="py-4 whitespace-nowrap">
-                        {/* Biar ga bisa disetujui kalo koordinator belum ngeplot industri */}
                         {!data.industry_id && data.status === "Menunggu" ? (
                            <Badge color="error">Belum Di-plot</Badge>
                         ) : (
@@ -186,7 +176,7 @@ export default function ApprovalKeberangkatan() {
                           {data.status === "Menunggu" ? (
                             <>
                               <button 
-                                disabled={!data.industry_id || !data.pembimbing_id} // Disable kalo blm komplit plot-annya
+                                disabled={!data.industry_id || !data.pembimbing_id}
                                 onClick={() => handleOpenModal(data, "approve")}
                                 title={!data.industry_id ? "Siswa belum mendapat industri!" : "Setujui Keberangkatan"}
                                 className="inline-flex items-center justify-center rounded bg-brand-500 px-3 py-1.5 text-xs font-medium text-white hover:bg-brand-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
@@ -201,18 +191,36 @@ export default function ApprovalKeberangkatan() {
                               </button>
                             </>
                           ) : data.status === "Disetujui" ? (
-                            <button 
-                              onClick={() => handlePrintSurat(data)}
-                              disabled={isPrinting === data.id}
-                              className="inline-flex items-center gap-1 rounded bg-accent-50 px-3 py-1.5 text-xs font-medium text-accent-700 hover:bg-accent-100 transition-colors disabled:opacity-50"
-                            >
-                              {isPrinting === data.id ? (
-                                 <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                            <div className="flex gap-2">
+                              {!data.has_letter ? (
+                                <button 
+                                  onClick={async () => {
+                                    setIsPrinting(data.id);
+                                    try {
+                                      await useDepartureStore.getState().generateSurat(data.id);
+                                      setAlertInfo({ show: true, variant: "success", title: "Berhasil", message: "Surat Pengantar berhasil dibuat dan disimpan!" });
+                                      fetchDepartures();
+                                    } catch (err: unknown) {
+                                      setAlertInfo({ show: true, variant: "error", title: "Gagal", message: (err as { response?: { data?: { message?: string } } }).response?.data?.message || "Gagal membuat surat." });
+                                    } finally {
+                                      setIsPrinting(null);
+                                    }
+                                  }}
+                                  disabled={isPrinting === data.id}
+                                  className="inline-flex items-center gap-1 rounded bg-brand-50 px-3 py-1.5 text-xs font-medium text-brand-700 hover:bg-brand-100 transition-colors disabled:opacity-50"
+                                >
+                                  {isPrinting === data.id ? "Memproses..." : "Generate Surat"}
+                                </button>
                               ) : (
-                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
+                                <button 
+                                  onClick={() => useDepartureStore.getState().viewSurat(data.id)}
+                                  className="inline-flex items-center gap-1 rounded bg-accent-50 px-3 py-1.5 text-xs font-medium text-accent-700 hover:bg-accent-100 transition-colors"
+                                >
+                                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
+                                  Lihat Surat
+                                </button>
                               )}
-                              Surat Pengantar
-                            </button>
+                            </div>
                           ) : (
                              <span className="text-xs text-gray-400 italic">Dibatalkan Hubin</span>
                           )}
@@ -228,7 +236,6 @@ export default function ApprovalKeberangkatan() {
       </div>
 
       <Modal isOpen={isModalOpen} onClose={handleCloseModal} className="max-w-lg overflow-hidden" showCloseButton={false}>
-        {/* Konten Modal persis kayak punya lu, dibungkus logic isSubmitting aja */}
         <div className={`flex items-center justify-between border-b px-6 py-4 ${actionType === "approve" ? "border-brand-100 bg-brand-50" : "border-error-100 bg-error-50"}`}>
           <h3 className={`text-lg font-bold ${actionType === "approve" ? "text-brand-800" : "text-error-800"}`}>
             {actionType === "approve" ? "Setujui Keberangkatan" : "Batalkan Penempatan"}
