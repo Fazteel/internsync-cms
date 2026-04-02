@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useSettingStore } from "../../store/useSettingStore";
+import { useSettingStore } from "../../store/Admin/useSettingStore";
 import { useAuthStore } from "../../store/useAuthStore";
 import Maintenance from "../../temp/OtherPage/Maintenance"; 
 

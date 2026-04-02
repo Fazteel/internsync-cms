@@ -1,6 +1,6 @@
 import { Table, TableBody, TableCell, TableHeader, TableRow } from "../../components/ui/table";
 import Badge from "../../components/ui/badge/Badge";
-import { UserAccount } from "../../store/useUserStore";
+import { UserAccount } from "../../store/Admin/useUserStore";
 
 interface UserTableProps {
   users: UserAccount[];

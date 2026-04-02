@@ -1,5 +1,5 @@
 import { useAuthStore } from "../../store/useAuthStore";
-import { useMasterStore } from "../../store/useMasterStore";
+import { useMasterStore } from "../../store/Admin/useMasterStore";
 
 export default function UserAddressCard() {
   const { user } = useAuthStore();

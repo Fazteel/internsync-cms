@@ -4,7 +4,7 @@ import { Table, TableBody, TableCell, TableHeader, TableRow } from "../../compon
 import Badge from "../../components/ui/badge/Badge";
 import Alert from "../../components/ui/alert/Alert";
 import { Modal } from "../../components/ui/modal/index";
-import { useMasterStore, Jurusan, TahunAjaran, Kelas } from "../../store/useMasterStore";
+import { useMasterStore, Jurusan, TahunAjaran, Kelas } from "../../store/Admin/useMasterStore";
 
 type AlertVariant = "success" | "warning" | "info" | "error";
 interface AlertInfo { show: boolean; variant: AlertVariant; title: string; message: string; }

@@ -4,8 +4,8 @@ import { Table, TableBody, TableCell, TableHeader, TableRow } from "../../compon
 import Badge from "../../components/ui/badge/Badge";
 import Alert from "../../components/ui/alert/Alert"; 
 import { Modal } from "../../components/ui/modal/index";
-import { useStudentPlacementStore } from "../../store/useStudentPlacementStore";
-import { useLogbookStore, LogbookEntry } from "../../store/useLogbookStore";
+import { useStudentPlacementStore } from "../../store/Siswa/useStudentPlacementStore";
+import { useLogbookStore, LogbookEntry } from "../../store/Siswa/useLogbookStore";
 
 const getLocalYYYYMMDD = (d: Date) => {
   const year = d.getFullYear();
@@ -19,7 +19,7 @@ const formatTanggalLokal = (dateStr: string) => {
   return new Date(dateStr).toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' });
 };
 
-export default function LogbookHarian() {
+export default function Logbook() {
   const { penempatanData, fetchMyPlacement } = useStudentPlacementStore();
   const { logbookEntries, isLoading, fetchLogbooks, addLogbook, updateLogbook } = useLogbookStore();
   
@@ -233,7 +233,7 @@ export default function LogbookHarian() {
                       </TableCell>
                       
                       <TableCell className="py-4 whitespace-nowrap">
-                        <div className="inline-flex items-center gap-2 bg-gray-50 px-3 py-1.5 rounded-lg border border-gray-200 text-brand-600 text-xs font-medium hover:bg-gray-100 cursor-pointer transition-colors dark:bg-gray-800 dark:border-gray-700 dark:text-brand-400" onClick={() => handleOpenPreview(log.attachment, log.attachment_url)}>
+                        <div className="inline-flex items-center gap-2 bg-gray-50 px-3 ms-3 py-1.5 rounded-lg border border-gray-200 text-brand-600 text-xs font-medium hover:bg-gray-100 cursor-pointer transition-colors dark:bg-gray-800 dark:border-gray-700 dark:text-brand-400" onClick={() => handleOpenPreview(log.attachment, log.attachment_url)}>
                           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"></path></svg>
                           <span className="truncate max-w-[100px]" title={log.attachment}>{log.attachment}</span>
                         </div>

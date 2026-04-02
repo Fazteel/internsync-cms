@@ -13,38 +13,50 @@ import ForgotPassword from "./pages/AuthPages/ForgotPassword";
 import ResetPassword from "./pages/AuthPages/ResetPassword";
 
 import NotFound from "./temp/OtherPage/NotFound";
-import Maintenance from "./temp/OtherPage/Maintenance"; 
+import Maintenance from "./temp/OtherPage/Maintenance";
 
-import SiswaHome from "./pages/Siswa/Home";
-import DataPenempatan from "./pages/Siswa/DataPenempatan";
+/* ================= SISWA ================= */
+
+import StudentDashboard from "./pages/Siswa/Home";
+import PlacementData from "./pages/Siswa/PlacementData";
 import Logbook from "./pages/Siswa/Logbook";
-import EvaluasiPKL from "./pages/Siswa/Evaluasi";
+import InternshipEvaluation from "./pages/Siswa/Evaluation";
 
-import PembimbingHome from "./pages/Pembimbing/Home";
-import DaftarBimbingan from "./pages/Pembimbing/DaftarBimbingan";
-import DetailSiswa from "./pages/Pembimbing/DetailSiswa";
-import VerifikasiLogbook from "./pages/Pembimbing/VerifikasiLogbook";
-import EvaluasiSiswa from "./pages/Pembimbing/EvaluasiSiswa";
-import PerjalananDinas from "./pages/Pembimbing/PerjalananDinas";
+/* ================= PEMBIMBING ================= */
 
-import KoordinatorHome from "./pages/Koordinator/Home";
-import KelolaPenempatan from "./pages/Koordinator/KelolaPenempatan";
-import PlottingPembimbing from "./pages/Koordinator/Plottingpembimbing";
-import RekapitulasiPKL from "./pages/Koordinator/Rekapitulasi";
+import SupervisorDashboard from "./pages/Pembimbing/Home";
+import SupervisionList from "./pages/Pembimbing/SupervisionList";
+import StudentDetail from "./pages/Pembimbing/StudentDetail";
+import LogbookApproval from "./pages/Pembimbing/LogbookApproval";
+import StudentEvaluation from "./pages/Pembimbing/StudentEvaluation";
+import IndustryVisit from "./pages/Pembimbing/IndustryVisit";
 
-import HubinHome from "./pages/Hubin/Home";
-import KelolaIndustri from "./pages/Hubin/KelolaIndustri";
-import ApprovalKeberangkatan from "./pages/Hubin/ApprovalKeberangkatan";
-import ApprovalPerjalananDinas from "./pages/Hubin/ApprovalDinas";
-import MasterRekap from "./pages/Hubin/MasterRekap";
+/* ================= KOORDINATOR ================= */
 
-import AdminHome from "./pages/Admin/Home";
-import KelolaPengguna from "./pages/Admin/KelolaPengguna";
+import CoordinatorDashboard from "./pages/Koordinator/Home";
+import PlacementManagement from "./pages/Koordinator/PlacementManagement";
+import SupervisorAssignment from "./pages/Koordinator/SupervisorAssignment";
+import InternshipSummary from "./pages/Koordinator/SummaryReport";
+
+/* ================= HUBIN ================= */
+
+import HubinDashboard from "./pages/Hubin/Home";
+import IndustryManagement from "./pages/Hubin/IndustryManagement";
+import DepartureApproval from "./pages/Hubin/DepartureApproval";
+import IndustryVisitApproval from "./pages/Hubin/IndustryVisitApproval";
+import MasterReport from "./pages/Hubin/MasterReport";
+
+/* ================= ADMIN ================= */
+
+import AdminDashboard from "./pages/Admin/Home";
+import UserManagement from "./pages/Admin/UserManagement";
 import DataMaster from "./pages/Admin/DataMaster";
-import PengaturanSistem from "./pages/Admin/Pengaturan";
+import SystemSetting from "./pages/Admin/Setting";
 import ActivityLogs from "./pages/Admin/ActivityLogs";
 
 import UserProfiles from "./pages/UserProfiles";
+
+/* ================= ROLE REDIRECT ================= */
 
 const RoleBasedRedirect = () => {
   const { user, isAuthenticated, isLoading } = useAuthStore();
@@ -64,12 +76,18 @@ const RoleBasedRedirect = () => {
   const role = user.roles?.[0]?.name?.toLowerCase() || "";
 
   switch (role) {
-    case "admin": return <Navigate to="/admin/dashboard" replace />;
-    case "siswa": return <Navigate to="/siswa/dashboard" replace />;
-    case "pembimbing": return <Navigate to="/pembimbing/dashboard" replace />;
-    case "koordinator": return <Navigate to="/koordinator/dashboard" replace />;
-    case "hubin": return <Navigate to="/hubin/dashboard" replace />;
-    default: return <Navigate to="/signin" replace />;
+    case "admin":
+      return <Navigate to="/admin/dashboard" replace />;
+    case "siswa":
+      return <Navigate to="/student/dashboard" replace />;
+    case "pembimbing":
+      return <Navigate to="/supervisor/dashboard" replace />;
+    case "koordinator":
+      return <Navigate to="/coordinator/dashboard" replace />;
+    case "hubin":
+      return <Navigate to="/hubin/dashboard" replace />;
+    default:
+      return <Navigate to="/signin" replace />;
   }
 };
 
@@ -85,6 +103,7 @@ export default function App() {
       <ScrollToTop />
       <MaintenanceGuard>
         <Routes>
+
           <Route path="/signin" element={<SignIn />} />
           <Route path="/set-password" element={<SetPassword />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
@@ -94,51 +113,64 @@ export default function App() {
 
           <Route element={<ProtectedRoute />}>
             <Route element={<AppLayout />}>
+
               <Route path="/profile" element={<UserProfiles />} />
-              
-              <Route path="/siswa">
-                <Route path="dashboard" element={<SiswaHome />} />
-                <Route path="penempatan" element={<DataPenempatan />} />
+
+              {/* ================= STUDENT ================= */}
+
+              <Route path="/student">
+                <Route path="dashboard" element={<StudentDashboard />} />
+                <Route path="placement" element={<PlacementData />} />
                 <Route path="logbook" element={<Logbook />} />
-                <Route path="evaluasi" element={<EvaluasiPKL />} />
+                <Route path="evaluation" element={<InternshipEvaluation />} />
               </Route>
 
-              <Route path="/pembimbing">
-                <Route path="dashboard" element={<PembimbingHome/>} />
-                <Route path="bimbingan" element={<DaftarBimbingan />} />
-                <Route path="bimbingan/:id" element={<DetailSiswa />} />
-                <Route path="verifikasi-logbook" element={<VerifikasiLogbook />} />
-                <Route path="evaluasi-siswa" element={<EvaluasiSiswa />} />
-                <Route path="perjalanan-dinas" element={<PerjalananDinas />} />
+              {/* ================= SUPERVISOR ================= */}
+
+              <Route path="/supervisor">
+                <Route path="dashboard" element={<SupervisorDashboard />} />
+                <Route path="supervisions" element={<SupervisionList />} />
+                <Route path="supervisions/:id" element={<StudentDetail />} />
+                <Route path="logbook-approval" element={<LogbookApproval />} />
+                <Route path="student-evaluation" element={<StudentEvaluation />} />
+                <Route path="industry-visit" element={<IndustryVisit />} />
               </Route>
 
-              <Route path="/koordinator">
-                <Route path="dashboard" element={<KoordinatorHome />} />
-                <Route path="penempatan" element={<KelolaPenempatan />} />
-                <Route path="plotting" element={<PlottingPembimbing />} />
-                <Route path="rekapitulasi" element={<RekapitulasiPKL />} />
+              {/* ================= COORDINATOR ================= */}
+
+              <Route path="/coordinator">
+                <Route path="dashboard" element={<CoordinatorDashboard />} />
+                <Route path="placements" element={<PlacementManagement />} />
+                <Route path="supervisor-assignment" element={<SupervisorAssignment />} />
+                <Route path="summary-report" element={<InternshipSummary />} />
               </Route>
+
+              {/* ================= HUBIN ================= */}
 
               <Route path="/hubin">
-                <Route path="dashboard" element={<HubinHome />} />
-                <Route path="kelola-industri" element={<KelolaIndustri />} />
-                <Route path="approval-berangkat" element={<ApprovalKeberangkatan />} />
-                <Route path="approval-dinas" element={<ApprovalPerjalananDinas />} />
-                <Route path="master-rekap" element={<MasterRekap />} />
+                <Route path="dashboard" element={<HubinDashboard />} />
+                <Route path="industries" element={<IndustryManagement />} />
+                <Route path="departure-approval" element={<DepartureApproval />} />
+                <Route path="industry-visit-approval" element={<IndustryVisitApproval />} />
+                <Route path="master-report" element={<MasterReport />} />
               </Route>
 
+              {/* ================= ADMIN ================= */}
+
               <Route path="/admin">
-                <Route path="dashboard" element={<AdminHome />} />
-                <Route path="kelola-pengguna" element={<KelolaPengguna />} />
-                <Route path="data-master" element={<DataMaster />} />
-                <Route path="pengaturan" element={<PengaturanSistem />} />
+                <Route path="dashboard" element={<AdminDashboard />} />
+                <Route path="users" element={<UserManagement />} />
+                <Route path="master-data" element={<DataMaster />} />
+                <Route path="system-setting" element={<SystemSetting />} />
                 <Route path="activity-logs" element={<ActivityLogs />} />
               </Route>
+
             </Route>
           </Route>
 
-          <Route path="*" element={<NotFound />} />
           <Route path="/maintenance" element={<Maintenance />} />
+          <Route path="*" element={<NotFound />} />
+
         </Routes>
       </MaintenanceGuard>
     </Router>
