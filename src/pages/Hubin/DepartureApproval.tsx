@@ -79,7 +79,6 @@ export default function DepartureApproval() {
       const actionText = actionType === "approve" ? "disetujui" : "dibatalkan";
       setAlertInfo({ show: true, variant: actionType === "approve" ? "success" : "info", title: "Berhasil", message: `Keberangkatan ${selectedData.studentName} berhasil ${actionText}.` });
       fetchDepartures();
-      handleCloseModal();
     } catch (error: unknown) {
       console.error("Gagal approval:", error);
       setAlertInfo({
@@ -88,8 +87,8 @@ export default function DepartureApproval() {
         title: "Gagal",
         message: (error as { response?: { data?: { message?: string } } }).response?.data?.message || "Terjadi kesalahan server."
       });
-      handleCloseModal();
     } finally {
+      handleCloseModal();
       setIsSubmitting(false);
     }
   };

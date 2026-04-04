@@ -70,6 +70,7 @@ export default function StudentEvaluation() {
         score: Number(score),
         notes: notes
       });
+      fetchEvaluations();
 
       setAlertInfo({
         show: true,
@@ -77,11 +78,11 @@ export default function StudentEvaluation() {
         title: "Evaluasi Tersimpan",
         message: `Penilaian akhir untuk ${selectedStudent.name} berhasil disimpan di dalam sistem.`,
       });
-      handleCloseModal();
     } catch (error) {
       console.error("Error submitting form:", error);
       setAlertInfo({ show: true, variant: "error", title: "Gagal Memproses", message: "Terjadi kesalahan pada server. Silakan coba kembali beberapa saat lagi." });
     } finally {
+      handleCloseModal();
       setIsSubmitting(false);
     }
   };

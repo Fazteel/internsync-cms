@@ -120,7 +120,6 @@ export default function IndustryManagement() {
         setAlertInfo({ show: true, variant: "success", title: "Berhasil", message: `Data industri "${name}" berhasil diperbarui.` });
       }
       fetchIndustries(searchTerm);
-      handleCloseModal();
     } catch (err: unknown) {
       console.error("Error submitting form:", err);
       setAlertInfo({
@@ -131,6 +130,8 @@ export default function IndustryManagement() {
           response?: { data?: { message?: string } }
         }).response?.data?.message || "Terjadi kesalahan pada server."
       });
+    } finally {
+      handleCloseModal();
     }
   };
 
@@ -150,6 +151,7 @@ export default function IndustryManagement() {
       setAlertInfo({ show: true, variant: "error", title: "Gagal", message: "Data gagal dihapus." });
     } finally {
       setIsConfirmOpen(false);
+      setSelectedIndustry(null);
     }
   };
 

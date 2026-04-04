@@ -126,6 +126,7 @@ export default function PlacementManagement() {
       const err = error as { response?: { data?: { message?: string } } };
       setAlertInfo({ show: true, variant: "error", title: "Gagal", message: err.response?.data?.message || "Terjadi kesalahan sistem." });
     } finally {
+      handleCloseModal();
       setIsSubmitting(false);
     }
   };

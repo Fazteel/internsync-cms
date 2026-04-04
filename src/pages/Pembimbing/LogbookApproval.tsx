@@ -103,9 +103,10 @@ export default function LogbookApproval() {
     try {
       await verifyLogbook(selectedLogbook.id, "Approved");
       setAlertInfo({ show: true, variant: "success", title: "Berhasil", message: "Logbook disetujui." });
-      handleCloseModal();
     } catch {
       setAlertInfo({ show: true, variant: "error", title: "Gagal", message: "Sistem error." });
+    } finally {
+      handleCloseModal();
     }
   };
 
@@ -115,9 +116,10 @@ export default function LogbookApproval() {
     try {
       await verifyLogbook(selectedLogbook.id, "Revision", revisionNote);
       setAlertInfo({ show: true, variant: "info", title: "Terkirim", message: "Revisi dikirim." });
-      handleCloseModal();
     } catch {
       setAlertInfo({ show: true, variant: "error", title: "Gagal", message: "Sistem error." });
+    } finally {
+      handleCloseModal();
     }
   };
 

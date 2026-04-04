@@ -78,7 +78,6 @@ export default function SupervisorAssignment() {
       await assignTeacher(selectedStudent.id, Number(selectedTeacherId));
       setAlertInfo({ show: true, variant: "success", title: "Berhasil Diplot", message: `Pembimbing berhasil ditetapkan untuk ${selectedStudent.name}.` });
       fetchPlottingStudents();
-      handleCloseModal();
     } catch (err: unknown) {
       console.error("Kesalahan saat menetapkan pembimbing:", err);
       const error = err as { response?: { data?: { message?: string } } };
@@ -89,6 +88,7 @@ export default function SupervisorAssignment() {
         message: error.response?.data?.message || "Terjadi kesalahan sistem saat menyimpan data."
       });
     } finally {
+      handleCloseModal();
       setIsSubmitting(false);
     }
   };

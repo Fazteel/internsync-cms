@@ -87,6 +87,7 @@ export default function IndustryVisit() {
       console.error("Error submitting form:", error);
       setAlertInfo({ show: true, variant: "error", title: "Gagal", message: "Gagal mengirim pengajuan." });
     } finally {
+      handleCloseModals();
       setIsSubmitting(false);
     }
   };
@@ -234,7 +235,7 @@ export default function IndustryVisit() {
         </div>
       </div>
 
-      <Modal isOpen={isModalOpen} onClose={handleCloseModals} className="max-w-lg p-0 overflow-hidden">
+      <Modal isOpen={isModalOpen} onClose={handleCloseModals} className="max-w-lg p-0 overflow-hidden" showCloseButton={false}>
         <div className="bg-gray-50 px-6 py-4 border-b">
           <h3 className="text-lg font-bold">Form Pengajuan Kunjungan</h3>
         </div>

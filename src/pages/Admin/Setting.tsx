@@ -3,6 +3,7 @@ import PageMeta from "../../components/common/PageMeta";
 import Alert from "../../components/ui/alert/Alert";
 import { Modal } from "../../components/ui/modal/index";
 import { useSettingStore } from "../../store/Admin/useSettingStore";
+import { PageHeader } from "../../components/common/SharedUI";
 
 type AlertVariant = "success" | "warning" | "info" | "error";
 
@@ -28,6 +29,8 @@ export default function Setting() {
   const [isMaintenanceModalOpen, setIsMaintenanceModalOpen] = useState(false);
   const [pendingMaintenanceState, setPendingMaintenanceState] = useState(false);
 
+  const [enableNotifications, setEnableNotifications] = useState(true);
+
   const [alertInfo, setAlertInfo] = useState<AlertInfo>({ show: false, variant: "success", title: "", message: "" });
   const [isInitialized, setIsInitialized] = useState(false);
 
@@ -40,6 +43,7 @@ export default function Setting() {
       setStartDate(settings.pkl_start_date || "");
       setEndDate(settings.pkl_end_date || "");
       setMaintenanceMode(settings.maintenance_mode === "true");
+      setEnableNotifications(settings.enable_notifications !== "false");
       setIsInitialized(true);
     }
   }, [settings, isInitialized]);
@@ -85,7 +89,8 @@ export default function Setting() {
         pkl_registration_status: registrationStatus,
         pkl_start_date: startDate,
         pkl_end_date: endDate,
-        maintenance_mode: maintenanceMode ? "true" : "false"
+        maintenance_mode: maintenanceMode ? "true" : "false",
+        enable_notifications: enableNotifications ? "true" : "false",
       };
 
       await saveSettings(payload);
@@ -103,12 +108,10 @@ export default function Setting() {
       <div className="space-y-6">
         {alertInfo.show && <div className="animate-fade-in"><Alert variant={alertInfo.variant} title={alertInfo.title} message={alertInfo.message} /></div>}
 
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] sm:p-6">
-          <div>
-            <h2 className="text-xl font-bold text-gray-800 dark:text-white/90">Pengaturan Global Sistem</h2>
-            <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">Atur konfigurasi aplikasi, periode pelaksanaan PKL, dan mode pemeliharaan.</p>
-          </div>
-        </div>
+        <PageHeader
+          title="Pengaturan Global Sistem"
+          description="Atur konfigurasi aplikasi, periode pelaksanaan PKL, dan mode pemeliharaan."
+        />
 
         <form onSubmit={handleSaveSettings} className="space-y-6">
           <div className="rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03] overflow-hidden">
@@ -135,6 +138,27 @@ export default function Setting() {
             </div>
           </div>
 
+          <div className="rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03] overflow-hidden">
+            <div className="border-b border-gray-200 bg-blue-50 px-6 py-4 dark:border-gray-800 dark:bg-blue-900/20">
+              <h3 className="text-lg font-bold text-blue-800 dark:text-blue-300 flex items-center gap-2">
+                Pengaturan Notifikasi
+              </h3>
+            </div>
+            <div className="p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div>
+                <h4 className="text-sm font-bold text-gray-800 dark:text-white/90">Notifikasi Sistem Global</h4>
+                <p className="mt-1 text-xs text-gray-500 dark:text-gray-400 max-w-xl">
+                  Kelola pengiriman notifikasi otomatis untuk setiap aktivitas pengguna (misal: pendaftaran & progres laporan). Menonaktifkan fitur ini akan mematikan seluruh layanan notifikasi pada sistem secara menyeluruh.
+                </p>
+              </div>
+              
+              <label className="relative inline-flex items-center cursor-pointer flex-shrink-0">
+                <input type="checkbox" className="sr-only peer" checked={enableNotifications} onChange={(e) => setEnableNotifications(e.target.checked)} />
+                <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
+                <span className={`ml-3 text-sm font-bold ${enableNotifications ? "text-blue-600" : "text-gray-500"}`}>{enableNotifications ? "AKTIF" : "NONAKTIF"}</span>
+              </label>
+            </div>
+          </div>
 
           <div className="rounded-2xl border border-error-200 bg-white dark:border-error-800/30 dark:bg-white/[0.03] overflow-hidden">
             <div className="border-b border-error-100 bg-error-50 px-6 py-4 dark:border-error-800/30 dark:bg-error-900/10">

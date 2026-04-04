@@ -17,7 +17,7 @@ interface ApprovalVisitState {
   isLoading: boolean;
   fetchVisits: () => Promise<void>;
   verifyVisit: (id: number, status: "Approved" | "Rejected", feedback?: string) => Promise<void>;
-  generateVisitLetter: (id: number) => Promise<string>; 
+  generateVisitLetter: (id: number) => Promise<string>;
   viewVisitLetter: (id: number) => Promise<void>;
 }
 
@@ -37,7 +37,15 @@ export const useApprovalVisitStore = create<ApprovalVisitState>((set) => ({
   },
 
   verifyVisit: async (id, status, feedback) => {
-    await approvalVisitService.updateVisit(id, status, feedback)
+    await approvalVisitService.updateVisit(id, status, feedback);
+
+    set((state) => ({
+      visits: state.visits.map((visit) =>
+        visit.id === id
+          ? { ...visit, status, feedback }
+          : visit
+      ),
+    }));
   },
 
   generateVisitLetter: async (id: number) => {

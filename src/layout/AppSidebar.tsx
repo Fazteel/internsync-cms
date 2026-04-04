@@ -46,8 +46,8 @@ const koordinatorMenu: NavItem[] = [
 const hubinMenu: NavItem[] = [
   { name: "Dashboard", icon: <GridIcon />, path: "/hubin/dashboard" },
   { name: "Kelola Industri", icon: <TableIcon />, path: "/hubin/industries" },
-  { name: "Approval Keberangkatan", icon: <ListIcon />, path: "/hubin/departure-approvals" },
-  { name: "Approval Perjalanan Dinas", icon: <CalenderIcon />, path: "/hubin/industry-visit-approvals" },
+  { name: "Kelola Keberangkatan", icon: <ListIcon />, path: "/hubin/departure-approvals" },
+  { name: "Kelola Perjalanan Dinas", icon: <CalenderIcon />, path: "/hubin/industry-visit-approvals" },
   { name: "Master Rekap", icon: <PageIcon />, path: "/hubin/master-reports" },
 ];
 

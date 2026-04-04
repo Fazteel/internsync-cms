@@ -162,9 +162,10 @@ export default function DataMaster() {
       }
 
       setAlertInfo({ show: true, variant: "success", title: "Berhasil", message: `Data ${entityType} berhasil disimpan.` });
-      handleCloseModal();
     } catch {
       setAlertInfo({ show: true, variant: "error", title: "Gagal", message: "Terjadi kesalahan pada server." });
+    } finally {
+      handleCloseModal();
     }
   };
 

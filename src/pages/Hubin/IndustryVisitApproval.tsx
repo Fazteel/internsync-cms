@@ -56,16 +56,17 @@ export default function IndustryVisitApproval() {
     setIsSubmitting(true);
     try {
       await verifyVisit(selectedVisit.id, "Approved");
+      fetchVisits();
       setAlertInfo({
         show: true,
         variant: "success",
         title: "Persetujuan Berhasil",
         message: `Perjalanan dinas atas nama ${selectedVisit.teacherName} berhasil disetujui. SPPD siap dicetak.`,
       });
-      handleCloseModal();
     } catch {
       setAlertInfo({ show: true, variant: "error", title: "Gagal Memproses", message: "Terjadi kesalahan sistem saat menyetujui pengajuan." });
     } finally {
+      handleCloseModal();
       setIsSubmitting(false);
     }
   };
@@ -87,16 +88,17 @@ export default function IndustryVisitApproval() {
     
     try {
       await verifyVisit(selectedVisit.id, "Rejected", rejectReason);
+      fetchVisits();
       setAlertInfo({
         show: true,
         variant: "info",
         title: "Pengajuan Ditolak",
         message: `Pengajuan dari ${selectedVisit.teacherName} telah ditolak dan dikembalikan ke pembimbing bersangkutan.`,
       });
-      handleCloseModal();
     } catch {
       setAlertInfo({ show: true, variant: "error", title: "Gagal Memproses", message: "Terjadi kesalahan sistem saat menolak pengajuan." });
     } finally {
+      handleCloseModal();
       setIsSubmitting(false);
     }
   };

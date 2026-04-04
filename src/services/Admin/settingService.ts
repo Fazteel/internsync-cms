@@ -7,6 +7,7 @@ export interface SystemSettings {
   pkl_registration_status: "Buka" | "Tutup";
   pkl_start_date: string;
   pkl_end_date: string;
+  enable_notifications: string;
   [key: string]: string;
 }
 

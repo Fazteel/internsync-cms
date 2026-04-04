@@ -174,7 +174,6 @@ export default function Logbook() {
         show: true, variant: "success", title: "Logbook Tersimpan",
         message: `Data logbook ${modalMode === "add" ? "baru" : "revisi"} berhasil disimpan.`,
       });
-      handleCloseModal();
     } catch (err: unknown) {
       let message = "Terjadi kesalahan pada server.";
 
@@ -194,8 +193,8 @@ export default function Logbook() {
         title: "Gagal Menyimpan",
         message,
       });
-      handleCloseModal();
     } finally {
+      handleCloseModal();
       setIsSubmitting(false);
     }
   };
