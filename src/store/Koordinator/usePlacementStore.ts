@@ -9,8 +9,10 @@ export interface StudentPlacement {
   kelas?: string | null;
   industry_id: number | null;
   industry: string | null;
-  duration: 3 | 6 | null;
+  duration: number | null;
   startDate: string | null;
+  endDate: string | null;
+  is_extended: boolean;
   supervisor_id?: number | null;
   supervisor_name?: string | null;
   status: "Belum Ditempatkan" | "Sudah Ditempatkan" | "Belum Diplot" | "Sudah Diplot";
@@ -23,30 +25,18 @@ export interface ActiveIndustry {
   sisa_kuota: number;
 }
 
-export interface Teacher {
-  id: number;
-  name: string;
-}
-
 interface PlacementState {
   students: StudentPlacement[];
   industries: ActiveIndustry[];
-  teachers: Teacher[];
   isLoading: boolean;
-  
   fetchPlacements: () => Promise<void>;
-  fetchPlottingStudents: () => Promise<void>;
   fetchIndustries: () => Promise<void>;
-  fetchTeachers: () => Promise<void>;
-  
   assignPlacement: (data: PlacementPayload) => Promise<void>;
-  assignTeacher: (studentId: number, teacherId: number) => Promise<void>;
 }
 
 export const usePlacementStore = create<PlacementState>((set) => ({
   students: [],
   industries: [],
-  teachers: [],
   isLoading: false,
 
   fetchPlacements: async () => {
@@ -56,18 +46,7 @@ export const usePlacementStore = create<PlacementState>((set) => ({
       set({ students: data, isLoading: false });
     } catch (error) {
       set({ isLoading: false });
-      console.error(error);
-    }
-  },
-
-  fetchPlottingStudents: async () => {
-    set({ isLoading: true });
-    try {
-      const data = await placementService.getPlottingStudents();
-      set({ students: data, isLoading: false });
-    } catch (error) {
-      set({ isLoading: false });
-      console.error(error);
+      console.error("Gagal ambil data placement:", error);
     }
   },
 
@@ -76,24 +55,16 @@ export const usePlacementStore = create<PlacementState>((set) => ({
       const data = await placementService.getActiveIndustries();
       set({ industries: data });
     } catch (error) {
-      console.error(error);
-    }
-  },
-
-  fetchTeachers: async () => {
-    try {
-      const data = await placementService.getTeachers();
-      set({ teachers: data });
-    } catch (error) {
-      console.error(error);
+      console.error("Gagal ambil data industri:", error);
     }
   },
 
   assignPlacement: async (data) => {
-    await placementService.assignPlacement(data);
-  },
-
-  assignTeacher: async (studentId, teacherId) => {
-    await placementService.assignTeacher(studentId, teacherId);
+    try {
+      await placementService.assignPlacement(data);
+    } catch (error) {
+      console.error("Gagal assign placement:", error);
+      throw error;
+    }
   },
 }));

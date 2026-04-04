@@ -1,13 +1,20 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import PageMeta from "../../components/common/PageMeta";
-import { PageHeader, SearchInput, TableDataState } from "../../components/common/SharedUI";
+import { PageHeader, SearchInput, SelectInput, TableDataState, TablePagination, TableTopControls } from "../../components/common/SharedUI";
 import { Table, TableBody, TableCell, TableHeader, TableRow } from "../../components/ui/table";
 import Badge from "../../components/ui/badge/Badge";
 import Alert from "../../components/ui/alert/Alert";
 import { Modal } from "../../components/ui/modal/index";
-import { useLogbookApproval, StudentLogbook } from "../../store/Pembimbing/useLogbookApprovalStore"; 
+import { useLogbookApproval, StudentLogbook } from "../../store/Pembimbing/useLogbookApprovalStore";
+import { BadgeColor } from "../../components/ui/badge/Badge";
 
-type FilterType = "All" | "Pending" | "Approved" | "Revision";
+const LOGBOOK_STATUS_MAP: Record<string, { label: string; color: BadgeColor }> = {
+  submitted: { label: "Pending", color: "warning" },
+  approved: { label: "Disetujui", color: "success" },
+  revised: { label: "Menunggu Revisi", color: "error" },
+};
+
+type FilterType = "All" | "submitted" | "approved" | "revised";
 type AlertVariant = "success" | "warning" | "info" | "error";
 
 interface AlertInfo {
@@ -18,25 +25,66 @@ interface AlertInfo {
 }
 
 export default function LogbookApproval() {
-  const { logbooksToVerify, isLoading, fetchLogbooksToVerify, verifyLogbook } = useLogbookApproval();
-  
+  const { logbooksToVerify, isLoading, fetchLogbooksToVerify, verifyLogbook, bulkVerifyLogbooks } = useLogbookApproval();
+
   const [filterStatus, setFilterStatus] = useState<FilterType>("All");
-  const [searchTerm, setSearchTerm] = useState(""); 
+  const [searchTerm, setSearchTerm] = useState("");
+  const [selectedStudent, setSelectedStudent] = useState("All");
+  const [rowsPerPage, setRowsPerPage] = useState(10);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [selectedIds, setSelectedIds] = useState<number[]>([]);
+
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedLogbook, setSelectedLogbook] = useState<StudentLogbook | null>(null);
   const [isRevisionMode, setIsRevisionMode] = useState(false);
   const [revisionNote, setRevisionNote] = useState("");
-  
-  const [alertInfo, setAlertInfo] = useState<AlertInfo>({ 
-    show: false, 
-    variant: "success", 
-    title: "", 
-    message: "" 
-  });
+
+  const [alertInfo, setAlertInfo] = useState<AlertInfo>({ show: false, variant: "success", title: "", message: "" });
 
   useEffect(() => {
     fetchLogbooksToVerify();
   }, [fetchLogbooksToVerify]);
+
+  const studentList = useMemo(() => {
+    const names = logbooksToVerify.map(log => log.studentName);
+    return ["All", ...Array.from(new Set(names))];
+  }, [logbooksToVerify]);
+
+  const filteredLogbooks = useMemo(() => {
+    return logbooksToVerify.filter((log) => {
+      const matchStatus = filterStatus === "All" || log.status === filterStatus;
+      const matchStudent = selectedStudent === "All" || log.studentName === selectedStudent;
+      const matchSearch = log.studentName.toLowerCase().includes(searchTerm.toLowerCase()) || log.nis.includes(searchTerm);
+      return matchStatus && matchStudent && matchSearch;
+    });
+  }, [logbooksToVerify, filterStatus, selectedStudent, searchTerm]);
+
+  const totalPages = Math.ceil(filteredLogbooks.length / rowsPerPage);
+  const paginatedData = filteredLogbooks.slice((currentPage - 1) * rowsPerPage, currentPage * rowsPerPage);
+
+  const handleSelectAll = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.checked) {
+      const onlyPending = paginatedData.filter(l => l.status === "submitted").map(l => l.id);
+      setSelectedIds(onlyPending);
+    } else {
+      setSelectedIds([]);
+    }
+  };
+
+  const toggleSelect = (id: number) => {
+    setSelectedIds(prev => prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id]);
+  };
+
+  const handleBulkApprove = async () => {
+    if (selectedIds.length === 0) return;
+    try {
+      await bulkVerifyLogbooks(selectedIds, "Approved");
+      setAlertInfo({ show: true, variant: "success", title: "Bulk Berhasil", message: `${selectedIds.length} logbook berhasil disetujui.` });
+      setSelectedIds([]);
+    } catch {
+      setAlertInfo({ show: true, variant: "error", title: "Gagal", message: "Gagal memproses bulk approval." });
+    }
+  };
 
   const handleOpenModal = (log: StudentLogbook) => {
     setSelectedLogbook(log);
@@ -56,26 +104,19 @@ export default function LogbookApproval() {
       await verifyLogbook(selectedLogbook.id, "Approved");
       setAlertInfo({ show: true, variant: "success", title: "Berhasil", message: "Logbook disetujui." });
       handleCloseModal();
-    } catch (error: unknown) {
-      console.error("Gagal verifikasi logbook:", error);
+    } catch {
       setAlertInfo({ show: true, variant: "error", title: "Gagal", message: "Sistem error." });
     }
   };
 
   const handleSubmitRevision = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!revisionNote.trim()) {
-      setAlertInfo({ show: true, variant: "warning", title: "Peringatan", message: "Catatan revisi kosong!" });
-      return;
-    }
-    if (!selectedLogbook) return;
-
+    if (!revisionNote.trim() || !selectedLogbook) return;
     try {
       await verifyLogbook(selectedLogbook.id, "Revision", revisionNote);
       setAlertInfo({ show: true, variant: "info", title: "Terkirim", message: "Revisi dikirim." });
       handleCloseModal();
-    } catch (error: unknown) {
-      console.error("Gagal kirim revisi:", error);
+    } catch {
       setAlertInfo({ show: true, variant: "error", title: "Gagal", message: "Sistem error." });
     }
   };
@@ -87,98 +128,133 @@ export default function LogbookApproval() {
     }
   }, [alertInfo.show]);
 
-  const filteredLogbooks = logbooksToVerify.filter((log) => {
-    const matchStatus = filterStatus === "All" || log.status === filterStatus;
-    const matchSearch = log.studentName.toLowerCase().includes(searchTerm.toLowerCase()) || log.nis.includes(searchTerm);
-    return matchStatus && matchSearch;
-  });
-
   return (
     <>
-      <PageMeta title="Verifikasi Logbook | Sistem Manajemen PKL" description="Halaman untuk memeriksa dan memverifikasi laporan harian siswa bimbingan." />
+      <PageMeta title="Verifikasi Logbook | Sistem Manajemen PKL" description="Pemeriksaan laporan harian siswa." />
 
       <div className="space-y-6">
-        {alertInfo.show && (
-          <div className="animate-fade-in">
-            <Alert variant={alertInfo.variant} title={alertInfo.title} message={alertInfo.message} />
+        {alertInfo.show && <Alert variant={alertInfo.variant} title={alertInfo.title} message={alertInfo.message} />}
+
+        <PageHeader title="Verifikasi Logbook" description="Berikan persetujuan atau catatan perbaikan pada laporan siswa.">
+          <SearchInput value={searchTerm} onChange={setSearchTerm} placeholder="Cari Nama/NIS..." />
+
+          <SelectInput
+            value={selectedStudent}
+            onChange={(val) => {
+              setSelectedStudent(val);
+              setCurrentPage(1);
+            }}>
+            {studentList.map(name => <option key={name} value={name}>{name === "All" ? "Semua Siswa" : name}</option>)}
+          </SelectInput>
+
+          <SelectInput
+            value={filterStatus}
+            onChange={(val) => {
+              setFilterStatus(val as FilterType);
+              setCurrentPage(1);
+            }}>
+            <option value="All">Semua Status</option>
+            <option value="submitted">Menunggu</option>
+            <option value="approved">Disetujui</option>
+            <option value="revised">Revisi</option>
+          </SelectInput>
+        </PageHeader>
+
+        {selectedIds.length > 0 && (
+          <div className="flex items-center justify-between bg-brand-50 p-4 rounded-xl border border-brand-200 animate-fade-in dark:bg-brand-900/20">
+            <p className="text-sm font-bold text-brand-700 dark:text-brand-400">{selectedIds.length} Logbook dipilih</p>
+            <button
+              onClick={handleBulkApprove}
+              className="bg-brand-600 text-white px-4 py-2 rounded-lg text-sm font-bold hover:bg-brand-700 shadow-md"
+            >
+              Setujui Semua Terpilih
+            </button>
           </div>
         )}
 
-        <PageHeader 
-          title="Verifikasi Logbook" 
-          description="Periksa laporan harian siswa. Berikan persetujuan atau catatan perbaikan."
-        >
-          <SearchInput value={searchTerm} onChange={setSearchTerm} placeholder="Cari Nama atau NIS..." />
-          <div className="relative w-full sm:w-[180px]">
-            <select 
-              value={filterStatus}
-              onChange={(e) => setFilterStatus(e.target.value as FilterType)}
-              className="appearance-none cursor-pointer rounded-lg border border-gray-300 bg-gray-50 pl-4 pr-10 py-2.5 text-sm font-semibold text-gray-700 outline-none focus:border-brand-500 focus:bg-white focus:ring-1 focus:ring-brand-500 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 w-full transition-colors"
-            >
-              <option value="All">Semua Status</option>
-              <option value="Pending">Menunggu (Pending)</option>
-              <option value="Approved">Disetujui</option>
-              <option value="Revision">Revisi</option>
-            </select>
-            <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-500">
-              <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg>
-            </div>
-          </div>
-        </PageHeader>
+        <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-white/[0.03] shadow-sm">
+          <TableTopControls
+            rowsPerPage={rowsPerPage}
+            setRowsPerPage={setRowsPerPage}
+            totalData={filteredLogbooks.length}
+            setCurrentPage={setCurrentPage}
+          />
 
-        <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white px-4 pb-3 pt-4 dark:border-gray-800 dark:bg-white/[0.03] sm:px-6 shadow-sm">
           <div className="max-w-full overflow-x-auto custom-scrollbar">
             <Table>
               <TableHeader className="border-gray-100 dark:border-gray-800 border-y">
                 <TableRow>
-                  <TableCell isHeader className="py-3 font-semibold text-gray-500 text-start text-theme-xs whitespace-nowrap min-w-[200px]">Nama Siswa</TableCell>
-                  <TableCell isHeader className="py-3 font-semibold text-gray-500 text-start text-theme-xs whitespace-nowrap">Tanggal</TableCell>
-                  <TableCell isHeader className="py-3 font-semibold text-gray-500 text-start text-theme-xs whitespace-nowrap min-w-[300px]">Aktivitas Singkat</TableCell>
-                  <TableCell isHeader className="py-3 font-semibold text-gray-500 text-start text-theme-xs whitespace-nowrap">Status</TableCell>
-                  <TableCell isHeader className="py-3 font-semibold text-gray-500 text-center text-theme-xs whitespace-nowrap">Aksi</TableCell>
+                  <TableCell isHeader className="w-10 px-6">
+                    <input
+                      type="checkbox"
+                      onChange={handleSelectAll}
+                      className="cursor-pointer rounded border-gray-300"
+                      checked={selectedIds.length > 0 && selectedIds.length === paginatedData.filter(l => l.status === "submitted").length}
+                    />
+                  </TableCell>
+                  <TableCell isHeader className="py-3 px-6 font-semibold text-gray-500 text-start text-theme-xs whitespace-nowrap">Nama Siswa</TableCell>
+                  <TableCell isHeader className="py-3 px-6 font-semibold text-gray-500 text-start text-theme-xs whitespace-nowrap">Tanggal</TableCell>
+                  <TableCell isHeader className="py-3 px-6 font-semibold text-gray-500 text-start text-theme-xs whitespace-nowrap">Aktivitas</TableCell>
+                  <TableCell isHeader className="py-3 px-6 font-semibold text-gray-500 text-start text-theme-xs whitespace-nowrap">Status</TableCell>
+                  <TableCell isHeader className="py-3 px-6 font-semibold text-gray-500 text-center text-theme-xs whitespace-nowrap">Aksi</TableCell>
                 </TableRow>
               </TableHeader>
 
               <TableBody className="divide-y divide-gray-100 dark:divide-gray-800">
-                <TableDataState 
-                  isLoading={isLoading} 
-                  isEmpty={filteredLogbooks.length === 0} 
-                  colSpan={5} 
+                <TableDataState
+                  isLoading={isLoading}
+                  isEmpty={paginatedData.length === 0}
+                  colSpan={6}
                   loadingText="Memuat data logbook siswa..."
                   emptyText={searchTerm ? "Siswa tidak ditemukan." : "Tidak ada data logbook."}
                 >
-                  {filteredLogbooks.map((log) => (
-                    <TableRow key={log.id} className="hover:bg-gray-50/50 dark:hover:bg-gray-800/20 transition-colors">
-                      <TableCell className="py-4 whitespace-nowrap">
-                        <p className="font-bold text-gray-800 text-theme-sm dark:text-white/90">{log.studentName}</p>
-                        <span className="text-gray-500 text-theme-xs dark:text-gray-400">{log.industry}</span>
-                      </TableCell>
-                      <TableCell className="py-4 text-gray-800 dark:text-white/90 font-medium text-theme-sm whitespace-nowrap">{log.date}</TableCell>
-                      <TableCell className="py-4 text-theme-sm text-gray-600 dark:text-gray-300 truncate max-w-[250px] whitespace-nowrap">{log.activity}</TableCell>
-                      <TableCell className="py-4 whitespace-nowrap">
-                        <Badge color={log.status === "Approved" ? "success" : log.status === "Pending" ? "warning" : "error"}>
-                          {log.status === "Revision" ? "Menunggu Revisi" : log.status}
-                        </Badge>
-                      </TableCell>
-                      <TableCell className="py-4 text-center whitespace-nowrap">
-                        <button 
-                          onClick={() => handleOpenModal(log)} 
-                          className={`inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold transition-colors ${
-                            log.status === "Pending" 
-                              ? "bg-brand-500 text-white hover:bg-brand-600 shadow-[0_2px_8px_rgba(0,104,55,0.2)]"
-                              : "bg-gray-50 text-gray-600 hover:bg-gray-100 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700 border border-gray-200 dark:border-gray-700"
-                          }`}
-                        >
-                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
-                          {log.status === "Pending" ? "Evaluasi" : "Detail"}
-                        </button>
-                      </TableCell>
-                    </TableRow>
-                  ))}
+                  {paginatedData.map((log) => {
+                    const statusConfig = LOGBOOK_STATUS_MAP[log.status] || LOGBOOK_STATUS_MAP.submitted;
+
+                    return (
+                      <TableRow key={log.id} className="hover:bg-gray-50/50 dark:hover:bg-gray-800/20 transition-colors">
+                        <TableCell className="w-10 px-6">
+                          {log.status === "submitted" && (
+                            <input
+                              type="checkbox"
+                              checked={selectedIds.includes(log.id)}
+                              onChange={() => toggleSelect(log.id)}
+                              className="cursor-pointer rounded border-gray-300"
+                            />
+                          )}
+                        </TableCell>
+                        <TableCell className="py-4 px-6 whitespace-nowrap">
+                          <p className="font-bold text-gray-800 text-theme-sm dark:text-white/90">{log.studentName}</p>
+                          <span className="text-gray-500 text-theme-xs">{log.industry}</span>
+                        </TableCell>
+                        <TableCell className="py-4 px-6 text-gray-800 font-medium text-theme-sm whitespace-nowrap">{log.date}</TableCell>
+                        <TableCell className="py-4 px-6 text-theme-sm text-gray-600 truncate max-w-[250px]">{log.activity}</TableCell>
+                        <TableCell className="py-4 px-6 whitespace-nowrap">
+                          <Badge color={statusConfig.color}>
+                            {statusConfig.label}
+                          </Badge>
+                        </TableCell>
+                        <TableCell className="py-4 px-6 text-center whitespace-nowrap">
+                          <button
+                            onClick={() => handleOpenModal(log)}
+                            className={`rounded-lg px-3 py-1.5 text-xs font-semibold transition-colors ${log.status === "submitted" ? "bg-brand-500 text-white hover:bg-brand-600 shadow-sm" : "bg-gray-100 text-gray-600 border border-gray-200"}`}
+                          >
+                            {log.status === "submitted" ? "Evaluasi" : "Detail"}
+                          </button>
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })}
                 </TableDataState>
               </TableBody>
             </Table>
           </div>
+
+          <TablePagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            setCurrentPage={setCurrentPage}
+          />
         </div>
       </div>
 
@@ -202,9 +278,11 @@ export default function LogbookApproval() {
             <div>
               <span className="block text-xs font-semibold uppercase tracking-wider text-gray-500 mb-1">Status Saat Ini</span>
               <div className="mt-1 flex items-start">
-                <Badge color={selectedLogbook?.status === "Approved" ? "success" : selectedLogbook?.status === "Pending" ? "warning" : "error"}>
-                  {selectedLogbook?.status === "Revision" ? "Menunggu Revisi" : selectedLogbook?.status}
-                </Badge>
+                {selectedLogbook && (
+                   <Badge color={LOGBOOK_STATUS_MAP[selectedLogbook.status]?.color || "warning"}>
+                    {LOGBOOK_STATUS_MAP[selectedLogbook.status]?.label || "Pending"}
+                  </Badge>
+                )}
               </div>
             </div>
           </div>
@@ -239,8 +317,8 @@ export default function LogbookApproval() {
           {isRevisionMode && (
             <form onSubmit={handleSubmitRevision} className="mt-4 animate-fade-in bg-error-50/50 p-4 rounded-xl border border-error-100 dark:bg-error-900/10 dark:border-error-800/30">
               <label className="mb-2 block text-sm font-bold text-error-700 dark:text-error-500">Catatan Revisi untuk Siswa <span className="text-error-500">*</span></label>
-              <textarea 
-                rows={4} 
+              <textarea
+                rows={4}
                 value={revisionNote}
                 onChange={(e) => setRevisionNote(e.target.value)}
                 placeholder="Tuliskan bagian mana yang perlu diperbaiki oleh siswa..."
@@ -252,37 +330,17 @@ export default function LogbookApproval() {
         </div>
 
         <div className="flex items-center justify-end gap-3 px-6 py-4 border-t border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-800/50">
-          <button 
-            onClick={handleCloseModal}
-            className="rounded-lg border border-gray-300 bg-white px-5 py-2.5 text-sm font-semibold text-gray-700 hover:bg-gray-50 transition-colors dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300"
-          >
-            Tutup
-          </button>
-          
-          {selectedLogbook?.status === "Pending" && !isRevisionMode && (
+          <button onClick={handleCloseModal} className="rounded-lg border border-gray-300 bg-white px-5 py-2.5 text-sm font-semibold text-gray-700 hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300">Tutup</button>
+
+          {selectedLogbook?.status === "submitted" && !isRevisionMode && (
             <>
-              <button 
-                onClick={() => setIsRevisionMode(true)}
-                className="rounded-lg border border-error-200 bg-error-50 px-5 py-2.5 text-sm font-semibold text-error-600 hover:bg-error-100 transition-colors dark:bg-error-900/20 dark:border-error-800/50 dark:text-error-400 dark:hover:bg-error-900/40"
-              >
-                Minta Revisi
-              </button>
-              <button 
-                onClick={handleApprove}
-                className="rounded-lg bg-brand-500 px-5 py-2.5 text-sm font-semibold text-white hover:bg-brand-600 shadow-[0_4px_10px_rgba(0,104,55,0.2)] transition-colors"
-              >
-                Setujui Logbook
-              </button>
+              <button onClick={() => setIsRevisionMode(true)} className="rounded-lg border border-error-200 bg-error-50 px-5 py-2.5 text-sm font-semibold text-error-600 hover:bg-error-100 dark:bg-error-900/20 dark:border-error-800/50 dark:text-error-400">Minta Revisi</button>
+              <button onClick={handleApprove} className="rounded-lg bg-brand-500 px-5 py-2.5 text-sm font-semibold text-white hover:bg-brand-600 shadow-[0_4px_10px_rgba(0,104,55,0.2)]">Setujui Logbook</button>
             </>
           )}
 
           {isRevisionMode && (
-            <button 
-              onClick={handleSubmitRevision}
-              className="rounded-lg bg-error-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-error-700 shadow-[0_4px_10px_rgba(220,38,38,0.2)] transition-colors"
-            >
-              Kirim Revisi
-            </button>
+            <button onClick={handleSubmitRevision} className="rounded-lg bg-error-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-error-700">Kirim Revisi</button>
           )}
         </div>
       </Modal>

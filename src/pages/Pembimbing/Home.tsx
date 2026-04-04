@@ -1,8 +1,8 @@
 import PageMeta from "../../components/common/PageMeta";
 import {
-  PembimbingMetrics,
-  AktivitasBimbinganChart,
-  LogbookPending
+  SupervisorMetrics,
+  SupervisionActivityChart,
+  PendingLogbooks
 } from "../../components/dashboard";
 
 export default function DashboardPembimbing() {
@@ -15,15 +15,15 @@ export default function DashboardPembimbing() {
       <div className="grid grid-cols-12 gap-4 md:gap-6">
         
         <div className="col-span-12">
-          <PembimbingMetrics />
+          <SupervisorMetrics />
         </div>
 
         <div className="col-span-12">
-          <AktivitasBimbinganChart />
+          <SupervisionActivityChart />
         </div>
 
         <div className="col-span-12">
-          <LogbookPending />
+          <PendingLogbooks />
         </div>
 
       </div>

@@ -7,7 +7,7 @@ export interface studentEvaluation {
   name: string;
   nis: string;
   industry: string;
-  pklStatus: "Aktif" | "Selesai";
+  status: "Aktif" | "Selesai";
   evaluationScore: number | null;
   evaluationNotes: string;
 }
@@ -32,7 +32,9 @@ export const useEvaluationStore = create<EvaluationState>((set) => ({
   fetchEvaluations: async () => {
     set({ isLoading: true });
     try {
-      const response = await api.get("/api/v1/pembimbing/evaluations");
+      const response = await api.get("/api/v1/pembimbing/evaluations", {
+        headers: { 'Cache-Control': 'no-cache'}
+      });
       set({ evaluations: response.data, isLoading: false });
     } catch (error) {
       console.error("Gagal narik data evaluasi", error);

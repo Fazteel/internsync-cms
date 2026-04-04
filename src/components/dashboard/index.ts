@@ -17,4 +17,4 @@ export { default as IndustryDistribution } from "./hubin/IndustryDistribution";
 export { default as AdminBanner } from "./admin/AdminBanner";
 export { default as AdminStats } from "./admin/AdminStats";
 export { default as AdminShortcuts } from "./admin/AdminShortcuts";
-export { default as AdminRecentActivities } from "./admin/AdminRecentActivities";
+export { default as AdminRecentActivities } from "./admin/AdminRecentActivity";

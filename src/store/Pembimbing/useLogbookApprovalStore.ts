@@ -10,21 +10,21 @@ export interface StudentLogbook {
   activity: string;
   attachment: string;
   attachment_url: string | null;
-  status: "Approved" | "Pending" | "Revision";
+  status: "approved" | "submitted" | "revised";
   revisionNote?: string;
 }
-
 
 interface LogbookApproval {
   logbooksToVerify: StudentLogbook[];
   isLoading: boolean;
   fetchLogbooksToVerify: () => Promise<void>;
+  bulkVerifyLogbooks: (ids: number[], status: "Approved") => Promise<void>;
   verifyLogbook: (
     id: number,
     status: "Approved" | "Revision",
     revisionNote?: string,
   ) => Promise<void>;
-  }
+}
 
 export const useLogbookApproval = create<LogbookApproval>((set) => ({
   logbooksToVerify: [],
@@ -47,5 +47,21 @@ export const useLogbookApproval = create<LogbookApproval>((set) => ({
       revisionNote,
     });
     await useLogbookApproval.getState().fetchLogbooksToVerify();
+  },
+
+  bulkVerifyLogbooks: async (ids, status) => {
+    set({ isLoading: true });
+    try {
+      await api.put(`/api/v1/pembimbing/logbooks/bulk-verify`, {
+        ids,
+        status: status.toLowerCase()
+      });
+
+      await useLogbookApproval.getState().fetchLogbooksToVerify();
+      set({ isLoading: false });
+    } catch (error) {
+      set({ isLoading: false });
+      throw error;
+    }
   },
 }));

@@ -5,6 +5,7 @@ import Badge from "../../components/ui/badge/Badge";
 import Alert from "../../components/ui/alert/Alert";
 import { Modal } from "../../components/ui/modal/index";
 import { useMasterStore, Jurusan, TahunAjaran, Kelas } from "../../store/Admin/useMasterStore";
+import { PageHeader, SelectInput, TablePagination, TableTopControls } from "../../components/common/SharedUI";
 
 type AlertVariant = "success" | "warning" | "info" | "error";
 interface AlertInfo { show: boolean; variant: AlertVariant; title: string; message: string; }
@@ -13,9 +14,9 @@ type EntityType = "jurusan" | "tahun-ajaran" | "kelas";
 type MasterData = Jurusan | TahunAjaran | Kelas;
 
 export default function DataMaster() {
-  const { 
-    majors, academicYears, classrooms, 
-    fetchMajors, fetchAcademicYears, fetchClassrooms, 
+  const {
+    majors, academicYears, classrooms,
+    fetchMajors, fetchAcademicYears, fetchClassrooms,
     addMajor, editMajor, removeMajor,
     addAcademicYear, editAcademicYear, removeAcademicYear,
     addClassroom, editClassroom, removeClassroom, importExcel
@@ -24,19 +25,21 @@ export default function DataMaster() {
   const [activeTab, setActiveTab] = useState<TabType>("jurusan");
   const [searchTerm, setSearchTerm] = useState("");
   const [expandedMajors, setExpandedMajors] = useState<number[]>([]);
-  
+
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalMode, setModalMode] = useState<"add" | "edit">("add");
   const [entityType, setEntityType] = useState<EntityType>("jurusan");
-  
+
   const [selectedData, setSelectedData] = useState<MasterData | null>(null);
   const [selectedMajorId, setSelectedMajorId] = useState<number | null>(null);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
+  const [currentPage, setCurrentPage] = useState(1);
 
   const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
-  const [dataToDelete, setDataToDelete] = useState<{id: number, type: EntityType, name: string} | null>(null);
+  const [dataToDelete, setDataToDelete] = useState<{ id: number, type: EntityType, name: string } | null>(null);
 
-  const [formInput1, setFormInput1] = useState(""); 
-  const [formInput2, setFormInput2] = useState(""); 
+  const [formInput1, setFormInput1] = useState("");
+  const [formInput2, setFormInput2] = useState("");
   const [status, setStatus] = useState<"Aktif" | "Nonaktif">("Aktif");
 
   const [tingkatKelas, setTingkatKelas] = useState("X");
@@ -66,7 +69,7 @@ export default function DataMaster() {
     setEntityType(entity);
     setSelectedData(data);
     setSelectedMajorId(parentId);
-    
+
     if (mode === "edit" && data) {
       if (entity === "jurusan") {
         const j = data as Jurusan; setFormInput1(j.kode); setFormInput2(j.nama);
@@ -78,15 +81,15 @@ export default function DataMaster() {
         const majorCode = major ? major.kode : "";
         let extTingkat = "X";
         let extKelompok = "1";
-        
+
         if (majorCode && k.nama.includes(majorCode)) {
           const parts = k.nama.split(majorCode);
           extTingkat = parts[0].trim() || "X";
           extKelompok = parts[1].trim() || "1";
         } else {
-          extKelompok = k.nama; 
+          extKelompok = k.nama;
         }
-        
+
         setTingkatKelas(extTingkat);
         setKelompokKelas(extKelompok);
         setSelectedMajorId(k.major_id);
@@ -135,7 +138,7 @@ export default function DataMaster() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const isActive = status === "Aktif";
-    
+
     try {
       if (entityType === "jurusan") {
         if (modalMode === "add") await addMajor(formInput1, formInput2, isActive);
@@ -172,10 +175,10 @@ export default function DataMaster() {
     setAlertInfo({ show: true, variant: "info", title: "Memproses...", message: `Sedang mengimpor data dari ${file.name}...` });
 
     try {
-      await importExcel(file); 
-      
+      await importExcel(file);
+
       setAlertInfo({ show: true, variant: "success", title: "Berhasil", message: `Data dari ${file.name} sukses diimpor.` });
-      
+
       fetchMajors();
       fetchAcademicYears();
       fetchClassrooms();
@@ -194,6 +197,8 @@ export default function DataMaster() {
   const filteredJurusan = majors.filter(j => j.nama.toLowerCase().includes(searchTerm.toLowerCase()) || j.kode.toLowerCase().includes(searchTerm.toLowerCase()));
   const filteredTahunAjaran = academicYears.filter(t => t.tahun.includes(searchTerm) || t.semester.toLowerCase().includes(searchTerm.toLowerCase()));
   const previewMajorCode = majors.find(m => m.id === selectedMajorId)?.kode || "???";
+  const totalPages = Math.ceil(majors.length / rowsPerPage);
+  const paginatedData = filteredJurusan.slice((currentPage - 1) * rowsPerPage, currentPage * rowsPerPage);
 
   return (
     <>
@@ -201,12 +206,10 @@ export default function DataMaster() {
       <div className="space-y-6">
         {alertInfo.show && <div className="animate-fade-in"><Alert variant={alertInfo.variant} title={alertInfo.title} message={alertInfo.message} /></div>}
 
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] sm:p-6">
-          <div>
-            <h2 className="text-xl font-bold text-gray-800 dark:text-white/90">Data Master Sekolah</h2>
-            <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">Pusat pengelolaan data referensi yang digunakan oleh seluruh sistem.</p>
-          </div>
-
+        <PageHeader
+          title="Data Master Sekolah"
+          description="Pusat pengelolaan data referensi yang digunakan oleh seluruh sistem."
+        >
           <div className="flex flex-wrap items-center gap-3">
             <label className="inline-flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700 transition-colors cursor-pointer group">
               <svg className="w-5 h-5 text-success-500 group-hover:text-success-600 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
@@ -219,7 +222,7 @@ export default function DataMaster() {
               Tambah {activeTab === "jurusan" ? "Jurusan" : "Tahun Ajaran"}
             </button>
           </div>
-        </div>
+        </PageHeader>
 
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div className="flex items-center rounded-lg border border-gray-200 bg-white p-1 dark:border-gray-800 dark:bg-gray-900 shadow-sm w-fit">
@@ -233,6 +236,14 @@ export default function DataMaster() {
         </div>
 
         <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white px-4 pb-3 pt-4 dark:border-gray-800 dark:bg-white/[0.03] sm:px-6">
+
+          <TableTopControls
+            rowsPerPage={rowsPerPage}
+            setRowsPerPage={setRowsPerPage}
+            totalData={majors.length}
+            setCurrentPage={setCurrentPage}
+          />
+
           <div className="max-w-full overflow-x-auto custom-scrollbar">
             <Table>
               <TableHeader className="border-gray-100 dark:border-gray-800 border-y">
@@ -254,7 +265,7 @@ export default function DataMaster() {
               </TableHeader>
 
               <TableBody className="divide-y divide-gray-100 dark:divide-gray-800">
-                {activeTab === "jurusan" && filteredJurusan.map((item) => {
+                {activeTab === "jurusan" && paginatedData.map((item) => {
                   const isExpanded = expandedMajors.includes(item.id);
                   const majorClasses = classrooms.filter(c => c.major_id === item.id);
                   return (
@@ -333,6 +344,12 @@ export default function DataMaster() {
               </TableBody>
             </Table>
           </div>
+
+          <TablePagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            setCurrentPage={setCurrentPage}
+          />
         </div>
       </div>
 
@@ -357,10 +374,9 @@ export default function DataMaster() {
               <div>
                 <label className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">Tahun Ajaran <span className="text-error-500">*</span></label>
                 <div className="relative">
-                  <select 
-                    value={formInput1} 
-                    onChange={(e) => setFormInput1(e.target.value)} 
-                    className="appearance-none w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 pr-10 text-sm outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500 dark:border-gray-700 dark:bg-gray-900 dark:text-white cursor-pointer" 
+                  <SelectInput
+                    value={formInput1}
+                    onChange={(val) => setFormInput1(val)}
                     required
                   >
                     <option value="" disabled>Pilih Tahun Ajaran</option>
@@ -373,7 +389,7 @@ export default function DataMaster() {
                         </option>
                       );
                     })}
-                  </select>
+                  </SelectInput>
                   <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-gray-500">
                     <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg>
                   </div>
@@ -382,9 +398,14 @@ export default function DataMaster() {
               <div>
                 <label className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">Semester <span className="text-error-500">*</span></label>
                 <div className="relative">
-                  <select value={formInput2} onChange={(e) => setFormInput2(e.target.value)} className="appearance-none w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 pr-10 text-sm outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500 dark:border-gray-700 dark:bg-gray-900 dark:text-white cursor-pointer" required>
-                    <option value="Ganjil">Ganjil</option><option value="Genap">Genap</option>
-                  </select>
+                  <SelectInput
+                    value={formInput2}
+                    onChange={(val) => setFormInput2(val)}
+                    required
+                  >
+                    <option value="Ganjil">Ganjil</option>
+                    <option value="Genap">Genap</option>
+                  </SelectInput>
                   <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-gray-500"><svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg></div>
                 </div>
               </div>
@@ -401,9 +422,14 @@ export default function DataMaster() {
                 <div>
                   <label className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">Tingkat Kelas <span className="text-error-500">*</span></label>
                   <div className="relative">
-                    <select value={tingkatKelas} onChange={(e) => setTingkatKelas(e.target.value)} className="appearance-none w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 pr-10 text-sm outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500 dark:border-gray-700 dark:bg-gray-900 dark:text-white cursor-pointer" required>
-                      <option value="X">X (Sepuluh)</option><option value="XI">XI (Sebelas)</option><option value="XII">XII (Dua Belas)</option>
-                    </select>
+                    <SelectInput
+                      value={tingkatKelas}
+                      onChange={(val) => setTingkatKelas(val)}
+                      required>
+                      <option value="X">X (Sepuluh)</option>
+                      <option value="XI">XI (Sebelas)</option>
+                      <option value="XII">XII (Dua Belas)</option>
+                    </SelectInput>
                     <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-gray-500"><svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg></div>
                   </div>
                 </div>
@@ -421,9 +447,13 @@ export default function DataMaster() {
           <div>
             <label className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">Status <span className="text-error-500">*</span></label>
             <div className="relative">
-              <select value={status} onChange={(e) => setStatus(e.target.value as "Aktif" | "Nonaktif")} className="appearance-none w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 pr-10 text-sm outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500 dark:border-gray-700 dark:bg-gray-900 dark:text-white cursor-pointer" required>
-                <option value="Aktif">Aktif</option><option value="Nonaktif">Nonaktif</option>
-              </select>
+              <SelectInput
+                value={status}
+                onChange={(val) => setStatus(val as "Aktif" | "Nonaktif")}
+                required>
+                <option value="Aktif">Aktif</option>
+                <option value="Nonaktif">Nonaktif</option>
+              </SelectInput>
               <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-gray-500"><svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg></div>
             </div>
             {entityType === "tahun-ajaran" && status === "Aktif" && <p className="mt-1.5 text-xs text-accent-600 dark:text-accent-400">Jika diaktifkan, tahun ajaran yang lama akan otomatis dinonaktifkan.</p>}

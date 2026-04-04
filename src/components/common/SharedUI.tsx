@@ -48,22 +48,24 @@ export function TableDataState({ isLoading, isEmpty, colSpan, loadingText = "Mem
   return <>{children}</>;
 }
 
-export function SelectInput({ 
-  value, 
-  onChange, 
-  disabled = false, 
+export function SelectInput({
+  value,
+  onChange,
+  disabled = false,
   required = false,
-  children 
-}: { 
-  value: string | number; 
-  onChange: (val: string) => void; 
+  className = "",
+  children
+}: {
+  value: string | number;
+  onChange: (val: string) => void;
   disabled?: boolean;
   required?: boolean;
+  className?: string;
   children: React.ReactNode;
 }) {
   return (
-    <div className="relative w-full">
-      <select 
+    <div className={`relative w-full min-w-[100px] md:w-auto ${className}`}>
+      <select
         value={value}
         onChange={(e) => onChange(e.target.value)}
         disabled={disabled}
@@ -81,21 +83,21 @@ export function SelectInput({
   );
 }
 
-export function TextInput({ 
-  label, 
-  value, 
-  onChange, 
-  type = "text", 
-  placeholder = "", 
-  required = false, 
+export function TextInput({
+  label,
+  value,
+  onChange,
+  type = "text",
+  placeholder = "",
+  required = false,
   min,
-  max 
-}: { 
-  label: string; 
-  value: string | number; 
-  onChange: (val: string) => void; 
-  type?: string; 
-  placeholder?: string; 
+  max
+}: {
+  label: string;
+  value: string | number;
+  onChange: (val: string) => void;
+  type?: string;
+  placeholder?: string;
   required?: boolean;
   min?: string;
   max?: string;
@@ -105,16 +107,83 @@ export function TextInput({
       <label className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
         {label} {required && <span className="text-error-500">*</span>}
       </label>
-      <input 
-        type={type} 
-        value={value} 
-        onChange={(e) => onChange(e.target.value)} 
-        placeholder={placeholder} 
+      <input
+        type={type}
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        placeholder={placeholder}
         min={min}
         max={max}
-        className="w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm outline-none transition-all focus:border-brand-500 focus:ring-1 focus:ring-brand-500 dark:border-gray-700 dark:text-white" 
-        required={required} 
+        className="w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm outline-none transition-all focus:border-brand-500 focus:ring-1 focus:ring-brand-500 dark:border-gray-700 dark:text-white"
+        required={required}
       />
     </div>
   );
 }
+
+// Komponen buat ngatur limit data & total
+export const TableTopControls = ({
+  rowsPerPage,
+  setRowsPerPage,
+  totalData,
+  setCurrentPage
+}: {
+  rowsPerPage: number;
+  setRowsPerPage: (val: number) => void;
+  totalData: number;
+  setCurrentPage: (val: number) => void;
+}) => {
+  return (
+    <div className="flex items-center justify-between mb-4">
+      <div className="flex items-center gap-2">
+        <span className="text-sm text-gray-500">Tampilkan:</span>
+        <select
+          value={rowsPerPage}
+          onChange={(e) => {
+            setRowsPerPage(Number(e.target.value));
+            setCurrentPage(1);
+          }}
+          className="border border-gray-300 rounded-md px-2 py-1 text-sm outline-none focus:ring-1 focus:ring-brand-500 dark:bg-gray-800 dark:border-gray-700"
+        >
+          {[5, 10, 20, 50].map(v => <option key={v} value={v}>{v}</option>)}
+        </select>
+      </div>
+      <p className="text-sm text-gray-500 font-medium">Total: {totalData} data</p>
+    </div>
+  );
+};
+
+// Komponen buat Prev, Next, sama info Halaman
+export const TablePagination = ({
+  currentPage,
+  totalPages,
+  setCurrentPage
+}: {
+  currentPage: number;
+  totalPages: number;
+  setCurrentPage: React.Dispatch<React.SetStateAction<number>>;
+}) => {
+  if (totalPages <= 1) return null;
+
+  return (
+    <div className="flex items-center justify-center gap-3 mt-6">
+      <button
+        disabled={currentPage === 1}
+        onClick={() => setCurrentPage(p => p - 1)}
+        className="px-4 py-1.5 border border-gray-300 rounded-lg text-sm font-semibold text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed dark:border-gray-700 dark:text-gray-300 dark:hover:bg-gray-800 transition-colors"
+      >
+        Prev
+      </button>
+      <span className="text-sm font-bold text-gray-800 dark:text-white">
+        {currentPage} / {totalPages}
+      </span>
+      <button
+        disabled={currentPage === totalPages}
+        onClick={() => setCurrentPage(p => p + 1)}
+        className="px-4 py-1.5 border border-gray-300 rounded-lg text-sm font-semibold text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed dark:border-gray-700 dark:text-gray-300 dark:hover:bg-gray-800 transition-colors"
+      >
+        Next
+      </button>
+    </div>
+  );
+};

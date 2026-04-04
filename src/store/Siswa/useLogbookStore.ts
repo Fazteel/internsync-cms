@@ -7,7 +7,7 @@ export interface LogbookEntry {
   activity: string;
   attachment: string;
   attachment_url: string | null;
-  status: "Approved" | "Pending" | "Revision";
+  status: "approved" | "submitted" | "revised";
   revisionNote?: string;
 }
 
@@ -15,7 +15,11 @@ interface LogbookState {
   logbookEntries: LogbookEntry[];
   isLoading: boolean;
   fetchLogbooks: () => Promise<void>;
-  addLogbook: (data: { date: string; activity: string; attachment: File }) => Promise<void>;
+  addLogbook: (data: {
+    date: string;
+    activity: string;
+    attachment: File
+  }) => Promise<void>;
   updateLogbook: (id: number, data: { activity: string; attachment?: File | null }) => Promise<void>;
 }
 

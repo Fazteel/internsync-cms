@@ -2,7 +2,7 @@ import PageMeta from "../../components/common/PageMeta";
 import {
   HubinMetrics,
   PendingApprovals,
-  SebaranIndustri
+  IndustryDistribution
 } from "../../components/dashboard";
 
 export default function HubinHome() {
@@ -20,7 +20,7 @@ export default function HubinHome() {
         </div>
 
         <div className="col-span-12 xl:col-span-5">
-          <SebaranIndustri />
+          <IndustryDistribution />
         </div>
 
       </div>

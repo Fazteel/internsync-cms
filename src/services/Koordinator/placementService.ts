@@ -4,7 +4,9 @@ export interface PlacementPayload {
   student_id: number;
   industry_id: number;
   duration: number;
+  is_extended?: boolean; 
   start_date: string;
+  extension_month?: number | null;
 }
 
 export const placementService = {
@@ -22,22 +24,4 @@ export const placementService = {
     const response = await api.post('/api/v1/koordinator/placements', data);
     return response.data;
   },
-
-  getPlottingStudents: async () => {
-    const response = await api.get('/api/v1/koordinator/plotting-pembimbing');
-    return response.data;
-  },
-
-  getTeachers: async () => {
-    const response = await api.get('/api/v1/koordinator/teachers');
-    return response.data;
-  },
-
-  assignTeacher: async (student_id: number, pembimbing_id: number) => {
-    const response = await api.post('/api/v1/koordinator/plotting-pembimbing', {
-      student_id,
-      pembimbing_id
-    });
-    return response.data;
-  }
 };

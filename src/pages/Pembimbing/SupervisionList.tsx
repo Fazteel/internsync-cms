@@ -1,14 +1,20 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import PageMeta from "../../components/common/PageMeta";
-import { PageHeader, SearchInput, TableDataState } from "../../components/common/SharedUI";
+import { PageHeader, SearchInput, SelectInput, TableDataState, TablePagination, TableTopControls } from "../../components/common/SharedUI";
 import { Table, TableBody, TableCell, TableHeader, TableRow } from "../../components/ui/table";
 import Badge from "../../components/ui/badge/Badge";
 import { useStudentMenteeStore } from "../../store/Pembimbing/useStudentMenteeStore";
 
+type FilterStatusType = "All" | "Aktif" | "Menunggu" | "Selesai";
+
 export default function SupervisionList() {
   const { students, isLoading, fetchStudents } = useStudentMenteeStore();
   const [searchTerm, setSearchTerm] = useState("");
+  const [filterStatus, setFilterStatus] = useState<FilterStatusType>("All");
+
+  const [rowsPerPage, setRowsPerPage] = useState(10);
+  const [currentPage, setCurrentPage] = useState(1);
 
   useEffect(() => {
     fetchStudents();
@@ -19,23 +25,54 @@ export default function SupervisionList() {
     return Math.round((completed / total) * 100);
   };
 
-  const filteredStudents = students.filter(
-    (s) => s.name.toLowerCase().includes(searchTerm.toLowerCase()) || s.nis.includes(searchTerm)
-  );
+  const filteredStudents = students.filter((s) =>{
+    const matchSearch = s.name.toLowerCase().includes(searchTerm.toLowerCase()) || s.nis.includes(searchTerm)
+    const matchStatus = filterStatus === "All" ? true : s.status === filterStatus; 
+    return matchSearch && matchStatus;
+  });
+
+  const totalPages = Math.ceil(filteredStudents.length / rowsPerPage);
+  const paginatedData = filteredStudents.slice((currentPage - 1) * rowsPerPage, currentPage * rowsPerPage);
 
   return (
     <>
       <PageMeta title="Daftar Bimbingan | Sistem Manajemen PKL" description="Halaman untuk memantau daftar siswa bimbingan dan progres PKL mereka." />
 
       <div className="space-y-6">
-        <PageHeader 
-          title="Daftar Siswa Bimbingan" 
+        <PageHeader
+          title="Daftar Siswa Bimbingan"
           description="Pantau lokasi penempatan dan progres waktu pelaksanaan PKL siswa Anda."
         >
-          <SearchInput value={searchTerm} onChange={setSearchTerm} placeholder="Cari nama atau NIS..." />
+          <SearchInput
+            value={searchTerm}
+            onChange={(val) => {
+              setSearchTerm(val);
+              setCurrentPage(1);
+            }}
+            placeholder="Cari nama atau NIS..." />
+          <SelectInput
+            value={filterStatus}
+            onChange={(val) => {
+              setFilterStatus(val as FilterStatusType);
+              setCurrentPage(1);
+            }}
+          >
+            <option value="All">Semua Status</option>
+            <option value="Aktif">Aktif</option>
+            <option value="Menunggu">Menunggu</option>
+            <option value="Selesai">Selesai</option>
+          </SelectInput>
         </PageHeader>
 
         <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white px-4 pb-3 pt-4 dark:border-gray-800 dark:bg-white/[0.03] sm:px-6 shadow-sm">
+          
+          <TableTopControls
+            rowsPerPage={rowsPerPage}
+            setRowsPerPage={setRowsPerPage}
+            totalData={filterStatus.length}
+            setCurrentPage={setCurrentPage}
+          />
+
           <div className="max-w-full overflow-x-auto custom-scrollbar">
             <Table>
               <TableHeader className="border-gray-100 dark:border-gray-800 border-y">
@@ -49,15 +86,15 @@ export default function SupervisionList() {
               </TableHeader>
 
               <TableBody className="divide-y divide-gray-100 dark:divide-gray-800">
-                <TableDataState 
-                  isLoading={isLoading} 
-                  isEmpty={filteredStudents.length === 0} 
-                  colSpan={5} 
+                <TableDataState
+                  isLoading={isLoading}
+                  isEmpty={filteredStudents.length === 0}
+                  colSpan={5}
                   loadingText="Memuat data siswa bimbingan..."
                 >
-                  {filteredStudents.map((student) => {
+                  {paginatedData.map((student) => {
                     const progressPercent = calculateProgress(student.monthsCompleted, student.duration);
-                    
+
                     let progressColor = "bg-brand-500";
                     if (progressPercent >= 100) progressColor = "bg-success-500";
                     if (student.status === "Bermasalah") progressColor = "bg-error-500";
@@ -87,7 +124,7 @@ export default function SupervisionList() {
                           </Badge>
                         </TableCell>
                         <TableCell className="py-4 text-center whitespace-nowrap">
-                          <Link to={`/pembimbing/bimbingan/${student.id}`} className="inline-flex items-center gap-1.5 rounded-lg bg-brand-50 px-3 py-1.5 text-xs font-semibold text-brand-600 hover:bg-brand-100 hover:text-brand-700 dark:bg-brand-500/10 dark:text-brand-400 dark:hover:bg-brand-500/20 transition-colors">
+                          <Link to={`/pembimbing/supervisions/${student.id}`} className="inline-flex items-center gap-1.5 rounded-lg bg-brand-50 px-3 py-1.5 text-xs font-semibold text-brand-600 hover:bg-brand-100 hover:text-brand-700 dark:bg-brand-500/10 dark:text-brand-400 dark:hover:bg-brand-500/20 transition-colors">
                             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
                             Detail Siswa
                           </Link>
@@ -99,6 +136,12 @@ export default function SupervisionList() {
               </TableBody>
             </Table>
           </div>
+
+          <TablePagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            setCurrentPage={setCurrentPage}
+          />
         </div>
       </div>
     </>

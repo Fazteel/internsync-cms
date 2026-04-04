@@ -23,40 +23,40 @@ type NavItem = {
 
 const siswaMenu: NavItem[] = [
   { name: "Dashboard", icon: <GridIcon />, path: "/siswa/dashboard" },
-  { name: "Data Penempatan", icon: <TableIcon />, path: "/siswa/penempatan" },
+  { name: "Data Penempatan", icon: <TableIcon />, path: "/siswa/placement" },
   { name: "Logbook Harian", icon: <ListIcon />, path: "/siswa/logbook" },
-  { name: "Evaluasi & Nilai", icon: <PageIcon />, path: "/siswa/evaluasi" },
+  { name: "Evaluasi & Nilai", icon: <PageIcon />, path: "/siswa/evaluation" },
 ];
 
 const pembimbingMenu: NavItem[] = [
   { name: "Dashboard", icon: <GridIcon />, path: "/pembimbing/dashboard" },
-  { name: "Daftar Bimbingan", icon: <TableIcon />, path: "/pembimbing/bimbingan" },
-  { name: "Verifikasi Logbook", icon: <ListIcon />, path: "/pembimbing/verifikasi-logbook" },
-  { name: "Evaluasi Siswa", icon: <PageIcon />, path: "/pembimbing/evaluasi-siswa" },
-  { name: "Perjalanan Dinas", icon: <CalenderIcon />, path: "/pembimbing/perjalanan-dinas" },
+  { name: "Daftar Bimbingan", icon: <TableIcon />, path: "/pembimbing/supervisions" },
+  { name: "Verifikasi Logbook", icon: <ListIcon />, path: "/pembimbing/logbook-approvals" },
+  { name: "Evaluasi Siswa", icon: <PageIcon />, path: "/pembimbing/student-evaluations" },
+  { name: "Perjalanan Dinas", icon: <CalenderIcon />, path: "/pembimbing/industry-visits" },
 ];
 
 const koordinatorMenu: NavItem[] = [
   { name: "Dashboard", icon: <GridIcon />, path: "/koordinator/dashboard" },
-  { name: "Plotting Pembimbing", icon: <ListIcon />, path: "/koordinator/plotting" },
-  { name: "Kelola Penempatan", icon: <TableIcon />, path: "/koordinator/penempatan" },
-  { name: "Rekapitulasi", icon: <PageIcon />, path: "/koordinator/rekapitulasi" },
+  { name: "Plotting Pembimbing", icon: <ListIcon />, path: "/koordinator/supervisor-assignments" },
+  { name: "Kelola Penempatan", icon: <TableIcon />, path: "/koordinator/placements" },
+  { name: "Rekapitulasi", icon: <PageIcon />, path: "/koordinator/summary-reports" },
 ];
 
 const hubinMenu: NavItem[] = [
   { name: "Dashboard", icon: <GridIcon />, path: "/hubin/dashboard" },
-  { name: "Kelola Industri", icon: <TableIcon />, path: "/hubin/kelola-industri" },
-  { name: "Approval Keberangkatan", icon: <ListIcon />, path: "/hubin/approval-berangkat" },
-  { name: "Approval Perjalanan Dinas", icon: <CalenderIcon />, path: "/hubin/approval-dinas" },
-  { name: "Master Rekap", icon: <PageIcon />, path: "/hubin/master-rekap" },
+  { name: "Kelola Industri", icon: <TableIcon />, path: "/hubin/industries" },
+  { name: "Approval Keberangkatan", icon: <ListIcon />, path: "/hubin/departure-approvals" },
+  { name: "Approval Perjalanan Dinas", icon: <CalenderIcon />, path: "/hubin/industry-visit-approvals" },
+  { name: "Master Rekap", icon: <PageIcon />, path: "/hubin/master-reports" },
 ];
 
 const adminMenu: NavItem[] = [
   { name: "Dashboard", icon: <GridIcon />, path: "/admin/dashboard" },
-  { name: "Kelola Pengguna", icon: <ListIcon />, path: "/admin/kelola-pengguna" },
-  { name: "Data Master", icon: <TableIcon />, path: "/admin/data-master" },
+  { name: "Kelola Pengguna", icon: <ListIcon />, path: "/admin/users" },
+  { name: "Data Master", icon: <TableIcon />, path: "/admin/master-data" },
   { name: "Activity Logs", icon: <ListIcon />, path: "/admin/activity-logs" },
-  { name: "Pengaturan Sistem", icon: <PageIcon />, path: "/admin/pengaturan" },
+  { name: "Pengaturan Sistem", icon: <PageIcon />, path: "/admin/system-setting" },
 ];
 
 const AppSidebar: React.FC = () => {

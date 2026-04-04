@@ -1,8 +1,8 @@
 import PageMeta from "../../components/common/PageMeta";
 import {
-  KoordinatorMetrics,
-  TrendPenempatanChart,
-  StatusSiswa
+  CoordinatorMetrics,
+  PlacementTrendChart,
+  StudentStats
 } from "../../components/dashboard";
 
 export default function KoordinatorHome() {
@@ -15,15 +15,15 @@ export default function KoordinatorHome() {
       <div className="grid grid-cols-12 gap-4 md:gap-6">
         
         <div className="col-span-12">
-          <KoordinatorMetrics />
+          <CoordinatorMetrics />
         </div>
 
         <div className="col-span-12">
-          <TrendPenempatanChart />
+          <PlacementTrendChart />
         </div>
 
         <div className="col-span-12">
-          <StatusSiswa />
+          <StudentStats />
         </div>
 
       </div>

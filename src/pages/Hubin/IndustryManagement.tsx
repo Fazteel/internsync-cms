@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import PageMeta from "../../components/common/PageMeta";
-import { PageHeader, SearchInput, TableDataState, SelectInput, TextInput } from "../../components/common/SharedUI";
+import { PageHeader, SearchInput, TableDataState, SelectInput, TextInput, TablePagination, TableTopControls } from "../../components/common/SharedUI";
 import { Table, TableBody, TableCell, TableHeader, TableRow } from "../../components/ui/table";
 import Badge from "../../components/ui/badge/Badge";
 import Alert from "../../components/ui/alert/Alert";
@@ -10,6 +10,7 @@ import { IndustryPayload } from "../../services/Hubin/industryService";
 
 type AlertVariant = "success" | "warning" | "info" | "error";
 type StatusType = "Aktif" | "Tidak Aktif";
+type FilterStatusType = "All" | "Aktif" | "Tidak Aktif";
 
 interface AlertInfo {
   show: boolean;
@@ -21,11 +22,16 @@ interface AlertInfo {
 export default function IndustryManagement() {
   const { industries, isLoading, fetchIndustries, addIndustry, editIndustry, removeIndustry } = useIndustryStore();
   const [searchTerm, setSearchTerm] = useState("");
+  const [filterStatus, setFilterStatus] = useState<FilterStatusType>("All");
+
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
   const [modalMode, setModalMode] = useState<"add" | "edit">("add");
   const [selectedIndustry, setSelectedIndustry] = useState<Industry | null>(null);
+
+  const [rowsPerPage, setRowsPerPage] = useState(10);
+  const [currentPage, setCurrentPage] = useState(1);
 
   const [name, setName] = useState("");
   const [address, setAddress] = useState("");
@@ -80,7 +86,7 @@ export default function IndustryManagement() {
     setHrEmail(industry.hr_email || "");
     setKuota(industry.kuota_siswa);
     setStatus(industry.is_active ? "Aktif" : "Tidak Aktif");
-    setMouFile(null); 
+    setMouFile(null);
     setIsModalOpen(true);
   };
 
@@ -88,10 +94,10 @@ export default function IndustryManagement() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!kuota || Number(kuota) < 1) {
-       setAlertInfo({ show: true, variant: "error", title: "Gagal", message: "Kuota siswa minimal 1." });
-       return;
+      setAlertInfo({ show: true, variant: "error", title: "Gagal", message: "Kuota siswa minimal 1." });
+      return;
     }
 
     const payload: IndustryPayload = {
@@ -147,6 +153,17 @@ export default function IndustryManagement() {
     }
   };
 
+  const filteredIndustries = (industries as Industry[]).filter((industry) => {
+    const matchSearch = industry.name.toLocaleLowerCase().includes(searchTerm.toLocaleLowerCase()) ||
+      (industry.hr_name && industry.hr_name.toLocaleLowerCase().includes(searchTerm.toLocaleLowerCase()));
+    const statusString = industry.is_active ? "Aktif" : "Tidak Aktif";
+    const matchStatus = filterStatus === "All" ? true : statusString === filterStatus;
+    return matchSearch && matchStatus;
+  });
+
+  const totalPages = Math.ceil(filteredIndustries.length / rowsPerPage);
+  const paginatedData = filteredIndustries.slice((currentPage - 1) * rowsPerPage, currentPage * rowsPerPage);
+
   return (
     <>
       <PageMeta title="Kelola Industri | Sistem Manajemen PKL" description="Kelola daftar perusahaan mitra yang menjadi lokasi Praktik Kerja Lapangan." />
@@ -158,13 +175,26 @@ export default function IndustryManagement() {
           </div>
         )}
 
-        <PageHeader 
-          title="Kelola Mitra Industri" 
+        <PageHeader
+          title="Kelola Mitra Industri"
           description="Daftar perusahaan yang bekerja sama untuk program magang (PKL)."
         >
           <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
-            <SearchInput value={searchTerm} onChange={setSearchTerm} placeholder="Cari perusahaan/kontak..." />
-            <button 
+            <SearchInput
+              value={searchTerm}
+              onChange={setSearchTerm}
+              placeholder="Cari perusahaan/kontak..." />
+            <SelectInput
+              value={filterStatus}
+              onChange={(val) => {
+                setFilterStatus(val as FilterStatusType);
+                setCurrentPage(1);
+              }}>
+              <option value="All">Semua Status</option>
+              <option value="Aktif">Aktif</option>
+              <option value="Tidak Aktif">Tidak Aktif</option>
+            </SelectInput>
+            <button
               onClick={handleOpenAddModal}
               className="inline-flex items-center justify-center gap-2 rounded-lg bg-brand-500 px-5 py-2.5 text-center font-medium text-white shadow-theme-xs hover:bg-brand-600 transition-colors w-full sm:w-auto"
             >
@@ -175,6 +205,13 @@ export default function IndustryManagement() {
         </PageHeader>
 
         <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white px-4 pb-3 pt-4 dark:border-gray-800 dark:bg-white/[0.03] sm:px-6 shadow-sm">
+          <TableTopControls
+            rowsPerPage={rowsPerPage}
+            setRowsPerPage={setRowsPerPage}
+            totalData={filteredIndustries.length}
+            setCurrentPage={setCurrentPage}
+          />
+
           <div className="max-w-full overflow-x-auto custom-scrollbar">
             <Table>
               <TableHeader className="border-gray-100 dark:border-gray-800 border-y">
@@ -190,14 +227,14 @@ export default function IndustryManagement() {
               </TableHeader>
 
               <TableBody className="divide-y divide-gray-100 dark:divide-gray-800">
-                <TableDataState 
-                  isLoading={isLoading} 
-                  isEmpty={industries.length === 0} 
-                  colSpan={7} 
+                <TableDataState
+                  isLoading={isLoading}
+                  isEmpty={paginatedData.length === 0}
+                  colSpan={7}
                   loadingText="Memuat data industri..."
                   emptyText="Mitra industri tidak ditemukan."
                 >
-                  {industries.map((ind) => (
+                  {paginatedData.map((ind) => (
                     <TableRow key={ind.id} className="hover:bg-gray-50/50 dark:hover:bg-gray-800/20 transition-colors">
                       <TableCell className="py-4 whitespace-nowrap">
                         <div className="flex items-center gap-3">
@@ -246,6 +283,12 @@ export default function IndustryManagement() {
               </TableBody>
             </Table>
           </div>
+
+          <TablePagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            setCurrentPage={setCurrentPage}
+          />
         </div>
       </div>
 
@@ -261,18 +304,18 @@ export default function IndustryManagement() {
 
         <form onSubmit={handleSubmit} className="px-6 py-5 space-y-4 max-h-[70vh] overflow-y-auto custom-scrollbar">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            
+
             <div className="sm:col-span-2">
               <TextInput label="Nama Perusahaan" value={name} onChange={setName} placeholder="Contoh: PT. Teknologi Bangsa" required />
             </div>
-            
+
             <div className="sm:col-span-2">
               <label className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">Alamat Lengkap</label>
-              <textarea 
-                rows={2} 
-                value={address} 
-                onChange={(e) => setAddress(e.target.value)} 
-                placeholder="Masukkan alamat lengkap..." 
+              <textarea
+                rows={2}
+                value={address}
+                onChange={(e) => setAddress(e.target.value)}
+                placeholder="Masukkan alamat lengkap..."
                 className="w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm outline-none transition-all focus:border-brand-500 focus:ring-1 focus:ring-brand-500 dark:border-gray-700 dark:text-white"
               ></textarea>
             </div>
@@ -280,39 +323,39 @@ export default function IndustryManagement() {
             <div>
               <TextInput label="Nama HRD / Kontak" value={hrName} onChange={setHrName} placeholder="Nama lengkap PIC" required />
             </div>
-            
+
             <div>
               <TextInput label="Email HRD" type="email" value={hrEmail} onChange={setHrEmail} placeholder="email@perusahaan.com" />
             </div>
 
             <div>
-              <TextInput 
-                label="No. Telepon/WA" 
-                value={hrPhone} 
-                onChange={(val) => setHrPhone(val.replace(/[^0-9]/g, ""))} 
-                placeholder="Contoh: 0812..." 
+              <TextInput
+                label="No. Telepon/WA"
+                value={hrPhone}
+                onChange={(val) => setHrPhone(val.replace(/[^0-9]/g, ""))}
+                placeholder="Contoh: 0812..."
               />
             </div>
 
             <div>
-              <TextInput 
-                label="Kuota Siswa PKL" 
-                type="number" 
+              <TextInput
+                label="Kuota Siswa PKL"
+                type="number"
                 min="1"
-                value={kuota} 
-                onChange={(val) => setKuota(val === "" ? "" : Number(val))} 
-                placeholder="Jumlah Maksimal" 
-                required 
+                value={kuota}
+                onChange={(val) => setKuota(val === "" ? "" : Number(val))}
+                placeholder="Jumlah Maksimal"
+                required
               />
             </div>
 
             <div>
               <label className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">Upload Dokumen MoU (.pdf/.doc)</label>
-              <input 
-                type="file" 
-                accept=".pdf,.doc,.docx" 
-                onChange={(e) => setMouFile(e.target.files?.[0] || null)} 
-                className="w-full text-sm text-gray-500 file:mr-4 file:py-2.5 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-brand-50 file:text-brand-600 hover:file:bg-brand-100 dark:file:bg-brand-500/10 dark:file:text-brand-400 border border-gray-300 rounded-lg dark:border-gray-700" 
+              <input
+                type="file"
+                accept=".pdf,.doc,.docx"
+                onChange={(e) => setMouFile(e.target.files?.[0] || null)}
+                className="w-full text-sm text-gray-500 file:mr-4 file:py-2.5 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-brand-50 file:text-brand-600 hover:file:bg-brand-100 dark:file:bg-brand-500/10 dark:file:text-brand-400 border border-gray-300 rounded-lg dark:border-gray-700"
               />
               {modalMode === "edit" && selectedIndustry?.mou_file && !mouFile && (
                 <p className="mt-1 text-xs text-gray-500">Abaikan jika tidak ingin mengubah dokumen MoU saat ini.</p>
@@ -339,7 +382,7 @@ export default function IndustryManagement() {
 
       <Modal isOpen={isConfirmOpen} onClose={() => setIsConfirmOpen(false)} className="max-w-[400px] p-6 text-center" showCloseButton={false}>
         <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-error-50 text-error-600 dark:bg-error-500/10 dark:text-error-500">
-            <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+          <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
         </div>
         <h3 className="mb-2 text-lg font-bold text-gray-800 dark:text-white/90">Hapus Data Industri?</h3>
         <p className="mb-6 text-sm text-gray-500 dark:text-gray-400">

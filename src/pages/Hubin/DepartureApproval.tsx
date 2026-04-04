@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import PageMeta from "../../components/common/PageMeta";
-import { PageHeader, SearchInput, TableDataState, SelectInput } from "../../components/common/SharedUI";
+import { PageHeader, SearchInput, SelectInput, TableDataState, TablePagination, TableTopControls } from "../../components/common/SharedUI";
 import { Table, TableBody, TableCell, TableHeader, TableRow } from "../../components/ui/table";
 import Badge from "../../components/ui/badge/Badge";
 import Alert from "../../components/ui/alert/Alert";
@@ -26,6 +26,9 @@ export default function DepartureApproval() {
   const [searchTerm, setSearchTerm] = useState("");
   const [filterStatus, setFilterStatus] = useState<StatusType>("All");
   const [filterJurusan, setFilterJurusan] = useState("All");
+
+  const [rowsPerPage, setRowsPerPage] = useState(10);
+  const [currentPage, setCurrentPage] = useState(1);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedData, setSelectedData] = useState<DepartureData | null>(null);
@@ -109,6 +112,9 @@ export default function DepartureApproval() {
       return 0;
   });
 
+  const totalPages = Math.ceil(sortedData.length / rowsPerPage);
+  const paginatedData = sortedData.slice((currentPage - 1) * rowsPerPage, currentPage * rowsPerPage);
+
   return (
     <>
       <PageMeta title="Approval Keberangkatan | Sistem Manajemen PKL" description="Persetujuan akhir keberangkatan siswa ke industri dan pencetakan Surat Pengantar." />
@@ -123,32 +129,35 @@ export default function DepartureApproval() {
         <PageHeader 
           title="Approval Keberangkatan" 
           description="Verifikasi kesiapan penempatan dan terbitkan Surat Pengantar resmi dari Hubin."
-        />
-
-        {/* Filter Bar */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 bg-white p-4 rounded-2xl border border-gray-200 dark:border-gray-800 dark:bg-white/[0.03] shadow-sm">
-          <SearchInput value={searchTerm} onChange={setSearchTerm} placeholder="Cari Siswa / Industri..." />
+        >
+          <SearchInput value={searchTerm} onChange={(val) => { setSearchTerm(val); setCurrentPage(1); }} placeholder="Cari Siswa / Industri..." />
           
-          <SelectInput 
+          <SelectInput
             value={filterJurusan} 
-            onChange={setFilterJurusan}
+            onChange={(val) => { setFilterJurusan(val); setCurrentPage(1); }}
           >
             <option value="All">Semua Jurusan</option>
             {majors.map(m => <option key={m.id} value={m.kode}>{m.kode} - {m.nama}</option>)}
           </SelectInput>
 
-          <SelectInput 
+          <SelectInput
             value={filterStatus} 
-            onChange={(val) => setFilterStatus(val as StatusType)}
-          >
+            onChange={(val) => { setFilterStatus(val as StatusType); setCurrentPage(1); }}>
             <option value="All">Semua Status</option>
             <option value="Menunggu">Menunggu</option>
             <option value="Disetujui">Disetujui</option>
             <option value="Dibatalkan">Dibatalkan</option>
           </SelectInput>
-        </div>
+        </PageHeader>
 
         <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white px-4 pb-3 pt-4 dark:border-gray-800 dark:bg-white/[0.03] sm:px-6 shadow-sm">
+          <TableTopControls 
+            rowsPerPage={rowsPerPage} 
+            setRowsPerPage={setRowsPerPage} 
+            totalData={sortedData.length} 
+            setCurrentPage={setCurrentPage} 
+          />
+
           <div className="max-w-full overflow-x-auto custom-scrollbar">
             <Table>
               <TableHeader className="border-gray-100 dark:border-gray-800 border-y">
@@ -165,12 +174,12 @@ export default function DepartureApproval() {
               <TableBody className="divide-y divide-gray-100 dark:divide-gray-800">
                 <TableDataState 
                   isLoading={isLoading} 
-                  isEmpty={sortedData.length === 0} 
+                  isEmpty={paginatedData.length === 0} 
                   colSpan={6} 
                   loadingText="Memuat data verifikasi..."
                   emptyText="Tidak ada data keberangkatan."
                 >
-                  {sortedData.map((data) => (
+                  {paginatedData.map((data) => (
                     <TableRow key={data.id} className="hover:bg-gray-50/50 dark:hover:bg-gray-800/20 transition-colors">
                       <TableCell className="py-4 whitespace-nowrap">
                         <p className="font-medium text-gray-800 text-theme-sm dark:text-white/90">{data.studentName}</p>
@@ -258,6 +267,12 @@ export default function DepartureApproval() {
               </TableBody>
             </Table>
           </div>
+
+          <TablePagination 
+            currentPage={currentPage} 
+            totalPages={totalPages} 
+            setCurrentPage={setCurrentPage} 
+          />
         </div>
       </div>
 

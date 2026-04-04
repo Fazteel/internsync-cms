@@ -2,7 +2,7 @@ import { Table, TableBody, TableCell, TableHeader, TableRow } from "../../ui/tab
 import Badge from "../../ui/badge/Badge";
 import { useDashboardStore } from "../../../store/useDashboardStore";
 
-export default function LogbookTerbaru() {
+export default function RecentLogbooks() {
   const { siswaRecentLogbooks, isLoading } = useDashboardStore();
 
   return (

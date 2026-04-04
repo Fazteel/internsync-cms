@@ -118,7 +118,7 @@ export default function App() {
 
               {/* ================= STUDENT ================= */}
 
-              <Route path="/student">
+              <Route path="/siswa">
                 <Route path="dashboard" element={<StudentDashboard />} />
                 <Route path="placement" element={<PlacementData />} />
                 <Route path="logbook" element={<Logbook />} />
@@ -127,22 +127,22 @@ export default function App() {
 
               {/* ================= SUPERVISOR ================= */}
 
-              <Route path="/supervisor">
+              <Route path="/pembimbing">
                 <Route path="dashboard" element={<SupervisorDashboard />} />
                 <Route path="supervisions" element={<SupervisionList />} />
                 <Route path="supervisions/:id" element={<StudentDetail />} />
-                <Route path="logbook-approval" element={<LogbookApproval />} />
-                <Route path="student-evaluation" element={<StudentEvaluation />} />
-                <Route path="industry-visit" element={<IndustryVisit />} />
+                <Route path="logbook-approvals" element={<LogbookApproval />} />
+                <Route path="student-evaluations" element={<StudentEvaluation />} />
+                <Route path="industry-visits" element={<IndustryVisit />} />
               </Route>
 
               {/* ================= COORDINATOR ================= */}
 
-              <Route path="/coordinator">
+              <Route path="/koordinator">
                 <Route path="dashboard" element={<CoordinatorDashboard />} />
                 <Route path="placements" element={<PlacementManagement />} />
-                <Route path="supervisor-assignment" element={<SupervisorAssignment />} />
-                <Route path="summary-report" element={<InternshipSummary />} />
+                <Route path="supervisor-assignments" element={<SupervisorAssignment />} />
+                <Route path="summary-reports" element={<InternshipSummary />} />
               </Route>
 
               {/* ================= HUBIN ================= */}
@@ -150,9 +150,9 @@ export default function App() {
               <Route path="/hubin">
                 <Route path="dashboard" element={<HubinDashboard />} />
                 <Route path="industries" element={<IndustryManagement />} />
-                <Route path="departure-approval" element={<DepartureApproval />} />
-                <Route path="industry-visit-approval" element={<IndustryVisitApproval />} />
-                <Route path="master-report" element={<MasterReport />} />
+                <Route path="departure-approvals" element={<DepartureApproval />} />
+                <Route path="industry-visit-approvals" element={<IndustryVisitApproval />} />
+                <Route path="master-reports" element={<MasterReport />} />
               </Route>
 
               {/* ================= ADMIN ================= */}

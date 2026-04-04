@@ -1,13 +1,14 @@
 import { create } from "zustand";
-import api from "../../lib/axios";
+import { industryVisitService, VisitPayload } from "../../services/Pembimbing/industryVisitService";
 
-interface IndustryVisitRequest {
+export interface IndustryVisitRecord {
   id: number;
   industry: string;
   plannedDate: string;
   purpose: string;
   status: "Approved" | "Pending" | "Rejected";
   feedback?: string;
+  file_path?: string;
 }
 
 export interface AssignedIndustry {
@@ -15,47 +16,54 @@ export interface AssignedIndustry {
   name: string;
 }
 
-interface IndustryVisit {
-  visits: IndustryVisitRequest[];
+interface IndustryVisitState {
+  visits: IndustryVisitRecord[];
   assignedIndustries: AssignedIndustry[];
   isLoading: boolean;
-
-  fetchVisit: () => Promise<void>;
+  
+  fetchVisits: () => Promise<void>;
   fetchAssignedIndustries: () => Promise<void>;
-  submitVisit: (data: {
-    industry_id: string;
-    planned_date: string;
-    purpose: string;
-  }) => Promise<void>;
+  submitVisit: (data: VisitPayload) => Promise<void>;
+  viewVisitLetter: (id: number) => Promise<void>;
 }
 
-export const useIndustiryVisit = create<IndustryVisit>((set) => ({
+export const useIndustryVisitStore = create<IndustryVisitState>((set, get) => ({
   visits: [],
   assignedIndustries: [],
   isLoading: false,
 
-  fetchVisit: async () => {
+  fetchVisits: async () => {
     set({ isLoading: true });
     try {
-      const response = await api.get("/api/v1/pembimbing/visits");
-      set({ visits: response.data, isLoading: false });
+      const data = await industryVisitService.getVisits();
+      set({ visits: data, isLoading: false });
     } catch (error) {
-      console.error("Gagal narik riwayat dinas", error);
+      console.error("Gagal ambil data kunjungan:", error);
       set({ isLoading: false });
     }
   },
 
   fetchAssignedIndustries: async () => {
     try {
-      const response = await api.get("/api/v1/pembimbing/visits-industries");
-      set({ assignedIndustries: response.data });
+      const data = await industryVisitService.getAssignedIndustries();
+      set({ assignedIndustries: data });
     } catch (error) {
-      console.error("Gagal narik daftar industri lu", error);
+      console.error("Gagal ambil daftar industri:", error);
     }
   },
 
   submitVisit: async (data) => {
-    await api.post("/api/v1/pembimbing/visits", data);
-    await useIndustiryVisit.getState().fetchVisit();
+    await industryVisitService.submitVisit(data);
+    await get().fetchVisits();
   },
+
+  viewVisitLetter: async (id) => {
+    try {
+      const fileUrl = await industryVisitService.getLetterUrl(id);
+      window.open(fileUrl, "_blank");
+    } catch (error) {
+      console.error("Gagal membuka SPPD:", error);
+      throw error;
+    }
+  }
 }));

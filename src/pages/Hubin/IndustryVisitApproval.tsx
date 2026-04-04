@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import PageMeta from "../../components/common/PageMeta";
-import { PageHeader, SearchInput, SelectInput, TableDataState } from "../../components/common/SharedUI";
+import { PageHeader, SearchInput, SelectInput, TableDataState, TablePagination, TableTopControls } from "../../components/common/SharedUI";
 import { Table, TableBody, TableCell, TableHeader, TableRow } from "../../components/ui/table";
 import Badge from "../../components/ui/badge/Badge";
 import Alert from "../../components/ui/alert/Alert";
@@ -22,6 +22,9 @@ export default function IndustryVisitApproval() {
 
   const [searchTerm, setSearchTerm] = useState("");
   const [filterStatus, setFilterStatus] = useState<StatusType>("All");
+
+  const [rowsPerPage, setRowsPerPage] = useState(10);
+  const [currentPage, setCurrentPage] = useState(1);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedVisit, setSelectedTrip] = useState<VisitApproval | null>(null);
@@ -169,6 +172,9 @@ export default function IndustryVisitApproval() {
     return matchSearch && matchStatus;
   });
 
+  const totalPages = Math.ceil(filteredVisits.length / rowsPerPage);
+  const paginatedData = filteredVisits.slice((currentPage - 1) * rowsPerPage, currentPage * rowsPerPage);
+
   return (
     <>
       <PageMeta title="Approval Perjalanan Dinas | Sistem Manajemen PKL" description="Halaman untuk meninjau dan menyetujui pengajuan kunjungan monitoring guru pembimbing." />
@@ -184,26 +190,26 @@ export default function IndustryVisitApproval() {
         <PageHeader 
           title="Approval Perjalanan Dinas" 
           description="Tinjau pengajuan kunjungan guru dan terbitkan SPPD jika disetujui."
-        />
-
-        <div className="flex flex-col sm:flex-row justify-end gap-3 bg-white p-4 rounded-2xl border border-gray-200 dark:border-gray-800 dark:bg-white/[0.03] shadow-sm">
-          <div className="w-full sm:w-[300px]">
-            <SearchInput value={searchTerm} onChange={setSearchTerm} placeholder="Cari Nama Guru atau Industri..." />
-          </div>
-          <div className="w-full sm:w-[200px]">
-            <SelectInput 
-              value={filterStatus} 
-              onChange={(val) => setFilterStatus(val as StatusType)}
-            >
-              <option value="All">Semua Status</option>
-              <option value="Pending">Menunggu</option>
-              <option value="Approved">Disetujui</option>
-              <option value="Rejected">Ditolak</option>
-            </SelectInput>
-          </div>
-        </div>
+        >
+          <SearchInput value={searchTerm} onChange={(val) => { setSearchTerm(val); setCurrentPage(1); }} placeholder="Cari Nama Guru atau Industri..." />
+          <SelectInput
+            value={filterStatus} 
+            onChange={(val) => { setFilterStatus(val as StatusType); setCurrentPage(1); }}>
+            <option value="All">Semua Status</option>
+            <option value="Pending">Menunggu</option>
+            <option value="Approved">Disetujui</option>
+            <option value="Rejected">Ditolak</option>
+          </SelectInput>
+        </PageHeader>
 
         <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white px-4 pb-3 pt-4 dark:border-gray-800 dark:bg-white/[0.03] sm:px-6 shadow-sm">
+          <TableTopControls 
+            rowsPerPage={rowsPerPage} 
+            setRowsPerPage={setRowsPerPage} 
+            totalData={filteredVisits.length} 
+            setCurrentPage={setCurrentPage} 
+          />
+
           <div className="max-w-full overflow-x-auto custom-scrollbar">
             <Table>
               <TableHeader className="border-gray-100 dark:border-gray-800 border-y">
@@ -219,11 +225,11 @@ export default function IndustryVisitApproval() {
               <TableBody className="divide-y divide-gray-100 dark:divide-gray-800">
                 <TableDataState 
                   isLoading={isLoading}
-                  isEmpty={filteredVisits.length === 0} 
+                  isEmpty={paginatedData.length === 0} 
                   colSpan={5} 
                   emptyText="Tidak ada data pengajuan perjalanan dinas."
                 >
-                  {filteredVisits.map((visit) => (
+                  {paginatedData.map((visit) => (
                     <TableRow key={visit.id} className="hover:bg-gray-50/50 dark:hover:bg-gray-800/20 transition-colors">
                       <TableCell className="py-4 whitespace-nowrap">
                         <div className="flex items-center gap-3">
@@ -298,6 +304,12 @@ export default function IndustryVisitApproval() {
               </TableBody>
             </Table>
           </div>
+
+          <TablePagination 
+            currentPage={currentPage} 
+            totalPages={totalPages} 
+            setCurrentPage={setCurrentPage} 
+          />
         </div>
       </div>
 

@@ -32,17 +32,17 @@ interface StudentMenteeState {
   students: StudentMentee[];
   studentDetail: StudentDetail | null;
   isLoading: boolean;
-  
+
   fetchStudents: () => Promise<void>;
   fetchStudentDetail: (id: string) => Promise<void>;
 }
 
 export const useStudentMenteeStore = create<StudentMenteeState>((set) => ({
-    students: [],
-    studentDetail: null,
-    isLoading: false,
-  
-     fetchStudents: async () => {
+  students: [],
+  studentDetail: null,
+  isLoading: false,
+
+  fetchStudents: async () => {
     set({ isLoading: true });
     try {
       const response = await api.get("/api/v1/pembimbing/students");

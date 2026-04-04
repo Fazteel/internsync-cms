@@ -1,13 +1,14 @@
 import React, { useState, useEffect } from "react";
 import PageMeta from "../../components/common/PageMeta";
-import { PageHeader, SearchInput, TableDataState, TextInput } from "../../components/common/SharedUI";
+import { PageHeader, SearchInput, SelectInput, TableDataState, TablePagination, TableTopControls, TextInput } from "../../components/common/SharedUI";
 import { Table, TableBody, TableCell, TableHeader, TableRow } from "../../components/ui/table";
 import Badge from "../../components/ui/badge/Badge";
-import Alert from "../../components/ui/alert/Alert"; 
+import Alert from "../../components/ui/alert/Alert";
 import { Modal } from "../../components/ui/modal/index";
 import { useEvaluationStore, studentEvaluation } from "../../store/Pembimbing/useEvaluationStore";
 
 type AlertVariant = "success" | "warning" | "info" | "error";
+type FilterStatusType = "All" | "Aktif" | "Selesai";
 
 interface AlertInfo {
   show: boolean;
@@ -20,9 +21,13 @@ export default function StudentEvaluation() {
   const { evaluations, isLoading, fetchEvaluations, submitEvaluation } = useEvaluationStore();
 
   const [searchTerm, setSearchTerm] = useState("");
+  const [filterStatus, setFilterStatus] = useState<FilterStatusType>("All");
+  const [rowsPerPage, setRowsPerPage] = useState(10);
+  const [currentPage, setCurrentPage] = useState(1);
+
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedStudent, setSelectedStudent] = useState<studentEvaluation | null>(null);
-  
+
   const [score, setScore] = useState<number | "">("");
   const [notes, setNotes] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -55,7 +60,7 @@ export default function StudentEvaluation() {
       });
       return;
     }
-    
+
     if (!selectedStudent) return;
 
     setIsSubmitting(true);
@@ -65,7 +70,7 @@ export default function StudentEvaluation() {
         score: Number(score),
         notes: notes
       });
-      
+
       setAlertInfo({
         show: true,
         variant: "success",
@@ -88,34 +93,54 @@ export default function StudentEvaluation() {
     }
   }, [alertInfo.show]);
 
-  const filteredStudents = evaluations.filter(
-    (s) => s.name.toLowerCase().includes(searchTerm.toLowerCase()) || s.nis.includes(searchTerm)
-  );
+  const filteredStudents = evaluations.filter((s) => {
+    const matchSearch = s.name.toLowerCase().includes(searchTerm.toLowerCase()) || s.nis.includes(searchTerm);
+    const matchStatus = filterStatus === "All" ? true : s.status === filterStatus;
+    return matchSearch && matchStatus;
+  });
+
+  const totalPages = Math.ceil(filteredStudents.length / rowsPerPage);
+  const paginatedData = filteredStudents.slice((currentPage - 1) * rowsPerPage, currentPage * rowsPerPage);
 
   return (
     <>
       <PageMeta title="Evaluasi Siswa | Sistem Manajemen PKL" description="Halaman untuk memberikan penilaian akhir dan catatan evaluasi kepada siswa PKL." />
 
       <div className="space-y-6">
-        
+
         {alertInfo.show && (
           <div className="animate-fade-in">
             <Alert variant={alertInfo.variant} title={alertInfo.title} message={alertInfo.message} />
           </div>
         )}
 
-        <PageHeader 
-          title="Evaluasi & Penilaian Akhir" 
+        <PageHeader
+          title="Evaluasi & Penilaian Akhir"
           description="Berikan nilai akhir dan catatan performa untuk siswa yang telah menyelesaikan PKL."
         >
-          <div className="flex flex-col sm:flex-row justify-end gap-3 w-full sm:w-auto">
-             <div className="w-full sm:w-[300px]">
-               <SearchInput value={searchTerm} onChange={setSearchTerm} placeholder="Cari nama atau NIS..." />
-             </div>
-          </div>
+          <SearchInput value={searchTerm} onChange={setSearchTerm} placeholder="Cari nama atau NIS..." />
+          <SelectInput
+            value={filterStatus}
+            onChange={(val) => {
+              setFilterStatus(val as FilterStatusType);
+              setCurrentPage(1);
+            }}
+          >
+            <option value="All">Semua Status</option>
+            <option value="Aktif">Aktif</option>
+            <option value="Selesai">Selesai</option>
+          </SelectInput>
         </PageHeader>
 
         <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white px-4 pb-3 pt-4 dark:border-gray-800 dark:bg-white/[0.03] sm:px-6 shadow-sm">
+
+          <TableTopControls
+            rowsPerPage={rowsPerPage}
+            setRowsPerPage={setRowsPerPage}
+            totalData={filteredStudents.length}
+            setCurrentPage={setCurrentPage}
+          />
+
           <div className="max-w-full overflow-x-auto custom-scrollbar">
             <Table>
               <TableHeader className="border-gray-100 dark:border-gray-800 border-y">
@@ -129,32 +154,32 @@ export default function StudentEvaluation() {
               </TableHeader>
 
               <TableBody className="divide-y divide-gray-100 dark:divide-gray-800">
-                <TableDataState 
-                  isLoading={isLoading} 
-                  isEmpty={filteredStudents.length === 0} 
-                  colSpan={5} 
+                <TableDataState
+                  isLoading={isLoading}
+                  isEmpty={filteredStudents.length === 0}
+                  colSpan={5}
                   emptyText="Data siswa tidak ditemukan atau Anda belum memiliki siswa bimbingan."
                 >
-                  {filteredStudents.map((student) => (
+                  {paginatedData.map((student) => (
                     <TableRow key={student.internship_id} className="hover:bg-gray-50/50 dark:hover:bg-gray-800/20 transition-colors">
                       <TableCell className="py-4 whitespace-nowrap">
                         <p className="font-bold text-gray-800 text-theme-sm dark:text-white/90">{student.name}</p>
                         <span className="text-gray-500 text-theme-xs dark:text-gray-400">{student.nis}</span>
                       </TableCell>
-                      
+
                       <TableCell className="py-4 text-theme-sm text-gray-600 dark:text-gray-300 whitespace-nowrap">
                         {student.industry}
                       </TableCell>
-                      
+
                       <TableCell className="py-4 whitespace-nowrap">
-                        <Badge color={student.pklStatus === "Selesai" ? "primary" : "success"}>
-                          {student.pklStatus}
+                        <Badge color={student.status === "Selesai" ? "primary" : "success"}>
+                          {student.status}
                         </Badge>
                       </TableCell>
 
                       <TableCell className="py-4 text-center whitespace-nowrap">
                         {student.evaluationScore !== null ? (
-                          <span className="inline-flex h-8 w-10 items-center justify-center rounded-lg bg-brand-50 text-sm font-bold text-brand-600 border border-brand-200 dark:bg-brand-900/30 dark:text-brand-400">
+                          <span className="inline-flex px-6 h-8 w-10 items-center justify-center rounded-lg bg-brand-50 text-sm font-bold text-brand-600 border border-brand-200 dark:bg-brand-900/30 dark:text-brand-400">
                             {student.evaluationScore}
                           </span>
                         ) : (
@@ -163,22 +188,21 @@ export default function StudentEvaluation() {
                       </TableCell>
 
                       <TableCell className="py-4 text-center whitespace-nowrap">
-                        <button 
+                        <button
                           onClick={() => handleOpenModal(student)}
-                          disabled={student.pklStatus === "Aktif"}
-                          className={`inline-flex items-center gap-1 rounded-lg px-3 py-1.5 text-xs font-semibold transition-colors ${
-                            student.pklStatus === "Aktif"
-                              ? "bg-gray-200 text-gray-400 cursor-not-allowed dark:bg-gray-800 dark:text-gray-600" 
-                              : student.evaluationScore !== null 
-                                ? "bg-gray-50 text-gray-600 hover:bg-gray-100 hover:text-gray-800 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700" 
-                                : "bg-brand-500 text-white hover:bg-brand-600 shadow-theme-xs"
-                          }`}
+                          disabled={student.status === "Aktif"}
+                          className={`inline-flex items-center gap-1 rounded-lg px-3 py-1.5 text-xs font-semibold transition-colors ${student.status === "Aktif"
+                            ? "bg-gray-200 text-gray-400 cursor-not-allowed dark:bg-gray-800 dark:text-gray-600"
+                            : student.evaluationScore !== null
+                              ? "bg-gray-50 text-gray-600 hover:bg-gray-100 hover:text-gray-800 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700"
+                              : "bg-brand-500 text-white hover:bg-brand-600 shadow-theme-xs"
+                            }`}
                         >
                           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
-                          {student.pklStatus === "Aktif" 
-                            ? "Belum Selesai" 
-                            : student.evaluationScore !== null 
-                              ? "Edit Nilai" 
+                          {student.status === "Aktif"
+                            ? "Belum Selesai"
+                            : student.evaluationScore !== null
+                              ? "Edit Nilai"
                               : "Beri Nilai"}
                         </button>
                       </TableCell>
@@ -188,6 +212,12 @@ export default function StudentEvaluation() {
               </TableBody>
             </Table>
           </div>
+
+          <TablePagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            setCurrentPage={setCurrentPage}
+          />
         </div>
       </div>
 
@@ -213,7 +243,7 @@ export default function StudentEvaluation() {
                 <p className="font-bold text-brand-600 dark:text-brand-400">{selectedStudent?.industry}</p>
               </div>
             </div>
-            {selectedStudent?.pklStatus === "Aktif" && (
+            {selectedStudent?.status === "Aktif" && (
               <div className="mt-4 flex items-start gap-2 rounded-lg bg-warning-50 p-3 text-warning-700 border border-warning-100 dark:bg-warning-900/20 dark:border-warning-800/30">
                 <svg className="w-5 h-5 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                 <p className="text-xs leading-relaxed">Siswa ini masih berstatus <b className="font-bold">Aktif</b> magang. Pastikan masa PKL telah selesai sebelum memberikan penilaian final.</p>
@@ -223,23 +253,23 @@ export default function StudentEvaluation() {
 
           <div className="bg-gray-50 p-5 rounded-xl border border-gray-100 dark:bg-gray-800/50 dark:border-gray-700">
             <div className="mb-4">
-               <TextInput 
-                 label="Nilai Angka"
-                 type="number"
-                 min="0"
-                 max="100"
-                 value={score}
-                 onChange={(val) => setScore(val !== "" ? Number(val) : "")}
-                 placeholder="Contoh: 85 (0 - 100)"
-                 required
-               />
+              <TextInput
+                label="Nilai Angka"
+                type="number"
+                min="0"
+                max="100"
+                value={score}
+                onChange={(val) => setScore(val !== "" ? Number(val) : "")}
+                placeholder="Contoh: 85 (0 - 100)"
+                required
+              />
             </div>
 
             <div>
               <label className="mb-1.5 block text-sm font-bold text-gray-700 dark:text-gray-300">
                 Catatan Evaluasi / Feedback <span className="text-error-500">*</span>
               </label>
-              <textarea 
+              <textarea
                 rows={4} value={notes} onChange={(e) => setNotes(e.target.value)}
                 placeholder="Berikan umpan balik mengenai kinerja teknis dan sikap siswa selama di industri..."
                 className="w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-sm outline-none transition-all focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 dark:border-gray-600 dark:bg-gray-900 dark:text-white"
@@ -250,15 +280,15 @@ export default function StudentEvaluation() {
           </div>
 
           <div className="mt-8 flex items-center justify-end gap-3">
-            <button 
+            <button
               type="button" onClick={handleCloseModal}
               disabled={isSubmitting}
               className="rounded-lg border border-gray-300 bg-white px-5 py-2.5 text-sm font-semibold text-gray-700 hover:bg-gray-50 transition-colors disabled:opacity-50"
             >
               Batal
             </button>
-            <button 
-              type="submit" 
+            <button
+              type="submit"
               disabled={isSubmitting}
               className="rounded-lg bg-brand-500 px-5 py-2.5 text-sm font-semibold text-white hover:bg-brand-600 transition-colors shadow-[0_4px_10px_rgba(0,104,55,0.2)] disabled:opacity-50"
             >

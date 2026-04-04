@@ -6,6 +6,7 @@ import { useUserStore, UserAccount } from "../../store/Admin/useUserStore";
 import { useMasterStore } from "../../store/Admin/useMasterStore";
 import { UserPayload } from "../../services/Admin/userService";
 import UserTable from "../../components/table/UserTable";
+import { SelectInput } from "../../components/common/SharedUI";
 
 type AlertVariant = "success" | "warning" | "info" | "error";
 
@@ -300,12 +301,15 @@ export default function UserManagement() {
             <div>
               <label className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">Role Akses <span className="text-error-500">*</span></label>
               <div className="relative">
-                <select value={role} onChange={(e) => setRole(e.target.value)} className="appearance-none w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 pr-10 text-sm outline-none transition-all focus:border-brand-500 focus:ring-1 focus:ring-brand-500 dark:border-gray-700 dark:bg-gray-900 dark:text-white cursor-pointer" required>
+                <SelectInput
+                  value={role}
+                  onChange={(val) => setRole(val)}
+                  required>
                   <option value="Siswa">Siswa</option>
                   <option value="Pembimbing">Pembimbing</option>
                   <option value="Koordinator">Koordinator</option>
                   <option value="Hubin">Hubin</option>
-                </select>
+                </SelectInput>
                 <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-500 dark:text-gray-400"><svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg></div>
               </div>
             </div>
@@ -315,20 +319,29 @@ export default function UserManagement() {
                 <div className="animate-fade-in">
                   <label className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">Jurusan Siswa <span className="text-error-500">*</span></label>
                   <div className="relative">
-                    <select value={jurusan} onChange={(e) => { setJurusan(e.target.value); setKelas(""); }} className="appearance-none w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 pr-10 text-sm outline-none transition-all focus:border-brand-500 focus:ring-1 focus:ring-brand-500 dark:border-gray-700 dark:bg-gray-900 dark:text-white cursor-pointer" required>
+                    <SelectInput
+                      value={jurusan}
+                      onChange={(val) => {
+                        setJurusan(val);
+                        setKelas("");
+                      }} required>
                       <option value="" disabled> Pilih Jurusan </option>
                       {majors.map((item) => (<option key={item.id} value={item.kode}>{item.kode} - {item.nama}</option>))}
-                    </select>
+                    </SelectInput>
                     <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-500 dark:text-gray-400"><svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg></div>
                   </div>
                 </div>
                 <div className="animate-fade-in">
                   <label className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">Kelas <span className="text-error-500">*</span></label>
                   <div className="relative">
-                    <select value={kelas} onChange={(e) => setKelas(e.target.value)} disabled={!jurusan} className="appearance-none w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 pr-10 text-sm outline-none transition-all focus:border-brand-500 focus:ring-1 focus:ring-brand-500 dark:border-gray-700 dark:bg-gray-900 dark:text-white cursor-pointer disabled:bg-gray-100 dark:disabled:bg-gray-800" required>
+                    <SelectInput
+                      value={kelas}
+                      onChange={(val) => setKelas(val)}
+                      disabled={!jurusan}
+                      required>
                       <option value="" disabled>{!jurusan ? "Pilih Jurusan Terlebih Dahulu" : "Pilih Kelas"}</option>
                       {filteredClassrooms.map((item) => (<option key={item.id} value={item.nama}>{item.nama}</option>))}
-                    </select>
+                    </SelectInput>
                     <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-500 dark:text-gray-400"><svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg></div>
                   </div>
                 </div>
@@ -339,10 +352,13 @@ export default function UserManagement() {
               <div className="animate-fade-in sm:col-span-2">
                 <label className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">Status Akun <span className="text-error-500">*</span></label>
                 <div className="relative">
-                  <select value={status} onChange={(e) => setStatus(e.target.value)} className="appearance-none w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 pr-10 text-sm outline-none transition-all focus:border-brand-500 focus:ring-1 focus:ring-brand-500 dark:border-gray-700 dark:bg-gray-900 dark:text-white cursor-pointer" required>
+                  <SelectInput
+                    value={status}
+                    onChange={(val) => setStatus(val)}
+                    required>
                     <option value="Aktif">Aktif</option>
                     <option value="Nonaktif">Nonaktif</option>
-                  </select>
+                  </SelectInput>
                   <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-500 dark:text-gray-400"><svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg></div>
                 </div>
               </div>
