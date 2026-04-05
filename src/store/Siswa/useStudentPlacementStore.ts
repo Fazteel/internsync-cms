@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import api from "../../lib/axios";
+import { fetchMyPlacementService } from "../../services/Siswa/studentPlacementService";
 
 interface PlacementData {
   status: string;
@@ -25,29 +25,31 @@ interface StudentPlacementState {
   penempatanData: PlacementData | null;
   isLoading: boolean;
   error: string | null;
+
   fetchMyPlacement: () => Promise<void>;
 }
 
-export const useStudentPlacementStore = create<StudentPlacementState>(
-  (set) => ({
-    penempatanData: null,
-    isLoading: false,
-    error: null,
+export const useStudentPlacementStore = create<StudentPlacementState>((set) => ({
+  penempatanData: null,
+  isLoading: false,
+  error: null,
 
-    fetchMyPlacement: async () => {
-      set({ isLoading: true, error: null });
-      try {
-        const response = await api.get("/api/v1/siswa/my-placement");
-        set({ penempatanData: response.data.data, isLoading: false });
-      } catch (err: unknown) {
-        const error = err as { response?: { data?: { message?: string } } };
-        set({
-          error:
-            error.response?.data?.message || "Gagal memuat data penempatan",
-          isLoading: false,
-          penempatanData: null,
-        });
-      }
-    },
-  }),
-);
+  fetchMyPlacement: async () => {
+    set({ isLoading: true, error: null });
+
+    try {
+      const data = await fetchMyPlacementService();
+      set({
+        penempatanData: data.data,
+        isLoading: false,
+      });
+    } catch (err: unknown) {
+      const error = err as { response?: { data?: { message?: string } } };
+      set({
+        error: error.response?.data?.message || "Gagal memuat data penempatan",
+        isLoading: false,
+        penempatanData: null,
+      });
+    }
+  },
+}));

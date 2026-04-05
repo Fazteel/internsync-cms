@@ -15,7 +15,7 @@ export interface StudentPlacement {
   is_extended: boolean;
   supervisor_id?: number | null;
   supervisor_name?: string | null;
-  status: "Belum Ditempatkan" | "Sudah Ditempatkan" | "Belum Diplot" | "Sudah Diplot";
+  status: "Belum Ditempatkan" | "Sudah Ditempatkan" | "Belum Diplot" | "Sudah Diplot" | "Bermasalah";
 }
 
 export interface ActiveIndustry {
@@ -32,6 +32,7 @@ interface PlacementState {
   fetchPlacements: () => Promise<void>;
   fetchIndustries: () => Promise<void>;
   assignPlacement: (data: PlacementPayload) => Promise<void>;
+  withdrawPlacement: (studentId: number) => Promise<void>;
 }
 
 export const usePlacementStore = create<PlacementState>((set) => ({
@@ -67,4 +68,15 @@ export const usePlacementStore = create<PlacementState>((set) => ({
       throw error;
     }
   },
+
+  withdrawPlacement: async (studentId) => {
+    set({ isLoading: true });
+    try {
+      const students = await placementService.withdrawPlacement(studentId);
+      set({ students, isLoading: false });
+    } catch (error) {
+      set({ isLoading: false });
+      throw error;
+    }
+  }
 }));

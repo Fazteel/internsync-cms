@@ -1,5 +1,9 @@
 import { create } from "zustand";
-import api from "../../lib/axios";
+import {
+  fetchStudentsService,
+  fetchStudentDetailService,
+  reportProblemService,
+} from "../../services/Pembimbing/studentMenteeService";
 
 interface StudentMentee {
   id: number;
@@ -10,6 +14,7 @@ interface StudentMentee {
   duration: number;
   monthsCompleted: number;
   status: "Aktif" | "Selesai" | "Bermasalah" | "Menunggu";
+  is_flagged: boolean;
 }
 
 interface StudentDetail {
@@ -35,38 +40,49 @@ interface StudentMenteeState {
 
   fetchStudents: () => Promise<void>;
   fetchStudentDetail: (id: string) => Promise<void>;
+  reportProblem: (id: string, reason: string) => Promise<void>;
 }
 
-export const useStudentMenteeStore = create<StudentMenteeState>((set) => ({
+export const useStudentMenteeStore = create<StudentMenteeState>((set, get) => ({
   students: [],
   studentDetail: null,
   isLoading: false,
 
   fetchStudents: async () => {
     set({ isLoading: true });
+
     try {
-      const response = await api.get("/api/v1/pembimbing/students");
-      set({
-        students: response.data,
-        isLoading: false,
-      });
-    } catch (error) {
-      console.error("Gagal narik data siswa bimbingan", error);
+      const data = await fetchStudentsService();
+      set({ students: data, isLoading: false });
+    } catch (err) {
+      console.error("Gagal narik siswa", err);
       set({ isLoading: false });
     }
   },
 
   fetchStudentDetail: async (id) => {
     set({ isLoading: true });
+
     try {
-      const response = await api.get(`/api/v1/pembimbing/students/${id}`);
-      set({
-        studentDetail: response.data,
-        isLoading: false,
-      });
-    } catch (error) {
-      console.error("Gagal membuka detail siswa bimbingan", error);
+      const data = await fetchStudentDetailService(id);
+      set({ studentDetail: data, isLoading: false });
+    } catch (err) {
+      console.error("Gagal buka detail siswa", err);
       set({ isLoading: false });
+    }
+  },
+
+  reportProblem: async (id, reason) => {
+    set({ isLoading: true });
+
+    try {
+      await reportProblemService(id, reason);
+      await get().fetchStudentDetail(id);
+      set({ isLoading: false });
+    } catch (err) {
+      console.error("Gagal lapor masalah", err);
+      set({ isLoading: false });
+      throw err;
     }
   },
 }));

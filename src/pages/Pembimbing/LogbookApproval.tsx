@@ -101,7 +101,7 @@ export default function LogbookApproval() {
   const handleApprove = async () => {
     if (!selectedLogbook) return;
     try {
-      await verifyLogbook(selectedLogbook.id, "Approved");
+      await verifyLogbook(selectedLogbook.id, "approved");
       setAlertInfo({ show: true, variant: "success", title: "Berhasil", message: "Logbook disetujui." });
     } catch {
       setAlertInfo({ show: true, variant: "error", title: "Gagal", message: "Sistem error." });
@@ -114,7 +114,7 @@ export default function LogbookApproval() {
     e.preventDefault();
     if (!revisionNote.trim() || !selectedLogbook) return;
     try {
-      await verifyLogbook(selectedLogbook.id, "Revision", revisionNote);
+      await verifyLogbook(selectedLogbook.id, "revised", revisionNote);
       setAlertInfo({ show: true, variant: "info", title: "Terkirim", message: "Revisi dikirim." });
     } catch {
       setAlertInfo({ show: true, variant: "error", title: "Gagal", message: "Sistem error." });

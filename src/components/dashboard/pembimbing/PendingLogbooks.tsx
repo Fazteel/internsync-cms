@@ -58,7 +58,7 @@ export default function LogbookPending() {
     if (!selectedLog) return;
 
     try {
-      await verifyLogbook(selectedLog.id, "Approved");
+      await verifyLogbook(selectedLog.id, "approved");
 
       setAlertInfo({
         show: true,
@@ -67,8 +67,7 @@ export default function LogbookPending() {
         message: `Aktivitas logbook milik ${selectedLog.studentName} berhasil disetujui.`,
       });
 
-      approveModal.closeModal();
-
+      
       await fetchPembimbingDashboard();
     } catch {
       setAlertInfo({
@@ -77,6 +76,8 @@ export default function LogbookPending() {
         title: "Gagal",
         message: "Terjadi kesalahan saat menyetujui logbook.",
       });
+    } finally {
+      approveModal.closeModal();
     }
   };
 
@@ -94,7 +95,7 @@ export default function LogbookPending() {
     }
 
     try {
-      await verifyLogbook(selectedLog.id, "Revision", reviseNote);
+      await verifyLogbook(selectedLog.id, "revised", reviseNote);
 
       setAlertInfo({
         show: true,
@@ -103,8 +104,7 @@ export default function LogbookPending() {
         message: `Catatan revisi telah dikirimkan ke logbook milik ${selectedLog.studentName}.`,
       });
 
-      reviseModal.closeModal();
-
+      
       await fetchPembimbingDashboard();
     } catch {
       setAlertInfo({
@@ -113,6 +113,8 @@ export default function LogbookPending() {
         title: "Gagal",
         message: "Terjadi kesalahan saat mengirim revisi.",
       });
+    } finally {
+      reviseModal.closeModal();
     }
   };
 

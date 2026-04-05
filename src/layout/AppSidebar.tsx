@@ -25,6 +25,7 @@ const siswaMenu: NavItem[] = [
   { name: "Dashboard", icon: <GridIcon />, path: "/siswa/dashboard" },
   { name: "Data Penempatan", icon: <TableIcon />, path: "/siswa/placement" },
   { name: "Logbook Harian", icon: <ListIcon />, path: "/siswa/logbook" },
+  { name: "Izin & Sakit", icon: <CalenderIcon />, path: "/siswa/permissions" },
   { name: "Evaluasi & Nilai", icon: <PageIcon />, path: "/siswa/evaluation" },
 ];
 
@@ -32,6 +33,7 @@ const pembimbingMenu: NavItem[] = [
   { name: "Dashboard", icon: <GridIcon />, path: "/pembimbing/dashboard" },
   { name: "Daftar Bimbingan", icon: <TableIcon />, path: "/pembimbing/supervisions" },
   { name: "Verifikasi Logbook", icon: <ListIcon />, path: "/pembimbing/logbook-approvals" },
+  { name: "Verifikasi Izin", icon: <CalenderIcon />, path: "/pembimbing/permissions" },
   { name: "Evaluasi Siswa", icon: <PageIcon />, path: "/pembimbing/student-evaluations" },
   { name: "Perjalanan Dinas", icon: <CalenderIcon />, path: "/pembimbing/industry-visits" },
 ];

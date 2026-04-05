@@ -25,9 +25,9 @@ export default function SupervisionList() {
     return Math.round((completed / total) * 100);
   };
 
-  const filteredStudents = students.filter((s) =>{
+  const filteredStudents = students.filter((s) => {
     const matchSearch = s.name.toLowerCase().includes(searchTerm.toLowerCase()) || s.nis.includes(searchTerm)
-    const matchStatus = filterStatus === "All" ? true : s.status === filterStatus; 
+    const matchStatus = filterStatus === "All" ? true : s.status === filterStatus;
     return matchSearch && matchStatus;
   });
 
@@ -65,7 +65,7 @@ export default function SupervisionList() {
         </PageHeader>
 
         <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white px-4 pb-3 pt-4 dark:border-gray-800 dark:bg-white/[0.03] sm:px-6 shadow-sm">
-          
+
           <TableTopControls
             rowsPerPage={rowsPerPage}
             setRowsPerPage={setRowsPerPage}
@@ -103,8 +103,30 @@ export default function SupervisionList() {
                     return (
                       <TableRow key={student.id} className="hover:bg-gray-50/50 dark:hover:bg-gray-800/20 transition-colors">
                         <TableCell className="py-4 whitespace-nowrap">
-                          <p className="font-bold text-gray-800 text-theme-sm dark:text-white/90">{student.name}</p>
-                          <span className="text-gray-500 text-theme-xs dark:text-gray-400">{student.nis} • {student.major}</span>
+                          <div className="flex items-center gap-3">
+                            <div>
+                              <p className="font-bold text-gray-800 text-theme-sm dark:text-white/90">
+                                {student.name}
+                              </p>
+                              <span className="text-gray-500 text-theme-xs dark:text-gray-400">
+                                {student.nis} • {student.major}
+                              </span>
+                            </div>
+
+                            {student.is_flagged && (
+                              <div className="group relative flex items-center gap-1.5 px-2 py-1 rounded-md bg-error-50 border border-error-100 text-error-600 animate-pulse-slow">
+                                <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20">
+                                  <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                                </svg>
+                                <span className="text-[10px] font-bold uppercase tracking-tight">Mangkir</span>
+
+                                <div className="absolute bottom-full left-1/2 mb-2 -translate-x-1/2 hidden group-hover:block w-1xl p-2 bg-gray-900 text-white text-[10px] rounded shadow-xl z-50">
+                                  Siswa belum mengisi logbook lebih dari 3 hari kerja.
+                                  <div className="absolute top-full left-1/2 -translate-x-1/2 border-8 border-transparent border-t-gray-900"></div>
+                                </div>
+                              </div>
+                            )}
+                          </div>
                         </TableCell>
                         <TableCell className="py-4 text-theme-sm text-gray-600 dark:text-gray-300 font-medium whitespace-nowrap">{student.industry}</TableCell>
                         <TableCell className="py-4 whitespace-nowrap">

@@ -20,6 +20,7 @@ import Maintenance from "./temp/OtherPage/Maintenance";
 import StudentDashboard from "./pages/Siswa/Home";
 import PlacementData from "./pages/Siswa/PlacementData";
 import Logbook from "./pages/Siswa/Logbook";
+import StudentPermission from "./pages/Siswa/StudentPermission";
 import InternshipEvaluation from "./pages/Siswa/Evaluation";
 
 /* ================= PEMBIMBING ================= */
@@ -28,6 +29,7 @@ import SupervisorDashboard from "./pages/Pembimbing/Home";
 import SupervisionList from "./pages/Pembimbing/SupervisionList";
 import StudentDetail from "./pages/Pembimbing/StudentDetail";
 import LogbookApproval from "./pages/Pembimbing/LogbookApproval";
+import SupervisorPermission from "./pages/Pembimbing/SupervisorPermission";
 import StudentEvaluation from "./pages/Pembimbing/StudentEvaluation";
 import IndustryVisit from "./pages/Pembimbing/IndustryVisit";
 
@@ -122,6 +124,7 @@ export default function App() {
                 <Route path="dashboard" element={<StudentDashboard />} />
                 <Route path="placement" element={<PlacementData />} />
                 <Route path="logbook" element={<Logbook />} />
+                <Route path="permissions" element={<StudentPermission />} />
                 <Route path="evaluation" element={<InternshipEvaluation />} />
               </Route>
 
@@ -132,6 +135,7 @@ export default function App() {
                 <Route path="supervisions" element={<SupervisionList />} />
                 <Route path="supervisions/:id" element={<StudentDetail />} />
                 <Route path="logbook-approvals" element={<LogbookApproval />} />
+                <Route path="permissions" element={<SupervisorPermission />} />
                 <Route path="student-evaluations" element={<StudentEvaluation />} />
                 <Route path="industry-visits" element={<IndustryVisit />} />
               </Route>

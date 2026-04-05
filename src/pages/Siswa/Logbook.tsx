@@ -8,6 +8,7 @@ import { Modal } from "../../components/ui/modal/index";
 import { useStudentPlacementStore } from "../../store/Siswa/useStudentPlacementStore";
 import { useLogbookStore, LogbookEntry } from "../../store/Siswa/useLogbookStore";
 import { PageHeader, SelectInput, TablePagination, TableTopControls } from "../../components/common/SharedUI";
+import { usePermissionStore } from "../../store/Siswa/usePermissionStore";
 
 const getLocalYYYYMMDD = (d: Date) => {
   const year = d.getFullYear();
@@ -31,6 +32,7 @@ export default function Logbook() {
   const [modalMode, setModalMode] = useState<"add" | "edit" | "view">("add");
   const [selectedLogbook, setSelectedLogbook] = useState<LogbookEntry | null>(null);
   const [selectedDate, setSelectedDate] = useState("");
+  const { permissions, fetchPermissions } = usePermissionStore();
 
   const [filterStatus, setFilterStatus] = useState<FilterType>("All");
   const [rowsPerPage, setRowsPerPage] = useState(10);
@@ -51,7 +53,8 @@ export default function Logbook() {
   useEffect(() => {
     fetchMyPlacement();
     fetchLogbooks();
-  }, [fetchMyPlacement, fetchLogbooks]);
+    fetchPermissions();
+  }, [fetchMyPlacement, fetchLogbooks, fetchPermissions]);
 
   const filteredEntries = useMemo(() => {
     return logbookEntries.filter((entry) => {
@@ -88,14 +91,20 @@ export default function Logbook() {
       const dateStr = getLocalYYYYMMDD(curr);
       const isAlreadyFilled = logbookEntries.some(log => log.date === dateStr);
 
-      if (day !== 0 && !isAlreadyFilled && dateStr <= todayStr) {
+      const isOnLeave = permissions.some(p =>
+        p.status === "Approved" &&
+        dateStr >= p.raw_start_date &&
+        dateStr <= p.raw_end_date
+      );
+
+      if (day !== 0 && !isAlreadyFilled && !isOnLeave && dateStr <= todayStr) {
         missingDates.push(dateStr);
       }
       curr.setDate(curr.getDate() + 1);
     }
 
     return missingDates.reverse();
-  }, [penempatanData, logbookEntries]);
+  }, [penempatanData, logbookEntries, permissions]);
 
   const handleOpenAddModal = () => {
     if (penempatanData?.status !== "Aktif") {

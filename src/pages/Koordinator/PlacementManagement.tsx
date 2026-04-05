@@ -12,6 +12,7 @@ import { useMasterStore } from "../../store/Admin/useMasterStore";
 type ExtendedStudent = StudentPlacement & {
   supervisor_id?: number | null;
   kelas?: string | null;
+  cancelled_reason?: string | null;
 };
 
 type FilterStatusType = "All" | "Belum Ditempatkan" | "Sudah Ditempatkan";
@@ -25,7 +26,7 @@ interface AlertInfo {
 }
 
 export default function PlacementManagement() {
-  const { students, industries, isLoading, fetchPlacements, fetchIndustries, assignPlacement } = usePlacementStore();
+  const { students, industries, isLoading, fetchPlacements, fetchIndustries, assignPlacement, withdrawPlacement } = usePlacementStore();
   const { majors, fetchMajors, fetchClassrooms } = useMasterStore();
 
   const [searchTerm, setSearchTerm] = useState("");
@@ -38,6 +39,8 @@ export default function PlacementManagement() {
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedStudent, setSelectedStudent] = useState<ExtendedStudent | null>(null);
+  const [showWithdrawModal, setShowWithdrawModal] = useState(false);
+  const [targetStudent, setTargetStudent] = useState<ExtendedStudent | null>(null);
 
   const [industryId, setIndustryId] = useState<number | "">("");
   const [duration, setDuration] = useState<number | "custom" | "">("");
@@ -127,6 +130,20 @@ export default function PlacementManagement() {
       setAlertInfo({ show: true, variant: "error", title: "Gagal", message: err.response?.data?.message || "Terjadi kesalahan sistem." });
     } finally {
       handleCloseModal();
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleWithdraw = async () => {
+    if (!targetStudent) return;
+    setIsSubmitting(true);
+    try {
+      await withdrawPlacement(targetStudent.id);
+      setAlertInfo({ show: true, variant: "success", title: "Berhasil", message: `${targetStudent.name} telah ditarik dan siap di-plot ulang.` });
+      setShowWithdrawModal(false);
+    } catch {
+      setAlertInfo({ show: true, variant: "error", title: "Gagal", message: "Gagal menarik siswa." });
+    } finally {
       setIsSubmitting(false);
     }
   };
@@ -234,14 +251,27 @@ export default function PlacementManagement() {
                           {student.status}
                         </Badge>
                       </TableCell>
-                      <TableCell className="py-4 text-center">
+                      <TableCell className="py-4 text-center flex items-center justify-center gap-2">
                         <button
                           disabled={!student.supervisor_id}
                           onClick={() => handleOpenModal(student)}
-                          className={`rounded-lg px-3 py-1.5 text-xs font-semibold ${!student.supervisor_id ? "bg-gray-200 text-gray-400 cursor-not-allowed" : "bg-brand-500 text-white hover:bg-brand-600 shadow-sm"}`}
+                          className={`rounded-lg px-3 py-1.5 text-xs font-semibold ${!student.supervisor_id ? "bg-gray-200 text-gray-400 cursor-not-allowed" : "bg-brand-500 text-white hover:bg-brand-600"}`}
                         >
                           {student.status === "Sudah Ditempatkan" ? "Edit" : "Plotting"}
                         </button>
+
+                        {(student.status === "Sudah Ditempatkan" || student.status === "Bermasalah") && (
+                          <button
+                            onClick={() => {
+                              setTargetStudent(student);
+                              setShowWithdrawModal(true);
+                            }}
+                            className="rounded-lg bg-error-50 px-3 py-1.5 text-xs font-semibold text-error-700 border border-error-200 hover:bg-error-100"
+                            title="Tarik Siswa / Batalkan Penempatan"
+                          >
+                            Tarik
+                          </button>
+                        )}
                       </TableCell>
                     </TableRow>
                   ))}
@@ -257,6 +287,24 @@ export default function PlacementManagement() {
           />
         </div>
       </div>
+
+      <Modal isOpen={showWithdrawModal} onClose={() => setShowWithdrawModal(false)} className="max-w-md">
+        <div className="p-6 text-center">
+          <div className="mx-auto flex items-center justify-center w-12 h-12 rounded-full bg-error-100 text-error-600 mb-4">
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+          </div>
+          <h3 className="text-lg font-bold text-gray-800 mb-2">Konfirmasi Penarikan</h3>
+          <p className="text-sm text-gray-500 mb-6">
+            Apakah Anda yakin ingin menarik <strong>{targetStudent?.name}</strong>?
+            {targetStudent?.status === "Bermasalah" && <span className="block mt-2 font-medium text-error-600">Alasan: {targetStudent.cancelled_reason}</span>}
+            Semua data progres magang di industri saat ini akan diarsipkan.
+          </p>
+          <div className="flex gap-3">
+            <button onClick={() => setShowWithdrawModal(false)} className="flex-1 px-4 py-2 border rounded-lg font-semibold text-gray-500">Batal</button>
+            <button onClick={handleWithdraw} disabled={isSubmitting} className="flex-1 px-4 py-2 bg-error-600 text-white rounded-lg font-bold">Ya, Tarik Siswa</button>
+          </div>
+        </div>
+      </Modal>
 
       <Modal isOpen={isModalOpen} onClose={handleCloseModal} className="max-w-[700px] p-0 overflow-hidden" showCloseButton={false}>
         <div className="flex items-center justify-between border-b border-brand-100 bg-brand-50 px-6 py-4 dark:border-brand-800/30 dark:bg-brand-900/10">

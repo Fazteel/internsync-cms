@@ -1,5 +1,9 @@
 import { create } from "zustand";
-import api from "../../lib/axios";
+import {
+  fetchLogbooksService,
+  verifyLogbookService,
+  bulkVerifyLogbooksService,
+} from "../../services/Pembimbing/logbookApprovalService";
 
 export interface StudentLogbook {
   id: number;
@@ -17,51 +21,48 @@ export interface StudentLogbook {
 interface LogbookApproval {
   logbooksToVerify: StudentLogbook[];
   isLoading: boolean;
+
   fetchLogbooksToVerify: () => Promise<void>;
-  bulkVerifyLogbooks: (ids: number[], status: "Approved") => Promise<void>;
   verifyLogbook: (
     id: number,
-    status: "Approved" | "Revision",
-    revisionNote?: string,
+    status: "approved" | "revised",
+    revisionNote?: string
   ) => Promise<void>;
+
+  bulkVerifyLogbooks: (ids: number[], status: "Approved") => Promise<void>;
 }
 
-export const useLogbookApproval = create<LogbookApproval>((set) => ({
+export const useLogbookApproval = create<LogbookApproval>((set, get) => ({
   logbooksToVerify: [],
   isLoading: false,
 
   fetchLogbooksToVerify: async () => {
     set({ isLoading: true });
+
     try {
-      const response = await api.get("/api/v1/pembimbing/logbooks");
-      set({ logbooksToVerify: response.data, isLoading: false });
-    } catch (error) {
-      console.error("Gagal narik data verifikasi logbook", error);
+      const data = await fetchLogbooksService();
+      set({ logbooksToVerify: data, isLoading: false });
+    } catch (err) {
+      console.error("Gagal narik logbook", err);
       set({ isLoading: false });
     }
   },
 
   verifyLogbook: async (id, status, revisionNote) => {
-    await api.put(`/api/v1/pembimbing/logbooks/${id}/verify`, {
-      status,
-      revisionNote,
-    });
-    await useLogbookApproval.getState().fetchLogbooksToVerify();
+    await verifyLogbookService(id, status, revisionNote);
+    await get().fetchLogbooksToVerify();
   },
 
   bulkVerifyLogbooks: async (ids, status) => {
     set({ isLoading: true });
-    try {
-      await api.put(`/api/v1/pembimbing/logbooks/bulk-verify`, {
-        ids,
-        status: status.toLowerCase()
-      });
 
-      await useLogbookApproval.getState().fetchLogbooksToVerify();
+    try {
+      await bulkVerifyLogbooksService(ids, status.toLowerCase());
+      await get().fetchLogbooksToVerify();
       set({ isLoading: false });
-    } catch (error) {
+    } catch (err) {
       set({ isLoading: false });
-      throw error;
+      throw err;
     }
   },
 }));

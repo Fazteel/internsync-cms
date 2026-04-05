@@ -100,108 +100,134 @@ interface ChartData {
 }
 
 interface DashboardState {
-  // State Admin
+  // --- STATE DATA ---
   stats: SystemStats;
   logs: AuditLog[];
-
-  // State Hubin
   hubinMetrics: HubinMetrics;
   hubinTable: HubinApprovalEntry[];
   hubinSebaran: SebaranIndustri[];
-  
-  // State Koordinator
   koordinatorMetrics: KoordinatorMetrics;
   koordinatorTable: KoordinatorTableEntry[];
   koordinatorChart: ChartData[];
-
-  //State Siswa
   siswaMetrics: SiswaMetrics;
   siswaRecentLogbooks: SiswaLogbook[];
   siswaProgress: SiswaProgress;
-
-  // --- STATE PEMBIMBING ---
   pembimbingMetrics: PembimbingMetrics;
   pembimbingPendingLogbooks: PendingLogbook[];
   pembimbingChart: PembimbingChart;
 
-  
-  // Global State
+  // --- GLOBAL STATE ---
   isLoading: boolean;
-  
-  // Actions Admin
+  lastUpdated: string; // Tambahin ini buat nampung waktu cache
+
+  // --- ACTIONS ---
   fetchDashboardData: () => Promise<void>; 
   fetchLogs: () => Promise<void>; 
-  
-  // Actions Hubin
   fetchHubinDashboard: () => Promise<void>;
-  
-  // Actions Koordinator
   fetchKoordinatorDashboard: () => Promise<void>;
-  
-  //Action Siswa
   fetchSiswaDashboard: () => Promise<void>;
-
-  // --- ACTION PEMBIMBING ---
   fetchPembimbingDashboard: () => Promise<void>;
 }
 
 export const useDashboardStore = create<DashboardState>((set) => ({
-  // --- INITIAL STATE ADMIN ---
-  stats: {
-    totalStudents: 0,
-    totalTeachers: 0,
-    totalIndustries: 0,
-    systemStatus: "Memuat...",
-  },
+  // --- INITIAL STATES ---
+  stats: { totalStudents: 0, totalTeachers: 0, totalIndustries: 0, systemStatus: "Memuat..." },
   logs: [],
-
-  // --- INITIAL STATE HUBIN ---
-  hubinMetrics: {
-    total_industri: 0,
-    total_requests: 0
-  },
+  hubinMetrics: { total_industri: 0, total_requests: 0 },
   hubinTable: [],
   hubinSebaran: [],
-
-  // --- INITIAL STATE KOORDINATOR ---
   koordinatorMetrics: { total_aktif: 0, belum_ditempatkan: 0, industri_aktif: 0 },
   koordinatorTable: [],
   koordinatorChart: [{ name: "Diberangkatkan", data: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0] }],
-
-  // --- INITIAL STATE SISWA ---
-  siswaMetrics: {
-    approved_count: 0,
-    revision_count: 0
-  },
+  siswaMetrics: { approved_count: 0, revision_count: 0 },
   siswaRecentLogbooks: [],
-  siswaProgress: {
-    total_days: 0,
-    days_passed: 0,
-    days_remaining: 0,
-    percentage: 0
-  },
-
-  // --- INITIAL STATE PEMBIMBING ---
-  pembimbingMetrics: {
-    total_bimbingan: 0,
-    menunggu_verifikasi: 0,
-    kunjungan_bulan_ini: 0
-  },
+  siswaProgress: { total_days: 0, days_passed: 0, days_remaining: 0, percentage: 0 },
+  pembimbingMetrics: { total_bimbingan: 0, menunggu_verifikasi: 0, kunjungan_bulan_ini: 0 },
   pembimbingPendingLogbooks: [],
-  pembimbingChart: {
-    categories: [],
-    series: []
-  },
-
+  pembimbingChart: { categories: [], series: [] },
+  
   isLoading: false,
+  lastUpdated: "--:--", // Default value
 
-  // --- FUNGSI FETCH ADMIN ---
+  // --- FUNGSI FETCH DENGAN UPDATE TIMESTAMP ---
+
   fetchDashboardData: async () => {
     try {
       const response = await api.get('/api/v1/admin/dashboard/stats');
-      set({ stats: response.data });
+      set({ 
+        stats: response.data, 
+        lastUpdated: response.data.last_updated || "--:--" 
+      });
     } catch (error) {
       console.error("Gagal load stats admin", error);
+    }
+  },
+
+  fetchHubinDashboard: async () => {
+    set({ isLoading: true });
+    try {
+      const response = await api.get('/api/v1/hubin/dashboard/stats');
+      set({
+        hubinMetrics: response.data.metrics,
+        hubinTable: response.data.table,
+        hubinSebaran: response.data.sebaran,
+        lastUpdated: response.data.last_updated || "--:--",
+        isLoading: false
+      });
+    } catch (error) {
+      console.error("Gagal load data hubin", error);
+      set({ isLoading: false });
+    }
+  },
+
+  fetchKoordinatorDashboard: async () => {
+    set({ isLoading: true });
+    try {
+      const response = await api.get('/api/v1/koordinator/dashboard/stats');
+      set({ 
+        koordinatorMetrics: response.data.metrics, 
+        koordinatorTable: response.data.table, 
+        koordinatorChart: [response.data.chart], 
+        lastUpdated: response.data.last_updated || "--:--",
+        isLoading: false 
+      });
+    } catch (error) {
+      console.error("Gagal load data koordinator", error);
+      set({ isLoading: false });
+    }
+  },
+
+  fetchSiswaDashboard: async () => {
+    set({ isLoading: true });
+    try {
+      const response = await api.get('/api/v1/siswa/dashboard/stats');
+      set({ 
+        siswaMetrics: response.data.metrics,
+        siswaRecentLogbooks: response.data.recent_logbooks,
+        siswaProgress: response.data.progress,
+        lastUpdated: response.data.last_updated || "--:--",
+        isLoading: false 
+      });
+    } catch (error) {
+      console.error("Gagal load data dashboard siswa", error);
+      set({ isLoading: false });
+    }
+  },
+
+  fetchPembimbingDashboard: async () => {
+    set({ isLoading: true });
+    try {
+      const response = await api.get('/api/v1/pembimbing/dashboard');
+      set({
+        pembimbingMetrics: response.data.metrics,
+        pembimbingPendingLogbooks: response.data.pending_logbooks,
+        pembimbingChart: response.data.chart,
+        lastUpdated: response.data.last_updated || "--:--",
+        isLoading: false
+      });
+    } catch (error) {
+      console.error("Gagal load dashboard pembimbing", error);
+      set({ isLoading: false });
     }
   },
 
@@ -212,77 +238,6 @@ export const useDashboardStore = create<DashboardState>((set) => ({
       set({ logs: response.data, isLoading: false });
     } catch (error) {
       console.error("Gagal load logs admin", error);
-      set({ isLoading: false });
-    }
-  },
-
-  // --- FUNGSI FETCH HUBIN ---
-  fetchHubinDashboard: async () => {
-    set({ isLoading: true });
-    try {
-      const response = await api.get('/api/v1/hubin/dashboard/stats');
-      set({
-        hubinMetrics: response.data.metrics,
-        hubinTable: response.data.table,
-        hubinSebaran: response.data.sebaran,
-        isLoading: false
-      });
-    } catch (error) {
-      console.error("Gagal load data hubin", error);
-      set({ isLoading: false });
-    }
-  },
-
-  // --- FUNGSI FETCH KOORDINATOR ---
-  fetchKoordinatorDashboard: async () => {
-    set({ isLoading: true });
-    try {
-      const response = await api.get('/api/v1/koordinator/dashboard/stats');
-      set({ 
-        koordinatorMetrics: response.data.metrics, 
-        koordinatorTable: response.data.table, 
-        koordinatorChart: [response.data.chart], 
-        isLoading: false 
-      });
-    } catch (error) {
-      console.error("Gagal load data koordinator", error);
-      set({ isLoading: false });
-    }
-  },
-
-  // --- FUNGSI FETCH SISWA ---
-  fetchSiswaDashboard: async () => {
-    set({ isLoading: true });
-    try {
-      const response = await api.get('/api/v1/siswa/dashboard/stats');
-      set({ 
-        siswaMetrics: response.data.metrics,
-        siswaRecentLogbooks: response.data.recent_logbooks,
-        siswaProgress: response.data.progress,
-        isLoading: false 
-      });
-    } catch (error) {
-      console.error("Gagal load data dashboard siswa", error);
-      set({ isLoading: false });
-    }
-  },
-
-  // --- FUNGSI FETCH PEMBIMBING ---
-  fetchPembimbingDashboard: async () => {
-    set({ isLoading: true });
-
-    try {
-      const response = await api.get('/api/v1/pembimbing/dashboard');
-
-      set({
-        pembimbingMetrics: response.data.metrics,
-        pembimbingPendingLogbooks: response.data.pending_logbooks,
-        pembimbingChart: response.data.chart,
-        isLoading: false
-      });
-
-    } catch (error) {
-      console.error("Gagal load dashboard pembimbing", error);
       set({ isLoading: false });
     }
   },
