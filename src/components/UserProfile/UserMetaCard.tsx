@@ -10,9 +10,23 @@ export default function UserMetaCard() {
     ? `Siswa PKL - ${user?.student?.jurusan || "Jurusan Belum Diatur"}`
     : roleName;
 
-  // Hamba ubah URL API Avatar-nya menggunakan warna Hex Brand-500 tanpa tanda #
-  const avatarUrl = `https://ui-avatars.com/api/?name=${user?.name || "User"}&background=006837&color=fff&bold=true`;
-  const isActive = user?.is_active !== false && user?.is_active !== 0;
+    
+    const getFullName = () => {
+      if (user?.student) return user.student.name;
+      if (user?.teacher) return user.teacher.name;
+      return "User Account";
+    };
+  
+    const getAddress = () => {
+      if (user?.student) return user.student.address;
+      if (user?.teacher) return user.teacher.address;
+      return "User Account";
+    };
+    
+    const fullName = getFullName();
+    const address = getAddress();
+    const avatarUrl = `https://ui-avatars.com/api/?name=${encodeURIComponent(fullName)}&background=006837&color=fff&bold=true`;
+    const isActive = user?.is_active !== false && user?.is_active !== 0;
 
   return (
     <div className="p-5 border border-brand-100 bg-brand-50/30 rounded-2xl dark:border-brand-900/30 dark:bg-brand-900/10 lg:p-6 shadow-sm">
@@ -23,7 +37,7 @@ export default function UserMetaCard() {
           </div>
           <div className="order-3 xl:order-2">
             <h4 className="mb-1 text-xl font-bold text-center text-gray-800 dark:text-white/90 xl:text-left">
-              {user?.name || "Nama Pengguna"}
+              {fullName}
             </h4>
             <div className="flex flex-col items-center gap-1 text-center xl:flex-row xl:gap-3 xl:text-left">
               <p className="text-sm font-medium text-brand-600 dark:text-brand-400">
@@ -31,7 +45,7 @@ export default function UserMetaCard() {
               </p>
               <div className="hidden h-3.5 w-px bg-gray-300 dark:bg-gray-700 xl:block"></div>
               <p className="text-sm text-gray-500 dark:text-gray-400">
-                {user?.address || "-"}
+                {address}
               </p>
             </div>
           </div>

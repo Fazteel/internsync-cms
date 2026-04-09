@@ -69,7 +69,7 @@ const handleNotificationClick = async (notif: AppNotification) => {
       if (titleLower.includes("penempatan")) {
         targetUrl = '/koordinator/placements';
       } else if (titleLower.includes("pembimbing")) {
-        targetUrl = '/koordinator/supervisor-assignments';
+        targetUrl = '/koordinator/internship-applications';
       }else if (titleLower.includes("laporan") || titleLower.includes("bermasalah")) {
         targetUrl = '/koordinator/placements';
       }

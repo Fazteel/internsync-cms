@@ -16,6 +16,7 @@ type PropsType = {
   value?: string;
   minDate?: string;
   maxDate?: string;
+  disabled?: boolean;
 };
 
 export default function DatePicker({

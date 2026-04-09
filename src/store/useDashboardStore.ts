@@ -121,8 +121,8 @@ interface DashboardState {
   lastUpdated: string; // Tambahin ini buat nampung waktu cache
 
   // --- ACTIONS ---
-  fetchDashboardData: () => Promise<void>; 
-  fetchLogs: () => Promise<void>; 
+  fetchDashboardData: () => Promise<void>;
+  fetchLogs: () => Promise<void>;
   fetchHubinDashboard: () => Promise<void>;
   fetchKoordinatorDashboard: () => Promise<void>;
   fetchSiswaDashboard: () => Promise<void>;
@@ -145,18 +145,18 @@ export const useDashboardStore = create<DashboardState>((set) => ({
   pembimbingMetrics: { total_bimbingan: 0, menunggu_verifikasi: 0, kunjungan_bulan_ini: 0 },
   pembimbingPendingLogbooks: [],
   pembimbingChart: { categories: [], series: [] },
-  
+
   isLoading: false,
-  lastUpdated: "--:--", // Default value
+  lastUpdated: "--:--",
 
   // --- FUNGSI FETCH DENGAN UPDATE TIMESTAMP ---
 
   fetchDashboardData: async () => {
     try {
       const response = await api.get('/api/v1/admin/dashboard/stats');
-      set({ 
-        stats: response.data, 
-        lastUpdated: response.data.last_updated || "--:--" 
+      set({
+        stats: response.data,
+        lastUpdated: response.data.last_updated || "--:--"
       });
     } catch (error) {
       console.error("Gagal load stats admin", error);
@@ -184,12 +184,18 @@ export const useDashboardStore = create<DashboardState>((set) => ({
     set({ isLoading: true });
     try {
       const response = await api.get('/api/v1/koordinator/dashboard/stats');
-      set({ 
-        koordinatorMetrics: response.data.metrics, 
-        koordinatorTable: response.data.table, 
-        koordinatorChart: [response.data.chart], 
-        lastUpdated: response.data.last_updated || "--:--",
-        isLoading: false 
+      const data = response.data;
+
+      set({
+        koordinatorMetrics: {
+          total_aktif: data.metrics.siswa_aktif_pkl,
+          belum_ditempatkan: data.metrics.belum_ditempatkan,
+          industri_aktif: data.sebaran_industri?.length || 0
+        },
+        koordinatorTable: data.recent_placements || [],
+        koordinatorChart: data.monthly_chart?.datasets || [],
+        lastUpdated: data.last_updated || "--:--",
+        isLoading: false
       });
     } catch (error) {
       console.error("Gagal load data koordinator", error);
@@ -201,12 +207,12 @@ export const useDashboardStore = create<DashboardState>((set) => ({
     set({ isLoading: true });
     try {
       const response = await api.get('/api/v1/siswa/dashboard/stats');
-      set({ 
+      set({
         siswaMetrics: response.data.metrics,
         siswaRecentLogbooks: response.data.recent_logbooks,
         siswaProgress: response.data.progress,
         lastUpdated: response.data.last_updated || "--:--",
-        isLoading: false 
+        isLoading: false
       });
     } catch (error) {
       console.error("Gagal load data dashboard siswa", error);

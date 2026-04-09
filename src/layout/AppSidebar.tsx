@@ -40,17 +40,32 @@ const pembimbingMenu: NavItem[] = [
 
 const koordinatorMenu: NavItem[] = [
   { name: "Dashboard", icon: <GridIcon />, path: "/koordinator/dashboard" },
-  { name: "Plotting Pembimbing", icon: <ListIcon />, path: "/koordinator/supervisor-assignments" },
-  { name: "Kelola Penempatan", icon: <TableIcon />, path: "/koordinator/placements" },
+  {
+    name: "Manajemen PKL",
+    icon: <ListIcon />,
+    subItems: [
+      { name: "Pengajuan PKL", path: "/koordinator/internship-applications" },
+      { name: "Pengiriman PKL", path: "/koordinator/internship-placements" },
+    ]
+  },
+  { name: "Pengajuan Perjalanan Dinas", icon: <PageIcon />, path: "/koordinator/internship-monitoring" },
+  { name: "Riwayat Penempatan", icon: <PageIcon />, path: "/koordinator/placements-history" },
   { name: "Rekapitulasi", icon: <PageIcon />, path: "/koordinator/summary-reports" },
 ];
 
 const hubinMenu: NavItem[] = [
   { name: "Dashboard", icon: <GridIcon />, path: "/hubin/dashboard" },
-  { name: "Kelola Industri", icon: <TableIcon />, path: "/hubin/industries" },
-  { name: "Kelola Keberangkatan", icon: <ListIcon />, path: "/hubin/departure-approvals" },
-  { name: "Kelola Perjalanan Dinas", icon: <CalenderIcon />, path: "/hubin/industry-visit-approvals" },
-  { name: "Master Rekap", icon: <PageIcon />, path: "/hubin/master-reports" },
+  { name: "Manajemen Industri", icon: <TableIcon />, path: "/hubin/industries" },
+  { 
+    name: "Persetujuan PKL", 
+    icon: <ListIcon />, 
+    subItems: [
+      { name: "Persetujuan Pengajuan", path: "/hubin/departure-approvals/application" },
+      { name: "Persetujuan Penempatan", path: "/hubin/departure-approvals/placement" },
+    ]
+  },
+  { name: "Perjalanan Dinas", icon: <CalenderIcon />, path: "/hubin/industry-visit-approvals" },
+  { name: "Rekap Data PKL", icon: <PageIcon />, path: "/hubin/master-reports" },
 ];
 
 const adminMenu: NavItem[] = [
@@ -75,7 +90,7 @@ const AppSidebar: React.FC = () => {
   else if (userRole === "hubin") currentNavItems = hubinMenu;
   else if (userRole === "admin") currentNavItems = adminMenu; 
 
-  const [openSubmenu, setOpenSubmenu] = useState<{ type: "main" | "others"; index: number; } | null>(null);
+  const [openSubmenu, setOpenSubmenu] = useState<{ type: "main" | "others"; index: number; } | null>({type: "main", index: 2});
   const [, setSubMenuHeight] = useState<Record<string, number>>({});
   const subMenuRefs = useRef<Record<string, HTMLDivElement | null>>({});
 
@@ -83,8 +98,7 @@ const AppSidebar: React.FC = () => {
 
   useEffect(() => {
     let submenuMatched = false;
-    const items = currentNavItems; 
-    items.forEach((nav, index) => {
+    currentNavItems.forEach((nav, index) => {
       if (nav.subItems) {
         nav.subItems.forEach((subItem) => {
           if (isActive(subItem.path)) {
@@ -126,28 +140,61 @@ const AppSidebar: React.FC = () => {
         return (
           <li key={nav.name}>
             {nav.subItems ? (
-               <button
-                onClick={() => handleSubmenuToggle(index, menuType)}
-                className={`menu-item group cursor-pointer ${
-                  isSubmenuOpen
-                    ? "bg-brand-800 text-white"
-                    : "text-brand-100 hover:bg-white/10 hover:text-white"
-                } ${!isExpanded && !isHovered ? "lg:justify-center" : "lg:justify-start"}`}
-              >
-                <span className={`menu-item-icon-size ${isSubmenuOpen ? "text-accent-500" : "text-brand-300 group-hover:text-brand-100"}`}>
-                  {nav.icon}
-                </span>
+              <>
+                <button
+                  onClick={() => handleSubmenuToggle(index, menuType)}
+                  className={`menu-item group cursor-pointer ${
+                    isSubmenuOpen
+                      ? "bg-brand-800 text-white"
+                      : "text-brand-100 hover:bg-white/10 hover:text-white"
+                  } ${!isExpanded && !isHovered ? "lg:justify-center" : "lg:justify-start"}`}
+                >
+                  <span className={`menu-item-icon-size ${isSubmenuOpen ? "text-accent-500" : "text-brand-300 group-hover:text-brand-100"}`}>
+                    {nav.icon}
+                  </span>
+                  {(isExpanded || isHovered || isMobileOpen) && (
+                    <span className="menu-item-text">{nav.name}</span>
+                  )}
+                  {(isExpanded || isHovered || isMobileOpen) && (
+                    <ChevronDownIcon
+                      className={`ml-auto w-5 h-5 transition-transform duration-200 ${
+                        isSubmenuOpen ? "rotate-180 text-accent-500" : "text-brand-300 group-hover:text-brand-100"
+                      }`}
+                    />
+                  )}
+                </button>
+
                 {(isExpanded || isHovered || isMobileOpen) && (
-                  <span className="menu-item-text">{nav.name}</span>
+                  <div
+                    ref={(el) => {
+                      subMenuRefs.current[`${menuType}-${index}`] = el;
+                    }}
+                    className="overflow-hidden transition-all duration-300 ease-in-out"
+                    style={{
+                      height: isSubmenuOpen
+                        ? `${subMenuRefs.current[`${menuType}-${index}`]?.scrollHeight || 0}px`
+                        : "0px",
+                    }}
+                  >
+                    <ul className="mt-2 flex flex-col gap-1 pl-11 pr-3">
+                      {nav.subItems.map((subItem) => (
+                        <li key={subItem.name}>
+                          <Link
+                            to={subItem.path}
+                            className={`block rounded-lg px-3 py-2 text-sm transition-colors ${
+                              isActive(subItem.path)
+                                ? "bg-brand-800 text-white font-medium"
+                                : "text-brand-300 hover:bg-white/10 hover:text-white"
+                            }`}
+                          >
+                            {subItem.name}
+                          </Link>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
                 )}
-                {(isExpanded || isHovered || isMobileOpen) && (
-                  <ChevronDownIcon
-                    className={`ml-auto w-5 h-5 transition-transform duration-200 ${
-                      isSubmenuOpen ? "rotate-180 text-accent-500" : "text-brand-300 group-hover:text-brand-100"
-                    }`}
-                  />
-                )}
-              </button>
+              </>
             ) : (
               nav.path && (
                 <Link

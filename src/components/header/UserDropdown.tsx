@@ -23,7 +23,14 @@ export default function UserDropdown() {
     navigate('/signin');
   };
 
-  const firstName = user?.name?.split(" ")[0] || "User";
+  const getFullName = () => {
+    if (user?.student) return user.student.name;
+    if (user?.teacher) return user.teacher.name;
+    return "User Account";
+  };
+  
+  const fullName = getFullName();
+  const firstName = fullName.split(" ")[0] || "User";
 
   return (
     <div className="relative">
@@ -59,7 +66,7 @@ export default function UserDropdown() {
       >
         <div>
           <span className="block font-medium text-gray-700 text-theme-sm dark:text-gray-400">
-            {user?.name || "User Name"}
+            {fullName}
           </span>
           <span className="mt-0.5 block text-theme-xs text-gray-500 dark:text-gray-400">
             {user?.email || "email@domain.com"}

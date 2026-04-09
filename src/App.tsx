@@ -28,7 +28,7 @@ import InternshipEvaluation from "./pages/Siswa/Evaluation";
 import SupervisorDashboard from "./pages/Pembimbing/Home";
 import SupervisionList from "./pages/Pembimbing/SupervisionList";
 import StudentDetail from "./pages/Pembimbing/StudentDetail";
-import LogbookApproval from "./pages/Pembimbing/LogbookApproval";
+import LogbookMonitoring from "./pages/Pembimbing/LogbookMonitoring";
 import SupervisorPermission from "./pages/Pembimbing/SupervisorPermission";
 import StudentEvaluation from "./pages/Pembimbing/StudentEvaluation";
 import IndustryVisit from "./pages/Pembimbing/IndustryVisit";
@@ -36,15 +36,17 @@ import IndustryVisit from "./pages/Pembimbing/IndustryVisit";
 /* ================= KOORDINATOR ================= */
 
 import CoordinatorDashboard from "./pages/Koordinator/Home";
-import PlacementManagement from "./pages/Koordinator/PlacementManagement";
-import SupervisorAssignment from "./pages/Koordinator/SupervisorAssignment";
+import InternshipPlacementList from "./pages/Koordinator/InternshipPlacement";
+import InternshipApplicationList from "./pages/Koordinator/InternshipApplication";
+import InternshipHistoryList from "./pages/Koordinator/InternshipHistoryList";
 import InternshipSummary from "./pages/Koordinator/SummaryReport";
 
 /* ================= HUBIN ================= */
 
 import HubinDashboard from "./pages/Hubin/Home";
 import IndustryManagement from "./pages/Hubin/IndustryManagement";
-import DepartureApproval from "./pages/Hubin/DepartureApproval";
+import HubinApplicationList from "./pages/Hubin/HubinAppicationsList";
+import HubinPlacementsList from "./pages/Hubin/HubinPlacementsList";
 import IndustryVisitApproval from "./pages/Hubin/IndustryVisitApproval";
 import MasterReport from "./pages/Hubin/MasterReport";
 
@@ -81,11 +83,11 @@ const RoleBasedRedirect = () => {
     case "admin":
       return <Navigate to="/admin/dashboard" replace />;
     case "siswa":
-      return <Navigate to="/student/dashboard" replace />;
+      return <Navigate to="/siswa/dashboard" replace />;
     case "pembimbing":
-      return <Navigate to="/supervisor/dashboard" replace />;
+      return <Navigate to="/pembimbing/dashboard" replace />;
     case "koordinator":
-      return <Navigate to="/coordinator/dashboard" replace />;
+      return <Navigate to="/koordinator/dashboard" replace />;
     case "hubin":
       return <Navigate to="/hubin/dashboard" replace />;
     default:
@@ -134,7 +136,7 @@ export default function App() {
                 <Route path="dashboard" element={<SupervisorDashboard />} />
                 <Route path="supervisions" element={<SupervisionList />} />
                 <Route path="supervisions/:id" element={<StudentDetail />} />
-                <Route path="logbook-approvals" element={<LogbookApproval />} />
+                <Route path="logbook-approvals" element={<LogbookMonitoring />} />
                 <Route path="permissions" element={<SupervisorPermission />} />
                 <Route path="student-evaluations" element={<StudentEvaluation />} />
                 <Route path="industry-visits" element={<IndustryVisit />} />
@@ -144,8 +146,9 @@ export default function App() {
 
               <Route path="/koordinator">
                 <Route path="dashboard" element={<CoordinatorDashboard />} />
-                <Route path="placements" element={<PlacementManagement />} />
-                <Route path="supervisor-assignments" element={<SupervisorAssignment />} />
+                <Route path="internship-placements" element={<InternshipPlacementList />} />
+                <Route path="internship-applications" element={<InternshipApplicationList />} />
+                <Route path="placements-history" element={<InternshipHistoryList />} />
                 <Route path="summary-reports" element={<InternshipSummary />} />
               </Route>
 
@@ -154,7 +157,8 @@ export default function App() {
               <Route path="/hubin">
                 <Route path="dashboard" element={<HubinDashboard />} />
                 <Route path="industries" element={<IndustryManagement />} />
-                <Route path="departure-approvals" element={<DepartureApproval />} />
+                <Route path="departure-approvals/application" element={<HubinApplicationList />} />
+                <Route path="departure-approvals/placement" element={<HubinPlacementsList />} />
                 <Route path="industry-visit-approvals" element={<IndustryVisitApproval />} />
                 <Route path="master-reports" element={<MasterReport />} />
               </Route>

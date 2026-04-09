@@ -1,6 +1,5 @@
 import { Table, TableBody, TableCell, TableHeader, TableRow } from "../../ui/table";
 import Badge from "../../ui/badge/Badge";
-import { Link } from "react-router-dom";
 import { useDashboardStore } from "../../../store/useDashboardStore";
 
 export default function StatusSiswa() {
@@ -12,13 +11,6 @@ export default function StatusSiswa() {
         <div>
           <h3 className="text-lg font-bold text-gray-800 dark:text-white/90">Daftar Status Siswa Terkini</h3>
           <p className="mt-1 text-gray-500 text-theme-sm dark:text-gray-400">Pantau penempatan dan status terkini seluruh siswa.</p>
-        </div>
-
-        <div className="flex flex-wrap items-center gap-3">
-          <Link to="/koordinator/penempatan" className="inline-flex items-center gap-2 rounded-lg bg-brand-500 px-4 py-2 text-theme-sm font-semibold text-white shadow-theme-xs hover:bg-brand-600 transition-colors">
-            Kelola Penempatan
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7"></path></svg>
-          </Link>
         </div>
       </div>
 
@@ -36,7 +28,7 @@ export default function StatusSiswa() {
           <TableBody className="divide-y divide-gray-100 dark:divide-gray-800">
             {isLoading ? (
                <TableRow><TableCell colSpan={4} className="py-4 text-center text-gray-500">Memuat data...</TableCell></TableRow>
-            ) : table.length === 0 ? (
+            ) : (table?.length || 0) === 0 ? (
                <TableRow><TableCell colSpan={4} className="py-4 text-center text-gray-500">Belum ada data siswa.</TableCell></TableRow>
             ) : (
               table.map((student) => (

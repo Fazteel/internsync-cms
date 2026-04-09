@@ -7,8 +7,6 @@ export interface LogbookEntry {
   activity: string;
   attachment: string;
   attachment_url: string | null;
-  status: "approved" | "submitted" | "revised";
-  revisionNote?: string;
 }
 
 interface LogbookState {

@@ -8,7 +8,8 @@ export default function UserAddressCard() {
   const roleName = user?.roles?.[0]?.name;
   const isStudent = roleName === "Siswa";
   
-  const identifierValue = isStudent ? user?.student?.nis : user?.nip;
+  const identifierValue = isStudent ? user?.student?.nis : user?.teacher?.nip;
+  const addressValue = isStudent ? user?.student?.address : user?.teacher?.address;
   const identifierLabel = isStudent ? "Nomor Induk Siswa (NIS)" : "Nomor Induk Pegawai (NIP)";
 
   const activeAcademicYear = academicYears.find((year) => year.status === "Aktif");
@@ -25,9 +26,7 @@ export default function UserAddressCard() {
 
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-2 lg:gap-7 2xl:gap-x-32">
           <div>
-            <p className="mb-1.5 text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">
-              {identifierLabel}
-            </p>
+            <p className="mb-1.5 text-xs font-semibold uppercase tracking-wider text-gray-500">{identifierLabel}</p>
             <p className="text-sm font-bold text-brand-600 dark:text-brand-400 bg-brand-50 p-2.5 rounded-lg border border-brand-100 dark:bg-brand-900/20 dark:border-brand-800/50">
               {identifierValue || "-"}
             </p>
@@ -36,18 +35,14 @@ export default function UserAddressCard() {
           {isStudent && (
             <>
               <div>
-                <p className="mb-1.5 text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">
-                  Jurusan
-                </p>
+                <p className="mb-1.5 text-xs font-semibold uppercase tracking-wider text-gray-500">Jurusan</p>
                 <p className="text-sm font-medium text-gray-800 dark:text-white/90 bg-gray-50/50 p-2.5 rounded-lg border border-gray-100 dark:bg-gray-800/50 dark:border-gray-700">
                   {user?.student?.jurusan || "-"}
                 </p>
               </div>
 
               <div>
-                <p className="mb-1.5 text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">
-                  Kelas
-                </p>
+                <p className="mb-1.5 text-xs font-semibold uppercase tracking-wider text-gray-500">Kelas</p>
                 <p className="text-sm font-medium text-gray-800 dark:text-white/90 bg-gray-50/50 p-2.5 rounded-lg border border-gray-100 dark:bg-gray-800/50 dark:border-gray-700">
                   {user?.student?.kelas || "-"}
                 </p>
@@ -57,21 +52,17 @@ export default function UserAddressCard() {
 
           {!isStudent && (
             <div>
-              <p className="mb-1.5 text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">
-                Tahun Ajaran Aktif
-              </p>
+              <p className="mb-1.5 text-xs font-semibold uppercase tracking-wider text-gray-500">Tahun Ajaran Aktif</p>
               <p className="text-sm font-medium text-gray-800 dark:text-white/90 bg-gray-50/50 p-2.5 rounded-lg border border-gray-100 dark:bg-gray-800/50 dark:border-gray-700">
-                {activeAcademicYear ? activeAcademicYear.tahun : "-"} ({activeAcademicYear ? activeAcademicYear.semester : "-"})
+                {activeAcademicYear ? `${activeAcademicYear.tahun} (${activeAcademicYear.semester})` : "-"}
               </p>
             </div>
           )}
 
           <div className="sm:col-span-2 lg:col-span-1">
-            <p className="mb-1.5 text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">
-              Kota/Kabupaten
-            </p>
+            <p className="mb-1.5 text-xs font-semibold uppercase tracking-wider text-gray-500">Kota/Kabupaten</p>
             <p className="text-sm font-medium text-gray-800 dark:text-white/90 bg-gray-50/50 p-2.5 rounded-lg border border-gray-100 dark:bg-gray-800/50 dark:border-gray-700">
-              {user?.address || "-"}
+              {addressValue || "Belum diatur"}
             </p>
           </div>
         </div>

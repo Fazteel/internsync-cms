@@ -11,10 +11,13 @@ interface StudentMentee {
   name: string;
   major: string;
   industry: string;
-  duration: number;
-  monthsCompleted: number;
   status: "Aktif" | "Selesai" | "Bermasalah" | "Menunggu";
   is_flagged: boolean;
+  departure_date: string;
+  final_end_date: string;
+  duration_label: string;
+  passed_label: string;
+  progress_percent: number;
 }
 
 interface StudentDetail {
@@ -37,7 +40,6 @@ interface StudentMenteeState {
   students: StudentMentee[];
   studentDetail: StudentDetail | null;
   isLoading: boolean;
-
   fetchStudents: () => Promise<void>;
   fetchStudentDetail: (id: string) => Promise<void>;
   reportProblem: (id: string, reason: string) => Promise<void>;
@@ -50,7 +52,6 @@ export const useStudentMenteeStore = create<StudentMenteeState>((set, get) => ({
 
   fetchStudents: async () => {
     set({ isLoading: true });
-
     try {
       const data = await fetchStudentsService();
       set({ students: data, isLoading: false });
@@ -62,7 +63,6 @@ export const useStudentMenteeStore = create<StudentMenteeState>((set, get) => ({
 
   fetchStudentDetail: async (id) => {
     set({ isLoading: true });
-
     try {
       const data = await fetchStudentDetailService(id);
       set({ studentDetail: data, isLoading: false });
@@ -74,7 +74,6 @@ export const useStudentMenteeStore = create<StudentMenteeState>((set, get) => ({
 
   reportProblem: async (id, reason) => {
     set({ isLoading: true });
-
     try {
       await reportProblemService(id, reason);
       await get().fetchStudentDetail(id);

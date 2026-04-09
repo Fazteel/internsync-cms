@@ -3,17 +3,24 @@ import { authService } from '../services/authService';
 
 export interface User {
   id: number;
-  name: string;
   email: string;
-  nip?: string | null;
-  phone?: string | null;
-  address?: string | null;
   is_active?: boolean | number;
   roles?: { id: number; name: string }[];
   student?: {
-    nis?: string | null;
+    id: number;
+    name: string;
+    nis: string;
     jurusan?: string | null;
     kelas?: string | null;
+    address?: string | null;
+    phone?: string | null;
+  } | null;
+  teacher?: {
+    id: number;
+    name: string;
+    nip: string | null;
+    phone?: string | null;
+    address?: string | null;
   } | null;
 }
 
