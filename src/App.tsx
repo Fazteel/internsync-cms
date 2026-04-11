@@ -59,6 +59,7 @@ import SystemSetting from "./pages/Admin/Setting";
 import ActivityLogs from "./pages/Admin/ActivityLogs";
 
 import UserProfiles from "./pages/UserProfiles";
+import KoordinatorIndustryVisit from "./pages/Koordinator/KoordinatorIndustryVisit";
 
 /* ================= ROLE REDIRECT ================= */
 
@@ -136,7 +137,7 @@ export default function App() {
                 <Route path="dashboard" element={<SupervisorDashboard />} />
                 <Route path="supervisions" element={<SupervisionList />} />
                 <Route path="supervisions/:id" element={<StudentDetail />} />
-                <Route path="logbook-approvals" element={<LogbookMonitoring />} />
+                <Route path="logbook-recent" element={<LogbookMonitoring />} />
                 <Route path="permissions" element={<SupervisorPermission />} />
                 <Route path="student-evaluations" element={<StudentEvaluation />} />
                 <Route path="industry-visits" element={<IndustryVisit />} />
@@ -149,6 +150,7 @@ export default function App() {
                 <Route path="internship-placements" element={<InternshipPlacementList />} />
                 <Route path="internship-applications" element={<InternshipApplicationList />} />
                 <Route path="placements-history" element={<InternshipHistoryList />} />
+                <Route path="internship-monitoring" element={<KoordinatorIndustryVisit />} />
                 <Route path="summary-reports" element={<InternshipSummary />} />
               </Route>
 
