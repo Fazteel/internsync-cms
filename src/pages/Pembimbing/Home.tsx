@@ -1,7 +1,8 @@
 import PageMeta from "../../components/common/PageMeta";
 import {
   SupervisorMetrics,
-  SupervisionActivityChart
+  SupervisionActivityChart,
+  LogbookRecent
 } from "../../components/dashboard";
 import { useDashboardStore } from "../../store/useDashboardStore";
 
@@ -34,7 +35,7 @@ export default function DashboardPembimbing() {
         </div>
 
         <div className="col-span-12">
-          {/* <PendingLogbooks /> */}
+          <LogbookRecent />
         </div>
 
       </div>

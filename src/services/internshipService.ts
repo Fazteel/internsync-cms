@@ -15,6 +15,13 @@ export interface InternshipPlacementPayload {
     action: 'simpan' | 'pengiriman' | 'batal';
 }
 
+export interface ExtendInternshipPayload {
+  type: 'individual' | 'batch';
+  id: number;
+  duration_option: string;
+  custom_end_date?: string;
+}
+
 export const internshipService = {
   getApplications: async (type: 'pengajuan' | 'pengiriman' | 'riwayat') => {
     const response = await api.get(`/api/v1/koordinator/applications?type=${type}`);
@@ -50,6 +57,16 @@ export const internshipService = {
       : `/api/v1/hubin/placement/${id}/action`;
       
     const response = await api.post(endpoint, { action });
+    return response.data;
+  },
+
+  extendInternship: async (payload: ExtendInternshipPayload) => {
+    const response = await api.post('/api/v1/koordinator/extend', payload);
+    return response.data;
+  },
+
+  withdrawInternship: async (studentId: number) => {
+    const response = await api.post(`/api/v1/koordinator/withdraw/${studentId}`);
     return response.data;
   }
 };

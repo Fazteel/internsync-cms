@@ -25,8 +25,7 @@ interface HubinMetrics {
 
 // --- INTERFACE SISWA ---
 interface SiswaMetrics {
-  approved_count: number;
-  revision_count: number;
+  total_logbook_diisi: number;
 }
 interface SiswaLogbook {
   id: number;
@@ -44,7 +43,7 @@ interface SiswaProgress {
 // --- INTERFACE PEMBIMBING ---
 interface PembimbingMetrics {
   total_bimbingan: number;
-  menunggu_verifikasi: number;
+  total_logbook_diisi: number;
   kunjungan_bulan_ini: number;
 }
 
@@ -113,7 +112,7 @@ interface DashboardState {
   siswaRecentLogbooks: SiswaLogbook[];
   siswaProgress: SiswaProgress;
   pembimbingMetrics: PembimbingMetrics;
-  pembimbingPendingLogbooks: PendingLogbook[];
+  pembimbingRecentLogbooks: PendingLogbook[];
   pembimbingChart: PembimbingChart;
 
   // --- GLOBAL STATE ---
@@ -139,11 +138,11 @@ export const useDashboardStore = create<DashboardState>((set) => ({
   koordinatorMetrics: { total_aktif: 0, belum_ditempatkan: 0, industri_aktif: 0 },
   koordinatorTable: [],
   koordinatorChart: [{ name: "Diberangkatkan", data: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0] }],
-  siswaMetrics: { approved_count: 0, revision_count: 0 },
+  siswaMetrics: { total_logbook_diisi: 0 },
   siswaRecentLogbooks: [],
   siswaProgress: { total_days: 0, days_passed: 0, days_remaining: 0, percentage: 0 },
-  pembimbingMetrics: { total_bimbingan: 0, menunggu_verifikasi: 0, kunjungan_bulan_ini: 0 },
-  pembimbingPendingLogbooks: [],
+  pembimbingMetrics: { total_bimbingan: 0, total_logbook_diisi: 0, kunjungan_bulan_ini: 0 },
+  pembimbingRecentLogbooks: [],
   pembimbingChart: { categories: [], series: [] },
 
   isLoading: false,
@@ -226,7 +225,7 @@ export const useDashboardStore = create<DashboardState>((set) => ({
       const response = await api.get('/api/v1/pembimbing/dashboard');
       set({
         pembimbingMetrics: response.data.metrics,
-        pembimbingPendingLogbooks: response.data.pending_logbooks,
+        pembimbingRecentLogbooks: response.data.recent_logbooks,
         pembimbingChart: response.data.chart,
         lastUpdated: response.data.last_updated || "--:--",
         isLoading: false

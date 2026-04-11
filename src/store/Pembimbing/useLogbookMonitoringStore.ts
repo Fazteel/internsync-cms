@@ -11,6 +11,7 @@ export interface StudentLogbook {
   activity: string;
   attachment: string;
   attachment_url: string | null;
+  created_at: string;
 }
 
 interface LogbookMonitoringState {

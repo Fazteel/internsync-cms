@@ -82,6 +82,15 @@ export default function SummaryReport() {
   const totalPages = Math.ceil(data.length / rowsPerPage);
   const paginatedData = data.slice((currentPage - 1) * rowsPerPage, currentPage * rowsPerPage);
 
+  const renderStatusBadge = (status: string) => {
+    switch (status) {
+      case 'aktif': return <Badge color="success">Aktif</Badge>;
+      case 'selesai': return <Badge color="primary">Selesai</Badge>;
+      case 'batal': return <Badge color="error">Dibatalkan</Badge>;
+      default: return <Badge color="gray">{status}</Badge>;
+    }
+  };
+
   return (
     <>
       <PageMeta title="Rekapitulasi PKL | Sistem Manajemen PKL" description="Laporan akhir, status, dan rekapitulasi nilai siswa PKL." />
@@ -141,11 +150,11 @@ export default function SummaryReport() {
             <Table>
               <TableHeader className="border-gray-100 dark:border-gray-800 border-y">
                 <TableRow>
-                  <TableCell isHeader className="py-3 font-semibold text-gray-500 text-start text-theme-xs whitespace-nowrap min-w-[250px]">Siswa & Jurusan</TableCell>
-                  <TableCell isHeader className="py-3 font-semibold text-gray-500 text-start text-theme-xs whitespace-nowrap min-w-[250px]">Industri & Pembimbing</TableCell>
-                  <TableCell isHeader className="py-3 font-semibold text-gray-500 text-start text-theme-xs whitespace-nowrap">Status PKL</TableCell>
-                  <TableCell isHeader className="py-3 font-semibold text-gray-500 text-center text-theme-xs whitespace-nowrap">Nilai Akhir</TableCell>
-                  <TableCell isHeader className="py-3 font-semibold text-gray-500 text-center text-theme-xs whitespace-nowrap">Aksi</TableCell>
+                  <TableCell isHeader className="py-3 font-semibold text-gray-500 text-start text-theme-xs whitespace-nowrap min-w-[150px]">Siswa & Jurusan</TableCell>
+                  <TableCell isHeader className="py-3 font-semibold text-gray-500 text-start text-theme-xs whitespace-nowrap min-w-[150px]">Industri & Pembimbing</TableCell>
+                  <TableCell isHeader className="py-3 font-semibold text-gray-500 text-start text-theme-xs whitespace-nowrap min-w-[50px]">Status PKL</TableCell>
+                  <TableCell isHeader className="py-3 font-semibold text-gray-500 text-center text-theme-xs whitespace-nowrap min-w-[150px]">Nilai Akhir</TableCell>
+                  <TableCell isHeader className="py-3 font-semibold text-gray-500 text-center text-theme-xs whitespace-nowrap min-w-[150px]">Aksi</TableCell>
                 </TableRow>
               </TableHeader>
 
@@ -165,9 +174,7 @@ export default function SummaryReport() {
 
                       <TableCell className="py-4 whitespace-nowrap">
                         <div className="flex items-start mt-1">
-                          <Badge color={student.status === "Selesai" ? "primary" : student.status === "Aktif" ? "success" : "error"}>
-                            {student.status}
-                          </Badge>
+                          {renderStatusBadge(student.status)}
                         </div>
                       </TableCell>
 
@@ -186,8 +193,8 @@ export default function SummaryReport() {
                           onClick={() => handlePrintReport(student.id, student.name)}
                           disabled={student.status !== "Selesai"}
                           className={`inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold transition-colors ${student.status === "Selesai"
-                              ? "bg-brand-500 text-white hover:bg-brand-600 shadow-[0_2px_8px_rgba(0,104,55,0.2)] cursor-pointer"
-                              : "bg-gray-50 border border-gray-200 text-gray-400 cursor-not-allowed dark:bg-gray-800/50 dark:border-gray-700 dark:text-gray-600"
+                            ? "bg-brand-500 text-white hover:bg-brand-600 shadow-[0_2px_8px_rgba(0,104,55,0.2)] cursor-pointer"
+                            : "bg-gray-50 border border-gray-200 text-gray-400 cursor-not-allowed dark:bg-gray-800/50 dark:border-gray-700 dark:text-gray-600"
                             }`}
                           title={student.status !== "Selesai" ? "Hanya bisa dicetak jika status sudah Selesai" : "Cetak Sertifikat/Rapor"}
                         >

@@ -4,7 +4,7 @@ export { default as RecentLogbooks } from "./siswa/RecentLogbooks";
 
 export { default as SupervisorMetrics } from "./pembimbing/SupervisorMetrics";
 export { default as SupervisionActivityChart } from "./pembimbing/SupervisionActivityChart";
-export { default as PendingLogbooks } from "./pembimbing/PendingLogbooks";
+export { default as LogbookRecent } from "./pembimbing/LogbooksRecent";
 
 export { default as CoordinatorMetrics } from "./koordinator/CoordinatorMetrics";
 export { default as PlacementTrendChart } from "./koordinator/PlacementTrendChart";

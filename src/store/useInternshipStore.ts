@@ -1,3 +1,4 @@
+import { ExtendInternshipPayload } from './../services/internshipService';
 import { create } from 'zustand';
 import { internshipService, InternshipApplicationPayload, InternshipPlacementPayload } from '../services/internshipService';
 
@@ -55,6 +56,8 @@ interface InternshipState {
   submitApplication: (payload: InternshipApplicationPayload) => Promise<void>;
   submitPlacement: (id: number, payload: InternshipPlacementPayload) => Promise<void>;
   processHubinApproval: (id: number, action: 'approve' | 'reject', type: 'pengajuan' | 'pengiriman') => Promise<void>;
+  extendInternship: (payload: ExtendInternshipPayload) => Promise<void>;
+  withdrawStudent: (studentId: number) => Promise<void>;
 }
 
 export const useInternshipStore = create<InternshipState>((set, get) => ({
@@ -108,6 +111,26 @@ export const useInternshipStore = create<InternshipState>((set, get) => ({
     try {
       await internshipService.processApproval(id, action, type);
       get().fetchPendingApprovals(type);
+    } finally {
+      set({ isLoading: false });
+    }
+  },
+
+  extendInternship: async (payload) => {
+    set({ isLoading: true });
+    try {
+      await internshipService.extendInternship(payload);
+      await get().fetchApplications('riwayat');
+    } finally {
+      set({ isLoading: false });
+    }
+  },
+
+  withdrawStudent: async (studentId) => {
+    set({ isLoading: true });
+    try {
+      await internshipService.withdrawInternship(studentId);
+      await get().fetchApplications('riwayat');
     } finally {
       set({ isLoading: false });
     }

@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useRef, useImperativeHandle, forwardRef } from "react";
 import flatpickr from "flatpickr";
 import "flatpickr/dist/flatpickr.css";
 import Label from "./Label";
@@ -19,7 +19,12 @@ type PropsType = {
   disabled?: boolean;
 };
 
-export default function DatePicker({
+// Bikin tipe kembalian ref biar lu tau fungsi apa aja yang bisa dipanggil
+export interface DatePickerRef {
+  clear: () => void;
+}
+
+const DatePicker = forwardRef<DatePickerRef, PropsType>(({
   id,
   mode,
   onChange,
@@ -28,9 +33,21 @@ export default function DatePicker({
   placeholder,
   minDate,
   maxDate,
-}: PropsType) {
+}, ref) => {
+  // Bikin lokal ref buat nangkep instance flatpickr
+  const flatpickrRef = useRef<flatpickr.Instance | null>(null);
+
+  // Expose fungsi clear() ke parent component
+  useImperativeHandle(ref, () => ({
+    clear: () => {
+      if (flatpickrRef.current) {
+        flatpickrRef.current.clear();
+      }
+    }
+  }));
+
   useEffect(() => {
-    const flatPickr = flatpickr(`#${id}`, {
+    flatpickrRef.current = flatpickr(`#${id}`, {
       mode: mode || "single",
       static: true,
       monthSelectorType: "static",
@@ -39,11 +56,11 @@ export default function DatePicker({
       onChange,
       minDate: minDate,
       maxDate: maxDate,
-    });
+    }) as flatpickr.Instance;
 
     return () => {
-      if (!Array.isArray(flatPickr)) {
-        flatPickr.destroy();
+      if (flatpickrRef.current && !Array.isArray(flatpickrRef.current)) {
+        flatpickrRef.current.destroy();
       }
     };
   }, [mode, onChange, id, defaultDate, minDate, maxDate]);
@@ -65,4 +82,6 @@ export default function DatePicker({
       </div>
     </div>
   );
-}
+});
+
+export default DatePicker;

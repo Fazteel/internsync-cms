@@ -28,7 +28,7 @@ export default function IndustryVisitApproval() {
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedVisit, setSelectedTrip] = useState<VisitApproval | null>(null);
-  
+
   const [isRejecting, setIsRejecting] = useState(false);
   const [rejectReason, setRejectReason] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -41,7 +41,7 @@ export default function IndustryVisitApproval() {
 
   const handleOpenModal = (visit: VisitApproval) => {
     setSelectedTrip(visit);
-    setIsRejecting(false); 
+    setIsRejecting(false);
     setRejectReason("");
     setIsModalOpen(true);
   };
@@ -85,7 +85,7 @@ export default function IndustryVisitApproval() {
 
     if (!selectedVisit) return;
     setIsSubmitting(true);
-    
+
     try {
       await verifyVisit(selectedVisit.id, "Rejected", rejectReason);
       fetchVisits();
@@ -133,7 +133,7 @@ export default function IndustryVisitApproval() {
     }
   };
 
-  const viewLetter = async(id: number) => {
+  const viewLetter = async (id: number) => {
     setAlertInfo({
       show: true,
       variant: "info",
@@ -182,20 +182,20 @@ export default function IndustryVisitApproval() {
       <PageMeta title="Approval Perjalanan Dinas | Sistem Manajemen PKL" description="Halaman untuk meninjau dan menyetujui pengajuan kunjungan monitoring guru pembimbing." />
 
       <div className="space-y-6">
-        
+
         {alertInfo.show && (
           <div className="animate-fade-in">
             <Alert variant={alertInfo.variant} title={alertInfo.title} message={alertInfo.message} />
           </div>
         )}
 
-        <PageHeader 
-          title="Approval Perjalanan Dinas" 
+        <PageHeader
+          title="Approval Perjalanan Dinas"
           description="Tinjau pengajuan kunjungan guru dan terbitkan SPPD jika disetujui."
         >
           <SearchInput value={searchTerm} onChange={(val) => { setSearchTerm(val); setCurrentPage(1); }} placeholder="Cari Nama Guru atau Industri..." />
           <SelectInput
-            value={filterStatus} 
+            value={filterStatus}
             onChange={(val) => { setFilterStatus(val as StatusType); setCurrentPage(1); }}>
             <option value="All">Semua Status</option>
             <option value="Pending">Menunggu</option>
@@ -205,30 +205,30 @@ export default function IndustryVisitApproval() {
         </PageHeader>
 
         <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white px-4 pb-3 pt-4 dark:border-gray-800 dark:bg-white/[0.03] sm:px-6 shadow-sm">
-          <TableTopControls 
-            rowsPerPage={rowsPerPage} 
-            setRowsPerPage={setRowsPerPage} 
-            totalData={filteredVisits.length} 
-            setCurrentPage={setCurrentPage} 
+          <TableTopControls
+            rowsPerPage={rowsPerPage}
+            setRowsPerPage={setRowsPerPage}
+            totalData={filteredVisits.length}
+            setCurrentPage={setCurrentPage}
           />
 
           <div className="max-w-full overflow-x-auto custom-scrollbar">
             <Table>
               <TableHeader className="border-gray-100 dark:border-gray-800 border-y">
                 <TableRow>
-                  <TableCell isHeader className="py-3 font-medium text-gray-500 text-start text-theme-xs min-w-[200px] whitespace-nowrap">Guru Pembimbing</TableCell>
-                  <TableCell isHeader className="py-3 font-medium text-gray-500 text-start text-theme-xs min-w-[200px] whitespace-nowrap">Tujuan & Tanggal</TableCell>
-                  <TableCell isHeader className="py-3 font-medium text-gray-500 text-start text-theme-xs min-w-[250px] whitespace-nowrap">Agenda</TableCell>
-                  <TableCell isHeader className="py-3 font-medium text-gray-500 text-start text-theme-xs min-w-[100px] whitespace-nowrap">Status</TableCell>
-                  <TableCell isHeader className="py-3 font-medium text-gray-500 text-center text-theme-xs min-w-[100px] whitespace-nowrap">Aksi</TableCell>
+                  <TableCell isHeader className="py-3 font-medium text-gray-500 text-start text-theme-xs min-w-[150px] whitespace-nowrap">Guru Pembimbing</TableCell>
+                  <TableCell isHeader className="py-3 font-medium text-gray-500 text-start text-theme-xs min-w-[150px] whitespace-nowrap">Tujuan & Tanggal</TableCell>
+                  <TableCell isHeader className="py-3 font-medium text-gray-500 text-start text-theme-xs min-w-[150px] whitespace-nowrap">Agenda</TableCell>
+                  <TableCell isHeader className="py-3 font-medium text-gray-500 text-start text-theme-xs min-w-[150px] whitespace-nowrap">Status</TableCell>
+                  <TableCell isHeader className="py-3 font-medium text-gray-500 text-center text-theme-xs min-w-[150px] whitespace-nowrap">Aksi</TableCell>
                 </TableRow>
               </TableHeader>
 
               <TableBody className="divide-y divide-gray-100 dark:divide-gray-800">
-                <TableDataState 
+                <TableDataState
                   isLoading={isLoading}
-                  isEmpty={paginatedData.length === 0} 
-                  colSpan={5} 
+                  isEmpty={paginatedData.length === 0}
+                  colSpan={5}
                   emptyText="Tidak ada data pengajuan perjalanan dinas."
                 >
                   {paginatedData.map((visit) => (
@@ -265,7 +265,7 @@ export default function IndustryVisitApproval() {
                       <TableCell className="py-4 text-center whitespace-nowrap">
                         <div className="flex items-center justify-center gap-2">
                           {visit.status === "Pending" ? (
-                            <button 
+                            <button
                               onClick={() => handleOpenModal(visit)}
                               className="inline-flex items-center gap-1 rounded bg-accent-50 px-3 py-1.5 text-xs font-medium text-accent-700 hover:bg-accent-100 transition-colors"
                             >
@@ -273,15 +273,15 @@ export default function IndustryVisitApproval() {
                               Tinjau
                             </button>
                           ) : visit.status === "Approved" ? (
-                              visit.file_path ? (
-                                <button 
-                                  onClick={() => viewLetter(visit.id)}
-                                  className="inline-flex items-center gap-1 rounded bg-brand-50 px-3 py-1.5 text-xs font-medium text-brand-600 hover:bg-brand-100 transition-colors"
-                                >
-                                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
-                                  Lihat Surat
-                                </button>
-                              ) : (
+                            visit.file_path ? (
+                              <button
+                                onClick={() => viewLetter(visit.id)}
+                                className="inline-flex items-center gap-1 rounded bg-brand-50 px-3 py-1.5 text-xs font-medium text-brand-600 hover:bg-brand-100 transition-colors"
+                              >
+                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
+                                Lihat Surat
+                              </button>
+                            ) : (
                               <button
                                 onClick={() => handlePrintSPPD(visit.id, visit.teacherName)}
                                 className="inline-flex items-center gap-1 rounded bg-brand-50 px-3 py-1.5 text-xs font-medium text-brand-600 hover:bg-brand-100 transition-colors"
@@ -289,9 +289,9 @@ export default function IndustryVisitApproval() {
                                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
                                 Cetak SPPD
                               </button>
-                              )
+                            )
                           ) : (
-                            <button 
+                            <button
                               onClick={() => handleOpenModal(visit)}
                               className="inline-flex items-center gap-1 rounded bg-gray-50 px-3 py-1.5 text-xs font-medium text-gray-600 hover:bg-gray-100 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700 transition-colors"
                             >
@@ -307,10 +307,10 @@ export default function IndustryVisitApproval() {
             </Table>
           </div>
 
-          <TablePagination 
-            currentPage={currentPage} 
-            totalPages={totalPages} 
-            setCurrentPage={setCurrentPage} 
+          <TablePagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            setCurrentPage={setCurrentPage}
           />
         </div>
       </div>
@@ -329,7 +329,7 @@ export default function IndustryVisitApproval() {
           <div className="rounded-xl border border-gray-100 bg-gray-50 p-4 dark:border-gray-800 dark:bg-gray-800/50">
             <span className="block text-xs font-medium text-gray-500">Diajukan Oleh:</span>
             <p className="mt-1 font-bold text-gray-800 dark:text-white/90">{selectedVisit?.teacherName}</p>
-             <div className="mt-2 flex items-start">
+            <div className="mt-2 flex items-start">
               <Badge color={selectedVisit?.status === "Approved" ? "success" : selectedVisit?.status === "Pending" ? "warning" : "error"}>
                 {selectedVisit?.status === "Pending" ? "Menunggu" : selectedVisit?.status === "Approved" ? "Disetujui" : "Ditolak"}
               </Badge>
@@ -363,8 +363,8 @@ export default function IndustryVisitApproval() {
           {isRejecting && (
             <form id="rejectForm" onSubmit={handleRejectSubmit} className="mt-4 animate-fade-in bg-error-50/50 p-4 rounded-lg border border-error-100 dark:bg-error-900/10 dark:border-error-800/30">
               <label className="mb-2 block text-sm font-bold text-error-700 dark:text-error-500">Alasan Penolakan <span className="text-error-500">*</span></label>
-              <textarea 
-                rows={3} 
+              <textarea
+                rows={3}
                 value={rejectReason}
                 onChange={(e) => setRejectReason(e.target.value)}
                 placeholder="Berikan alasan mengapa jadwal ini ditolak..."
@@ -376,25 +376,25 @@ export default function IndustryVisitApproval() {
         </div>
 
         <div className="flex items-center justify-end gap-3 px-6 py-4 border-t border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-800/50">
-          <button 
-            type="button" 
+          <button
+            type="button"
             onClick={handleCloseModal}
             disabled={isSubmitting}
             className="rounded-lg border border-gray-300 bg-white px-5 py-2.5 text-sm font-semibold text-gray-700 hover:bg-gray-50 transition-colors dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700 disabled:opacity-50"
           >
             {selectedVisit?.status === "Pending" && !isRejecting ? "Batal" : "Tutup"}
           </button>
-          
+
           {selectedVisit?.status === "Pending" && !isRejecting && (
             <>
-              <button 
+              <button
                 onClick={() => setIsRejecting(true)}
                 disabled={isSubmitting}
                 className="rounded-lg border border-error-200 bg-error-50 px-5 py-2.5 text-sm font-semibold text-error-600 hover:bg-error-100 transition-colors dark:bg-error-900/20 dark:border-error-800/50 dark:text-error-400 dark:hover:bg-error-900/40 disabled:opacity-50"
               >
                 Tolak Kunjungan
               </button>
-              <button 
+              <button
                 onClick={handleApprove}
                 disabled={isSubmitting}
                 className="rounded-lg bg-brand-500 px-5 py-2.5 text-sm font-semibold text-white hover:bg-brand-600 shadow-[0_4px_10px_rgba(0,104,55,0.2)] transition-colors disabled:opacity-50"
@@ -405,7 +405,7 @@ export default function IndustryVisitApproval() {
           )}
 
           {isRejecting && (
-            <button 
+            <button
               type="submit"
               form="rejectForm"
               disabled={isSubmitting}

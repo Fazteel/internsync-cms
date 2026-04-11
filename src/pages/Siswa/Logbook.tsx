@@ -247,7 +247,7 @@ export default function Logbook() {
       </div>
 
       <Modal isOpen={isModalOpen} onClose={handleCloseModal} className="max-w-[700px] p-0" showCloseButton={false}>
-        <div className="flex items-center justify-between border-b border-brand-100 bg-brand-50 px-6 py-4 dark:bg-gray-800">
+        <div className="flex items-center justify-between border-b rounded-t-2xl border-brand-100 bg-brand-50 px-6 py-4 dark:bg-gray-800">
           <h3 className="text-lg font-bold text-brand-800 dark:text-white">
             {modalMode === "add" ? "Tambah Logbook Baru" : modalMode === "edit" ? "Ubah Logbook" : "Detail Logbook"}
           </h3>

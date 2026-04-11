@@ -1,6 +1,6 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import { useCallback, useEffect, useRef, useState } from "react";
-import { Link, useLocation } from "react-router-dom"; 
+import { Link, useLocation } from "react-router-dom";
 import { useAuthStore } from "../store/useAuthStore";
 
 import {
@@ -32,7 +32,7 @@ const siswaMenu: NavItem[] = [
 const pembimbingMenu: NavItem[] = [
   { name: "Dashboard", icon: <GridIcon />, path: "/pembimbing/dashboard" },
   { name: "Daftar Bimbingan", icon: <TableIcon />, path: "/pembimbing/supervisions" },
-  { name: "Verifikasi Logbook", icon: <ListIcon />, path: "/pembimbing/logbook-approvals" },
+  { name: "Monitoring Logbook", icon: <ListIcon />, path: "/pembimbing/logbook-recent" },
   { name: "Verifikasi Izin", icon: <CalenderIcon />, path: "/pembimbing/permissions" },
   { name: "Evaluasi Siswa", icon: <PageIcon />, path: "/pembimbing/student-evaluations" },
   { name: "Perjalanan Dinas", icon: <CalenderIcon />, path: "/pembimbing/industry-visits" },
@@ -56,9 +56,9 @@ const koordinatorMenu: NavItem[] = [
 const hubinMenu: NavItem[] = [
   { name: "Dashboard", icon: <GridIcon />, path: "/hubin/dashboard" },
   { name: "Manajemen Industri", icon: <TableIcon />, path: "/hubin/industries" },
-  { 
-    name: "Persetujuan PKL", 
-    icon: <ListIcon />, 
+  {
+    name: "Persetujuan PKL",
+    icon: <ListIcon />,
     subItems: [
       { name: "Persetujuan Pengajuan", path: "/hubin/departure-approvals/application" },
       { name: "Persetujuan Penempatan", path: "/hubin/departure-approvals/placement" },
@@ -88,9 +88,9 @@ const AppSidebar: React.FC = () => {
   else if (userRole === "pembimbing") currentNavItems = pembimbingMenu;
   else if (userRole === "koordinator") currentNavItems = koordinatorMenu;
   else if (userRole === "hubin") currentNavItems = hubinMenu;
-  else if (userRole === "admin") currentNavItems = adminMenu; 
+  else if (userRole === "admin") currentNavItems = adminMenu;
 
-  const [openSubmenu, setOpenSubmenu] = useState<{ type: "main" | "others"; index: number; } | null>({type: "main", index: 2});
+  const [openSubmenu, setOpenSubmenu] = useState<{ type: "main" | "others"; index: number; } | null>({ type: "main", index: 2 });
   const [, setSubMenuHeight] = useState<Record<string, number>>({});
   const subMenuRefs = useRef<Record<string, HTMLDivElement | null>>({});
 
@@ -143,11 +143,10 @@ const AppSidebar: React.FC = () => {
               <>
                 <button
                   onClick={() => handleSubmenuToggle(index, menuType)}
-                  className={`menu-item group cursor-pointer ${
-                    isSubmenuOpen
-                      ? "bg-brand-800 text-white"
-                      : "text-brand-100 hover:bg-white/10 hover:text-white"
-                  } ${!isExpanded && !isHovered ? "lg:justify-center" : "lg:justify-start"}`}
+                  className={`menu-item group cursor-pointer ${isSubmenuOpen
+                    ? "bg-brand-800 text-white"
+                    : "text-brand-100 hover:bg-white/10 hover:text-white"
+                    } ${!isExpanded && !isHovered ? "lg:justify-center" : "lg:justify-start"}`}
                 >
                   <span className={`menu-item-icon-size ${isSubmenuOpen ? "text-accent-500" : "text-brand-300 group-hover:text-brand-100"}`}>
                     {nav.icon}
@@ -157,9 +156,8 @@ const AppSidebar: React.FC = () => {
                   )}
                   {(isExpanded || isHovered || isMobileOpen) && (
                     <ChevronDownIcon
-                      className={`ml-auto w-5 h-5 transition-transform duration-200 ${
-                        isSubmenuOpen ? "rotate-180 text-accent-500" : "text-brand-300 group-hover:text-brand-100"
-                      }`}
+                      className={`ml-auto w-5 h-5 transition-transform duration-200 ${isSubmenuOpen ? "rotate-180 text-accent-500" : "text-brand-300 group-hover:text-brand-100"
+                        }`}
                     />
                   )}
                 </button>
@@ -181,11 +179,10 @@ const AppSidebar: React.FC = () => {
                         <li key={subItem.name}>
                           <Link
                             to={subItem.path}
-                            className={`block rounded-lg px-3 py-2 text-sm transition-colors ${
-                              isActive(subItem.path)
-                                ? "bg-brand-800 text-white font-medium"
-                                : "text-brand-300 hover:bg-white/10 hover:text-white"
-                            }`}
+                            className={`block rounded-lg px-3 py-2 text-sm transition-colors ${isActive(subItem.path)
+                              ? "bg-brand-800 text-white font-medium"
+                              : "text-brand-300 hover:bg-white/10 hover:text-white"
+                              }`}
                           >
                             {subItem.name}
                           </Link>
@@ -199,11 +196,10 @@ const AppSidebar: React.FC = () => {
               nav.path && (
                 <Link
                   to={nav.path}
-                  className={`menu-item group ${
-                    isActive(nav.path) 
-                      ? "bg-brand-800 text-white" 
-                      : "text-brand-100 hover:bg-white/10 hover:text-white"
-                  } ${!isExpanded && !isHovered ? "lg:justify-center" : "lg:justify-start"}`}
+                  className={`menu-item group ${isActive(nav.path)
+                    ? "bg-brand-800 text-white"
+                    : "text-brand-100 hover:bg-white/10 hover:text-white"
+                    } ${!isExpanded && !isHovered ? "lg:justify-center" : "lg:justify-start"}`}
                 >
                   <span className={`menu-item-icon-size ${isActive(nav.path) ? "text-accent-500" : "text-brand-300 group-hover:text-brand-100"}`}>
                     {nav.icon}
@@ -223,10 +219,9 @@ const AppSidebar: React.FC = () => {
   return (
     <aside
       className={`fixed mt-16 flex flex-col lg:mt-0 top-0 px-5 left-0 bg-brand-950 dark:bg-gray-900 border-brand-900 dark:border-gray-800 text-gray-100 h-screen transition-all duration-300 ease-in-out z-50 border-r 
-        ${
-          isExpanded || isMobileOpen
-            ? "w-[290px]"
-            : isHovered
+        ${isExpanded || isMobileOpen
+          ? "w-[290px]"
+          : isHovered
             ? "w-[290px]"
             : "w-[90px]"
         }
@@ -235,36 +230,35 @@ const AppSidebar: React.FC = () => {
       onMouseEnter={() => !isExpanded && setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
-        <div className={`py-8 flex overflow-hidden ${!isExpanded && !isHovered && !isMobileOpen ? "lg:justify-center" : "justify-start"}`}>
-          <Link to="/" className="flex items-center overflow-hidden">
-              {isExpanded || isHovered || isMobileOpen ? (
-                <span className="text-2xl font-bold text-white whitespace-nowrap">
-                  Intern<span className="text-accent-500">Sync</span>
-                </span>
-              ) : (
-                <span className="text-2xl font-bold text-white whitespace-nowrap">
-                  I<span className="text-accent-500">S</span>
-                </span>
-              )}
-          </Link>
-        </div>
+      <div className={`py-8 flex overflow-hidden ${!isExpanded && !isHovered && !isMobileOpen ? "lg:justify-center" : "justify-start"}`}>
+        <Link to="/" className="flex items-center overflow-hidden">
+          {isExpanded || isHovered || isMobileOpen ? (
+            <span className="text-2xl font-bold text-white whitespace-nowrap">
+              Intern<span className="text-accent-500">Sync</span>
+            </span>
+          ) : (
+            <span className="text-2xl font-bold text-white whitespace-nowrap">
+              I<span className="text-accent-500">S</span>
+            </span>
+          )}
+        </Link>
+      </div>
 
       <div className="flex flex-col overflow-y-auto duration-300 ease-linear no-scrollbar">
         <nav className="mb-6">
           <div className="flex flex-col gap-4">
             <div>
               <h2
-                className={`mb-4 text-xs uppercase flex leading-[20px] text-brand-400 ${
-                  !isExpanded && !isHovered ? "lg:justify-center" : "justify-start"
-                }`}
+                className={`mb-4 text-xs uppercase flex leading-[20px] text-brand-400 ${!isExpanded && !isHovered ? "lg:justify-center" : "justify-start"
+                  }`}
               >
                 {isExpanded || isHovered || isMobileOpen ? (
-                  `Menu ${userRole.charAt(0).toUpperCase() + userRole.slice(1)}` 
+                  `Menu ${userRole.charAt(0).toUpperCase() + userRole.slice(1)}`
                 ) : (
                   <HorizontaLDots className="size-6 text-brand-400" />
                 )}
               </h2>
-              {renderMenuItems(currentNavItems, "main")} 
+              {renderMenuItems(currentNavItems, "main")}
             </div>
           </div>
         </nav>

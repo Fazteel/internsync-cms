@@ -1,4 +1,4 @@
-import { GroupIcon, BoxIconLine, CalenderIcon } from "../../../icons"; 
+import { GroupIcon, BoxIconLine, CalenderIcon } from "../../../icons";
 import Badge from "../../ui/badge/Badge";
 import { useDashboardStore } from "../../../store/useDashboardStore";
 import { useEffect } from "react";
@@ -33,9 +33,9 @@ export default function PembimbingMetrics() {
         </div>
         <div className="flex items-end justify-between mt-5">
           <div>
-            <span className="text-sm font-medium text-accent-800 dark:text-accent-400/80">Menunggu Verifikasi</span>
+            <span className="text-sm font-medium text-accent-800 dark:text-accent-400/80">Monitoring Logbook</span>
             <h4 className="mt-1 font-bold text-gray-900 text-title-sm dark:text-white">
-              {metrics.menunggu_verifikasi} Logbook
+              {metrics.total_logbook_diisi} Logbook
             </h4>
           </div>
           <Badge color="warning">Butuh Aksi</Badge>

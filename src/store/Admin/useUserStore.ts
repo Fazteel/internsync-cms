@@ -15,6 +15,7 @@ export interface UserAccount {
   address?: string;
   academic_year_id?: number;
   signature_url?: string;
+  is_pkl?: boolean;
 }
 
 interface BackendStudent {
@@ -26,6 +27,7 @@ interface BackendStudent {
   phone: string | null;
   address: string | null;
   academic_year_id: number | null;
+  is_pkl: boolean;
   user: {
     id: number;
     email: string;
@@ -87,7 +89,8 @@ export const useUserStore = create<UserState>((set, get) => ({
         kelas: s.kelas,
         phone: s.phone || "",
         address: s.address || "",
-        academic_year_id: s.academic_year_id || undefined
+        academic_year_id: s.academic_year_id || undefined,
+        is_pkl: s.is_pkl || false
       }));
 
       const mappedTeachers: UserAccount[] = teachers.map((t: BackendTeacher) => ({

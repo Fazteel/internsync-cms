@@ -39,7 +39,7 @@ export default function HubinPlacementsList() {
 
     const getStatusDisplay = (status: string): { color: 'gray' | 'warning' | 'success' | 'error', label: string } => {
         switch (status) {
-            case 'menunggu_acc_pengiriman': return { color: 'warning', label: 'Pending' };
+            case 'menunggu_acc_pengiriman': return { color: 'warning', label: 'Menunggu' };
             default: return { color: 'gray', label: status };
         }
     };

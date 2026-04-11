@@ -12,18 +12,8 @@ export const industryVisitService = {
     return response.data;
   },
 
-  getAssignedIndustries: async () => {
-    const response = await api.get("/api/v1/pembimbing/visits-industries");
-    return response.data;
-  },
-
-  submitVisit: async (data: VisitPayload) => {
-    const response = await api.post("/api/v1/pembimbing/visits", data);
-    return response.data;
-  },
-
   getLetterUrl: async (id: number) => {
-    const response = await api.get(`/api/v1/pembimbing/visits/${id}/view-pdf`);
+    const response = await api.get(`/api/v1/pembimbing/visits/${id}/sppd`);
     return response.data.file_url;
   }
 };

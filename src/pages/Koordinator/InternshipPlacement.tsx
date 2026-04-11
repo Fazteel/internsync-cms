@@ -117,7 +117,7 @@ export default function InternshipPlacementList() {
                 {paginatedData.length === 0 ? (
                   <TableRow>
                     <TableCell colSpan={6} className="py-10 text-center text-gray-400 italic">
-                      Tidak ada data pengiriman.
+                      Tidak ada data yang ditampilkan.
                     </TableCell>
                   </TableRow>
                 ) : (
