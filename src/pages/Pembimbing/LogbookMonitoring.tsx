@@ -210,7 +210,7 @@ export default function LogbookMonitoring() {
                   isLoading={isLoading}
                   isEmpty={paginatedData.length === 0}
                   colSpan={4}
-                  loadingText="Memuat riwayat logbook siswa..."
+                  loadingText="Memuat data..."
                   emptyText={filterDateRange ? `Tidak ada aktivitas pada rentang tanggal tersebut.` : (searchTerm ? "Siswa tidak ditemukan." : "Tidak ada data logbook.")}
                 >
                   {paginatedData.map((log: StudentLogbook) => (

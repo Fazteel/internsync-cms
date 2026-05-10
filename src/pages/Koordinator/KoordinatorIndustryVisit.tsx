@@ -220,7 +220,12 @@ export default function KoordinatorIndustryVisit() {
                     <DatePicker id="dp-visit-koordinator" label={<span className="text-xs font-bold text-gray-500 uppercase block mb-1.5">Tanggal Rencana Kunjungan</span>} onChange={(_, str) => setDate(str)} />
                     <div>
                         <label className="text-xs font-bold uppercase text-gray-500 block mb-1.5">Agenda / Tujuan</label>
-                        <textarea rows={4} value={purpose} onChange={(e) => setPurpose(e.target.value)} className="w-full border border-gray-300 dark:border-gray-700 dark:bg-gray-900 rounded-xl p-3 text-sm outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500" required placeholder="Contoh: Monitoring rutin bulan ke-3, menjenguk siswa sakit, dll." />
+                        <SelectInput value={purpose} onChange={(val) => setPurpose(val)} required>
+                            <option value="" disabled>Pilih Tujuan Kunjungan</option>
+                            <option value="Pengantaran Siswa PKL">Pengantaran Siswa PKL</option>
+                            <option value="Monitoring Siswa PKL">Monitoring Siswa PKL</option>
+                            <option value="Penjemputan Siswa PKL">Penjemputan Siswa PKL</option>
+                        </SelectInput>
                     </div>
                     <div className="flex justify-end gap-3 pt-4 border-t border-gray-100 dark:border-gray-800 mt-4">
                         <button type="button" onClick={handleCloseModals} className="px-5 py-2.5 text-sm font-bold text-gray-500 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors">Batal</button>
@@ -231,7 +236,6 @@ export default function KoordinatorIndustryVisit() {
                 </form>
             </Modal>
 
-            {/* MODAL DETAIL */}
             <Modal isOpen={isDetailModalOpen} onClose={handleCloseModals} className="max-w-lg p-0 overflow-hidden" showCloseButton={false}>
                 <div className={`px-6 py-4 border-b flex justify-between items-center ${selectedVisit?.status === "Rejected" ? "bg-error-50 border-error-100 dark:bg-error-900/20 dark:border-error-800/30" : "bg-gray-50 border-gray-200 dark:bg-gray-800 dark:border-gray-700"}`}>
                     <h3 className={`text-lg font-bold ${selectedVisit?.status === "Rejected" ? "text-error-700 dark:text-error-500" : "text-gray-800 dark:text-white"}`}>
@@ -270,7 +274,7 @@ export default function KoordinatorIndustryVisit() {
                             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path></svg>
                             Agenda / Tujuan
                         </span>
-                        <p className="text-sm leading-relaxed text-gray-700 dark:text-gray-300">{selectedVisit?.purpose}</p>
+                        <p className="text-sm font-bold text-gray-700 dark:text-gray-300">{selectedVisit?.purpose}</p>
                     </div>
 
                     {selectedVisit?.status === "Rejected" && selectedVisit?.feedback && (
@@ -280,6 +284,22 @@ export default function KoordinatorIndustryVisit() {
                                 Alasan Penolakan Hubin
                             </span>
                             <p className="text-sm text-error-600 dark:text-error-400 italic mt-2 leading-relaxed">"{selectedVisit.feedback}"</p>
+                        </div>
+                    )}
+
+                    {selectedVisit?.status === "Approved" && selectedVisit?.file_path && (
+                        <div className="bg-success-50 p-4 rounded-xl border border-success-100 dark:bg-success-900/10 dark:border-success-800/30">
+                            <span className="text-xs font-bold text-success-700 dark:text-success-500 uppercase tracking-wider flex items-center gap-1.5">
+                                <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 6a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zm1 3a1 1 0 100 2h6a1 1 0 100-2H7z" clipRule="evenodd" /></svg>
+                                Dokumen SPPD
+                            </span>
+                            <button
+                                onClick={() => window.open(`http://localhost:8000/storage/${selectedVisit.file_path}`, '_blank')}
+                                className="mt-3 inline-flex items-center gap-2 bg-success-600 text-white px-4 py-2 rounded-lg text-sm font-bold hover:bg-success-700 transition-colors shadow-sm"
+                            >
+                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                                Unduh SPPD
+                            </button>
                         </div>
                     )}
                 </div>

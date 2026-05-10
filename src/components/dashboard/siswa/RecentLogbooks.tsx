@@ -19,7 +19,7 @@ export default function RecentLogbooks() {
           </TableHeader>
           <TableBody className="divide-y divide-gray-100 dark:divide-gray-800">
             {isLoading ? (
-              <TableRow><TableCell colSpan={2} className="py-6 text-center text-sm text-gray-500">Memuat riwayat logbook...</TableCell></TableRow>
+              <TableRow><TableCell colSpan={2} className="py-6 text-center text-sm text-gray-500">Memuat data...</TableCell></TableRow>
             ) : (!siswaRecentLogbooks || siswaRecentLogbooks.length === 0) ? (
               <TableRow><TableCell colSpan={2} className="py-6 text-center text-sm text-gray-500 italic">Belum ada aktivitas logbook tercatat.</TableCell></TableRow>
             ) : (

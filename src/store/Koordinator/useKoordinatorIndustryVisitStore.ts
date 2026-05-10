@@ -9,6 +9,7 @@ export interface KoordinatorVisitRecord {
   purpose: string;
   status: "Approved" | "Pending" | "Rejected";
   feedback?: string;
+  file_path?: string;
 }
 
 export interface FormOption {

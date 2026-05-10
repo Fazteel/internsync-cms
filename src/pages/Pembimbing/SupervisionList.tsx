@@ -92,7 +92,7 @@ export default function SupervisionList() {
                   isLoading={isLoading}
                   isEmpty={industryNames.length === 0}
                   colSpan={5}
-                  loadingText="Memuat data bimbingan..."
+                  loadingText="Memuat data..."
                 >
                   {paginatedIndustries.map((industryName) => {
                     const isExpanded = expandedIndustries.includes(industryName);
@@ -110,10 +110,10 @@ export default function SupervisionList() {
                           </TableCell>
                           <TableCell className="py-4">
                             <div className="flex items-center gap-2 text-gray-500 dark:text-gray-400">
-                                <CalenderIcon className="w-4 h-4" />
-                                <span className="text-xs font-medium">
-                                    {sampleStudent.departure_date} - {sampleStudent.final_end_date}
-                                </span>
+                              <CalenderIcon className="w-4 h-4" />
+                              <span className="text-xs font-medium">
+                                {sampleStudent.departure_date} - {sampleStudent.final_end_date}
+                              </span>
                             </div>
                           </TableCell>
                           <TableCell className="py-4 text-center">
@@ -124,9 +124,8 @@ export default function SupervisionList() {
                           <TableCell className="py-4 pr-10">
                             <div className="flex justify-end">
                               <svg
-                                className={`w-5 h-5 transition-transform ${
-                                  isExpanded ? "rotate-90 text-brand-500" : ""
-                                }`}
+                                className={`w-5 h-5 transition-transform ${isExpanded ? "rotate-90 text-brand-500" : ""
+                                  }`}
                                 fill="none"
                                 stroke="currentColor"
                                 viewBox="0 0 24 24"
@@ -150,12 +149,12 @@ export default function SupervisionList() {
                                         <div className="flex items-center gap-4 w-[40%]">
                                           <div className="flex items-center gap-3">
                                             <div className="relative">
-                                                <div className="flex h-9 w-9 items-center justify-center rounded-full bg-gray-100 text-gray-600 font-bold text-xs uppercase dark:bg-gray-700 dark:text-gray-300">
-                                                    {student.name.charAt(0)}
-                                                </div>
-                                                {student.is_flagged && (
-                                                    <span className="absolute -top-1 -right-1 flex h-3 w-3 rounded-full bg-error-500 border-2 border-white dark:border-gray-800 animate-pulse"></span>
-                                                )}
+                                              <div className="flex h-9 w-9 items-center justify-center rounded-full bg-gray-100 text-gray-600 font-bold text-xs uppercase dark:bg-gray-700 dark:text-gray-300">
+                                                {student.name.charAt(0)}
+                                              </div>
+                                              {student.is_flagged && (
+                                                <span className="absolute -top-1 -right-1 flex h-3 w-3 rounded-full bg-error-500 border-2 border-white dark:border-gray-800 animate-pulse"></span>
+                                              )}
                                             </div>
                                             <div>
                                               <p className="font-bold text-gray-800 text-xs dark:text-white/90">{student.name}</p>
@@ -221,9 +220,9 @@ export default function SupervisionList() {
 }
 
 function CalenderIcon({ className }: { className?: string }) {
-    return (
-        <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-        </svg>
-    );
+  return (
+    <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+    </svg>
+  );
 }

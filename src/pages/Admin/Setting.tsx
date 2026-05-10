@@ -18,7 +18,6 @@ export default function Setting() {
   const { settings, saveSettings } = useSettingStore();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // --- STATE OLD ---
   const [appName, setAppName] = useState("Sistem Manajemen PKL (InternSync)");
   const [schoolName, setSchoolName] = useState("SMK PGRI Telagasari");
   const [supportEmail, setSupportEmail] = useState("admin@smkpgritelagasari.sch.id");
@@ -28,7 +27,6 @@ export default function Setting() {
   const [maintenanceMode, setMaintenanceMode] = useState(false);
   const [enableNotifications, setEnableNotifications] = useState(true);
 
-  // --- STATE BARU (KOP & INFO SEKOLAH) ---
   const [schoolLogo, setSchoolLogo] = useState<string | null>(null);
   const [yayasanName, setYayasanName] = useState("");
   const [npsn, setNpsn] = useState("");
@@ -38,7 +36,9 @@ export default function Setting() {
   const [schoolWebsite, setSchoolWebsite] = useState("");
   const [accreditation, setAccreditation] = useState("");
 
-  // --- STATE UI ---
+  const [kepsekName, setKepsekName] = useState("");
+  const [kepsekNip, setKepsekNip] = useState("");
+
   const [isMaintenanceModalOpen, setIsMaintenanceModalOpen] = useState(false);
   const [pendingMaintenanceState, setPendingMaintenanceState] = useState(false);
   const [alertInfo, setAlertInfo] = useState<AlertInfo>({ show: false, variant: "success", title: "", message: "" });
@@ -57,7 +57,7 @@ export default function Setting() {
       setEnableNotifications(settings.enable_notifications !== "false");
 
       setSchoolLogo(settings.school_logo || null);
-      setLogoPreview(settings.school_logo || null); 
+      setLogoPreview(settings.school_logo || null);
       setYayasanName(settings.yayasan_name || "");
       setNpsn(settings.npsn || "");
       setNss(settings.nss || "");
@@ -65,6 +65,9 @@ export default function Setting() {
       setSchoolPhone(settings.school_phone || "");
       setSchoolWebsite(settings.school_website || "");
       setAccreditation(settings.accreditation || "");
+
+      setKepsekName(settings.kepsek_name || "");
+      setKepsekNip(settings.kepsek_nip || "");
 
       setIsInitialized(true);
     }
@@ -83,7 +86,7 @@ export default function Setting() {
 
     if (!file.type.startsWith('image/')) {
       setAlertInfo({ show: true, variant: "error", title: "File Tidak Valid", message: "Gunakan file gambar (PNG, JPG, JPEG)." });
-      if (fileInputRef.current) fileInputRef.current.value = ""; 
+      if (fileInputRef.current) fileInputRef.current.value = "";
       return;
     }
 
@@ -96,7 +99,7 @@ export default function Setting() {
     const reader = new FileReader();
     reader.onloadend = () => {
       const base64String = reader.result as string;
-      setSchoolLogo(base64String); 
+      setSchoolLogo(base64String);
       setLogoPreview(base64String);
     };
     reader.readAsDataURL(file);
@@ -133,7 +136,7 @@ export default function Setting() {
       const payload = {
         app_name: appName,
         school_name: schoolName,
-        support_email: supportEmail, 
+        support_email: supportEmail,
         school_logo: schoolLogo || "",
         yayasan_name: yayasanName,
         npsn: npsn,
@@ -142,6 +145,8 @@ export default function Setting() {
         school_phone: schoolPhone,
         school_website: schoolWebsite,
         accreditation: accreditation,
+        kepsek_name: kepsekName,
+        kepsek_nip: kepsekNip,
         pkl_registration_status: registrationStatus,
         pkl_start_date: startDate,
         pkl_end_date: endDate,
@@ -170,7 +175,6 @@ export default function Setting() {
         />
 
         <form onSubmit={handleSaveSettings} className="space-y-6">
-          {/* --- SECTION 1: INFORMASI SEKOLAH & KOP (BANYAK TAMBAHAN) --- */}
           <div className="rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03] overflow-hidden">
             <div className="border-b border-gray-200 bg-brand-50 px-6 py-4 dark:border-gray-800 dark:bg-brand-900/20">
               <h3 className="text-lg font-bold text-brand-800 dark:text-brand-300 flex items-center gap-2">
@@ -179,8 +183,7 @@ export default function Setting() {
               </h3>
             </div>
             <div className="p-6 space-y-6">
-              
-              {/* Logika Tampilan Logo */}
+
               <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
                 <div className="flex items-center justify-center w-24 h-24 border-2 border-gray-200 border-dashed rounded-xl bg-gray-50 dark:border-gray-700 dark:bg-gray-800/50 overflow-hidden flex-shrink-0">
                   {logoPreview ? (
@@ -206,36 +209,44 @@ export default function Setting() {
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-5">
-                {/* Input Fields */}
                 <div className="sm:col-span-2">
                   <label className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">Nama Aplikasi</label>
                   <input type="text" value={appName} onChange={(e) => setAppName(e.target.value)} className="w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm outline-none transition-all focus:border-brand-500 focus:ring-1 focus:ring-brand-500 dark:border-gray-700 dark:text-white" required />
                 </div>
-                
+
                 <div>
                   <label className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">Nama Yayasan</label>
                   <input type="text" value={yayasanName} onChange={(e) => setYayasanName(e.target.value)} className="w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm outline-none transition-all focus:border-brand-500 focus:ring-1 focus:ring-brand-500 dark:border-gray-700 dark:text-white" placeholder="Masukan nama yayasan jika ada" />
                 </div>
-                
+
                 <div>
                   <label className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">Nama Sekolah</label>
                   <input type="text" value={schoolName} onChange={(e) => setSchoolName(e.target.value)} className="w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm outline-none transition-all focus:border-brand-500 focus:ring-1 focus:ring-brand-500 dark:border-gray-700 dark:text-white" required />
                 </div>
 
-                <div className="grid grid-cols-3 gap-4">
-                    <div>
-                        <label className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">NPSN</label>
-                        <input type="text" value={npsn} onChange={(e) => setNpsn(e.target.value)} className="w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm outline-none transition-all focus:border-brand-500 focus:ring-1 focus:ring-brand-500 dark:border-gray-700 dark:text-white" />
-                    </div>
-                    <div>
-                        <label className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">NSS</label>
-                        <input type="text" value={nss} onChange={(e) => setNss(e.target.value)} className="w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm outline-none transition-all focus:border-brand-500 focus:ring-1 focus:ring-brand-500 dark:border-gray-700 dark:text-white" />
-                    </div>
-                    {/* INPUT AKREDITASI */}
-                    <div>
-                        <label className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">Akreditasi</label>
-                        <input type="text" value={accreditation} onChange={(e) => setAccreditation(e.target.value)} className="w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm outline-none transition-all focus:border-brand-500 focus:ring-1 focus:ring-brand-500 dark:border-gray-700 dark:text-white" placeholder="Misal: A" />
-                    </div>
+                <div>
+                  <label className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">Nama Kepala Sekolah</label>
+                  <input type="text" value={kepsekName} onChange={(e) => setKepsekName(e.target.value)} className="w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm outline-none transition-all focus:border-brand-500 focus:ring-1 focus:ring-brand-500 dark:border-gray-700 dark:text-white" placeholder="Masukan nama kepala sekolah" />
+                </div>
+
+                <div>
+                  <label className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">NIP / NKRS Kepala Sekolah</label>
+                  <input type="text" value={kepsekNip} onChange={(e) => setKepsekNip(e.target.value)} className="w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm outline-none transition-all focus:border-brand-500 focus:ring-1 focus:ring-brand-500 dark:border-gray-700 dark:text-white" placeholder="Misal: 22023L013022..." />
+                </div>
+
+                <div className="grid grid-cols-3 gap-4 sm:col-span-2">
+                  <div>
+                    <label className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">NPSN</label>
+                    <input type="text" value={npsn} onChange={(e) => setNpsn(e.target.value)} className="w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm outline-none transition-all focus:border-brand-500 focus:ring-1 focus:ring-brand-500 dark:border-gray-700 dark:text-white" />
+                  </div>
+                  <div>
+                    <label className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">NSS</label>
+                    <input type="text" value={nss} onChange={(e) => setNss(e.target.value)} className="w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm outline-none transition-all focus:border-brand-500 focus:ring-1 focus:ring-brand-500 dark:border-gray-700 dark:text-white" />
+                  </div>
+                  <div>
+                    <label className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">Akreditasi</label>
+                    <input type="text" value={accreditation} onChange={(e) => setAccreditation(e.target.value)} className="w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm outline-none transition-all focus:border-brand-500 focus:ring-1 focus:ring-brand-500 dark:border-gray-700 dark:text-white" placeholder="Misal: A" />
+                  </div>
                 </div>
 
                 <div>
@@ -252,7 +263,7 @@ export default function Setting() {
                   <label className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">Website Sekolah</label>
                   <input type="text" value={schoolWebsite} onChange={(e) => setSchoolWebsite(e.target.value)} className="w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm outline-none transition-all focus:border-brand-500 focus:ring-1 focus:ring-brand-500 dark:border-gray-700 dark:text-white" placeholder="www.sekolah.sch.id" />
                 </div>
-                
+
                 <div>
                   <label className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">Email (Bantuan & KOP)</label>
                   <input type="email" value={supportEmail} onChange={(e) => setSupportEmail(e.target.value)} className="w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm outline-none transition-all focus:border-brand-500 focus:ring-1 focus:ring-brand-500 dark:border-gray-700 dark:text-white" required />
@@ -261,7 +272,6 @@ export default function Setting() {
             </div>
           </div>
 
-          {/* --- SECTION 2: NOTIFIKASI --- */}
           <div className="rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03] overflow-hidden">
             <div className="border-b border-gray-200 bg-blue-50 px-6 py-4 dark:border-gray-800 dark:bg-blue-900/20">
               <h3 className="text-lg font-bold text-blue-800 dark:text-blue-300 flex items-center gap-2">
@@ -275,7 +285,7 @@ export default function Setting() {
                   Kelola pengiriman notifikasi otomatis untuk setiap aktivitas pengguna.
                 </p>
               </div>
-              
+
               <label className="relative inline-flex items-center cursor-pointer flex-shrink-0">
                 <input type="checkbox" className="sr-only peer" checked={enableNotifications} onChange={(e) => setEnableNotifications(e.target.checked)} />
                 <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
@@ -284,7 +294,6 @@ export default function Setting() {
             </div>
           </div>
 
-          {/* --- SECTION 3: DANGER ZONE --- */}
           <div className="rounded-2xl border border-error-200 bg-white dark:border-error-800/30 dark:bg-white/[0.03] overflow-hidden">
             <div className="border-b border-error-100 bg-error-50 px-6 py-4 dark:border-error-800/30 dark:bg-error-900/10">
               <h3 className="text-lg font-bold text-error-800 dark:text-error-400 flex items-center gap-2">
@@ -299,7 +308,7 @@ export default function Setting() {
                   Aktifkan ini jika Anda sedang melakukan perbaikan server. Pengguna selain Admin akan diblokir.
                 </p>
               </div>
-              
+
               <label className="relative inline-flex items-center cursor-pointer flex-shrink-0">
                 <input type="checkbox" className="sr-only peer" checked={maintenanceMode} onChange={(e) => handleMaintenanceToggle(e.target.checked)} />
                 <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-error-300 dark:peer-focus:ring-error-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-error-600"></div>
@@ -308,7 +317,6 @@ export default function Setting() {
             </div>
           </div>
 
-          {/* Tombol Submit */}
           <div className="flex justify-end border-t border-gray-200 dark:border-gray-800 pt-6">
             <button type="submit" className="inline-flex items-center gap-2 rounded-lg bg-brand-500 px-8 py-3 text-sm font-bold text-white shadow-theme-md hover:bg-brand-600 transition-colors focus:ring-4 focus:ring-brand-200 dark:focus:ring-brand-800">
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path></svg>
@@ -318,7 +326,6 @@ export default function Setting() {
         </form>
       </div>
 
-      {/* Modal Maintenance */}
       <Modal isOpen={isMaintenanceModalOpen} onClose={cancelMaintenanceToggle} className="max-w-[400px] p-6 text-center">
         <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-error-50 text-error-600 dark:bg-error-500/10 dark:text-error-500">
           <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
