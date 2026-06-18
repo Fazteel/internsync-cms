@@ -6,12 +6,12 @@ interface UserTableProps {
   users: UserAccount[];
   isLoading: boolean;
   sendingEmailId: number | null;
-  onResendEmail: (user: UserAccount) => void;
+  onSendResetPassword: (user: UserAccount) => void;
   onEdit: (user: UserAccount) => void;
   onDelete: (user: UserAccount) => void;
 }
 
-export default function UserTable({ users, isLoading, sendingEmailId, onResendEmail, onEdit, onDelete }: UserTableProps) {
+export default function UserTable({ users, isLoading, sendingEmailId, onSendResetPassword, onEdit, onDelete }: UserTableProps) {
   const getRoleColor = (roleType: string) => {
     switch (roleType) {
       case "Siswa": return "bg-brand-50 text-brand-700 dark:bg-brand-500/10 dark:text-brand-400";
@@ -64,10 +64,10 @@ export default function UserTable({ users, isLoading, sendingEmailId, onResendEm
                     ) : (
                       <div className="flex items-center justify-center gap-2">
                         <button 
-                          onClick={() => onResendEmail(user)} 
+                          onClick={() => onSendResetPassword(user)} 
                           disabled={sendingEmailId === user.id}
                           className="p-1.5 text-gray-400 hover:text-accent-500 transition-colors disabled:opacity-50" 
-                          title="Kirim Ulang Email Aktivasi"
+                          title="Kirim Email Set Password"
                         >
                           {sendingEmailId === user.id ? (
                             <svg className="w-5 h-5 animate-spin" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>

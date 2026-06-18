@@ -3,6 +3,7 @@ import { authService } from '../services/authService';
 
 export interface User {
   id: number;
+  name?: string;
   email: string;
   is_active?: boolean | number;
   roles?: { id: number; name: string }[];

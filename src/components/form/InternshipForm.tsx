@@ -151,7 +151,7 @@ export default function InternshipForm({ initialData, onBack, viewMode = 'koordi
 
     const handleDownloadLetter = (path?: string) => {
         if (!path) return;
-        window.open(`http://localhost:8000/storage/${path}`, '_blank');
+        window.open(`https://api-internsync.smkpgritelagasari.sch.id/storage/${path}`, '_blank');
     };
 
     const addStudentToList = (profileId: number) => {

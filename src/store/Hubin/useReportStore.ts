@@ -8,12 +8,22 @@ interface ReportSummary {
     ongoing_internships: number;
 }
 
+interface StudentItem {
+    nis: string;
+    name: string;
+    class_name: string;
+    major_name: string;
+    status: string;
+    score: number | null;
+}
+
 interface DistributionItem {
     industry_name: string;
     major_name: string;
     total_students: number;
     completed_count: number;
     avg_score: number | null;
+    students?: StudentItem[];
 }
 
 interface ReportState {

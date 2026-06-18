@@ -65,7 +65,7 @@ interface UserState {
   editUser: (profile_id: number, data: UserPayload) => Promise<void>;
   removeUser: (profile_id: number, role: string) => Promise<void>;
   importExcel: (file: File) => Promise<ImportResult>;
-  resendActivationEmail: (id: number) => Promise<void>;
+  sendResetPasswordEmail: (id: number) => Promise<void>;
 }
 
 export const useUserStore = create<UserState>((set, get) => ({
@@ -103,7 +103,7 @@ export const useUserStore = create<UserState>((set, get) => ({
         status: t.user.is_active ? "Aktif" : "Nonaktif",
         phone: t.phone || "",
         address: t.address || "",
-        signature_url: t.signature_path ? `http://localhost:8000/storage/${t.signature_path}` : undefined
+        signature_url: t.signature_path ? `https://api-internsync.smkpgritelagasari.sch.id/storage/${t.signature_path}` : undefined
       }));
 
       set({ users: [...mappedStudents, ...mappedTeachers], isLoading: false });
@@ -134,7 +134,7 @@ export const useUserStore = create<UserState>((set, get) => ({
     return response.data;
   },
 
-  resendActivationEmail: async (id: number) => {
-    await userService.resendActivationEmail(id);
+  sendResetPasswordEmail: async (id: number) => {
+    await userService.sendResetPasswordEmail(id);
   },
 }));

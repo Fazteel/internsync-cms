@@ -26,7 +26,7 @@ interface ApiError {
 }
 
 export default function UserManagement() {
-  const { users, isLoading, fetchUsers, addUser, editUser, removeUser, importExcel, resendActivationEmail } = useUserStore();
+  const { users, isLoading, fetchUsers, addUser, editUser, removeUser, importExcel, sendResetPasswordEmail } = useUserStore();
   const { majors, classrooms, academicYears, fetchMajors, fetchClassrooms, fetchAcademicYears } = useMasterStore();
 
   const [searchTerm, setSearchTerm] = useState("");
@@ -173,11 +173,11 @@ export default function UserManagement() {
     }
   };
 
-  const handleResendEmail = async (user: UserAccount) => {
+  const handleSendResetPasswordEmail = async (user: UserAccount) => {
     setSendingEmailId(user.id);
     try {
-      await resendActivationEmail(user.id);
-      setAlertInfo({ show: true, variant: "success", title: "Email Terkirim", message: `Link aktivasi terkirim ke ${user.name}.` });
+      await sendResetPasswordEmail(user.id);
+      setAlertInfo({ show: true, variant: "success", title: "Email Terkirim", message: `Link set password terkirim ke email ${user.name}.` });
     } catch (err: unknown) {
       const error = err as ApiError;
       setAlertInfo({ show: true, variant: "error", title: "Gagal", message: error.response?.data?.message || "Gagal mengirim email." });
@@ -219,6 +219,16 @@ export default function UserManagement() {
             <p className="text-sm text-gray-500">Kelola data {activeTab === "siswa" ? "Siswa" : "Guru/Staff"} dan hak akses sistem.</p>
           </div>
           <div className="flex items-center gap-3">
+            <a 
+              href="/templates/template_users.xlsx" 
+              download="template_users.xlsx"
+              className="inline-flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300 transition-colors cursor-pointer group"
+            >
+              <svg className="w-5 h-5 text-brand-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+              </svg>
+              Download Template
+            </a>
             <label className="inline-flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300 transition-colors cursor-pointer">
               <svg className="w-5 h-5 text-accent-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
               Import Excel
@@ -228,6 +238,16 @@ export default function UserManagement() {
               + Tambah {activeTab === "siswa" ? "Siswa" : "Guru/Staff"}
             </button>
           </div>
+        </div>
+
+        {/* Info Banner Default Password */}
+        <div className="flex items-start sm:items-center gap-3 p-4 bg-blue-50 border border-blue-100 rounded-2xl dark:bg-blue-500/10 dark:border-blue-500/20 text-blue-700 dark:text-blue-400 text-sm shadow-sm transition-all">
+          <svg className="w-5 h-5 flex-shrink-0 text-blue-500 mt-0.5 sm:mt-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          <span className="leading-relaxed">
+            <strong>Informasi:</strong> Password default untuk semua data pengguna baru adalah <code className="bg-blue-100 dark:bg-blue-900/50 px-1.5 py-0.5 rounded font-mono font-bold text-xs">12345678</code>
+          </span>
         </div>
 
         <div className="flex flex-col rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03] overflow-hidden shadow-sm">
@@ -245,7 +265,7 @@ export default function UserManagement() {
             users={displayedUsers}
             isLoading={isLoading}
             sendingEmailId={sendingEmailId}
-            onResendEmail={handleResendEmail}
+            onSendResetPassword={handleSendResetPasswordEmail}
             onEdit={handleOpenEditModal}
             onDelete={handleOpenConfirm}
           />

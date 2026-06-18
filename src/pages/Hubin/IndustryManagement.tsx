@@ -258,7 +258,7 @@ export default function IndustryManagement() {
                       </TableCell>
                       <TableCell className="py-4 text-center whitespace-nowrap">
                         {ind.mou_file ? (
-                          <a href={`http://localhost:8000/storage/${ind.mou_file}`} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 text-xs font-medium text-accent-600 hover:text-accent-700 bg-accent-50 hover:bg-accent-100 px-2.5 py-1 rounded-full transition-colors dark:bg-accent-500/10 dark:text-accent-400 dark:hover:bg-accent-500/20">
+                          <a href={`https://api-internsync.smkpgritelagasari.sch.id/storage/${ind.mou_file}`} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 text-xs font-medium text-accent-600 hover:text-accent-700 bg-accent-50 hover:bg-accent-100 px-2.5 py-1 rounded-full transition-colors dark:bg-accent-500/10 dark:text-accent-400 dark:hover:bg-accent-500/20">
                             <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"></path></svg>
                             Lihat MoU
                           </a>

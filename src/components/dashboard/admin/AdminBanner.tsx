@@ -8,7 +8,7 @@ export default function AdminBanner() {
     <div className="flex flex-col gap-4 rounded-2xl border border-brand-200 bg-brand-50 p-6 dark:border-brand-900/50 dark:bg-brand-900/20 sm:flex-row sm:items-center sm:justify-between">
       <div>
         <h1 className="text-2xl font-bold text-gray-800 dark:text-white/90">
-          Selamat datang kembali, <span className="text-brand-600 dark:text-brand-400">{firstName}</span>! 
+          Selamat datang kembali, <span className="text-brand-600 dark:text-brand-400">{firstName}</span>!
         </h1>
         <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">
           Berikut adalah ringkasan sistem manajemen PKL dan aktivitas terbaru hari ini.

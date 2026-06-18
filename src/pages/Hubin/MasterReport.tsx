@@ -1,7 +1,8 @@
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import PageMeta from "../../components/common/PageMeta";
 import { Table, TableBody, TableCell, TableHeader, TableRow } from "../../components/ui/table";
 import Alert from "../../components/ui/alert/Alert";
+import Badge from "../../components/ui/badge/Badge";
 import { PageHeader, TableDataState } from "../../components/common/SharedUI";
 import { useReportStore } from "../../store/Hubin/useReportStore";
 
@@ -18,10 +19,18 @@ export default function MasterReport() {
   const { summary, distribution, isLoading, fetchMasterReport, downloadReport } = useReportStore();
   const [searchTerm, setSearchTerm] = useState("");
   const [alertInfo, setAlertInfo] = useState<AlertInfo>({ show: false, variant: "success", title: "", message: "" });
+  const [expandedRows, setExpandedRows] = useState<Record<string, boolean>>({});
 
   useEffect(() => {
     fetchMasterReport();
   }, [fetchMasterReport]);
+
+  const toggleRow = (industryName: string) => {
+    setExpandedRows(prev => ({
+      ...prev,
+      [industryName]: !prev[industryName]
+    }));
+  };
 
   const handleExportGlobal = async (format: "excel" | "pdf") => {
     setAlertInfo({
@@ -114,28 +123,126 @@ export default function MasterReport() {
             <Table>
               <TableHeader className="border-y">
                 <TableRow>
-                  <TableCell isHeader className="py-3 px-4">Nama Industri</TableCell>
-                  <TableCell isHeader className="py-3 px-4">Jurusan</TableCell>
-                  <TableCell isHeader className="py-3 px-4 text-center">Total Siswa</TableCell>
-                  <TableCell isHeader className="py-3 px-4 text-center">Selesai</TableCell>
-                  <TableCell isHeader className="py-3 px-4 text-center">Rata-rata Nilai</TableCell>
+                  <TableCell isHeader className="py-3 px-4 w-[35%]">Nama Industri</TableCell>
+                  <TableCell isHeader className="py-3 px-4 w-[25%]">Jurusan</TableCell>
+                  <TableCell isHeader className="py-3 px-4 text-center w-[12%]">Total Siswa</TableCell>
+                  <TableCell isHeader className="py-3 px-4 text-center w-[13%]">Selesai</TableCell>
+                  <TableCell isHeader className="py-3 px-4 text-center w-[10%]">Rerata Nilai</TableCell>
+                  <TableCell isHeader className="py-3 px-4 text-center w-[5%]"></TableCell>
                 </TableRow>
               </TableHeader>
               <TableBody className="divide-y">
-                <TableDataState isLoading={isLoading} isEmpty={filteredData.length === 0} colSpan={5}>
-                  {filteredData.map((data, index) => (
-                    <TableRow key={index} className="hover:bg-gray-50/50 transition-colors">
-                      <TableCell className="py-4 px-4 text-center font-medium">{data.industry_name}</TableCell>
-                      <TableCell className="py-4 px-4 text-center text-gray-500">{data.major_name}</TableCell>
-                      <TableCell className="py-4 px-4 text-center font-bold">{data.total_students}</TableCell>
-                      <TableCell className="py-4 px-4 text-center">{data.completed_count} / {data.total_students}</TableCell>
-                      <TableCell className="py-4 px-4 text-center">
-                        {data.avg_score ? (
-                          <span className="bg-brand-50 text-brand-700 px-3 py-1 rounded-lg font-bold border border-brand-200">{data.avg_score}</span>
-                        ) : <span className="text-gray-400 italic">-</span>}
-                      </TableCell>
-                    </TableRow>
-                  ))}
+                <TableDataState isLoading={isLoading} isEmpty={filteredData.length === 0} colSpan={6}>
+                  {filteredData.map((data, index) => {
+                    const isExpanded = expandedRows[data.industry_name] || false;
+                    return (
+                      <React.Fragment key={index}>
+                        <TableRow 
+                          className={`cursor-pointer transition-colors border-b border-gray-100 dark:border-gray-800 ${
+                            isExpanded ? "bg-brand-50/30 dark:bg-brand-500/5" : "hover:bg-gray-50/50 dark:hover:bg-gray-800/20"
+                          }`}
+                          onClick={() => toggleRow(data.industry_name)}
+                        >
+                          <TableCell className="py-4 px-4 font-semibold text-gray-800 dark:text-white/90">
+                            {data.industry_name}
+                          </TableCell>
+                          <TableCell className="py-4 px-4 text-gray-500 text-sm">
+                            {data.major_name}
+                          </TableCell>
+                          <TableCell className="py-4 px-4 text-center font-bold">
+                            {data.total_students} Siswa
+                          </TableCell>
+                          <TableCell className="py-4 px-4 text-center">
+                            <div className="flex flex-col items-center gap-1">
+                              <span className="text-xs font-semibold text-gray-700 dark:text-gray-300">
+                                {data.completed_count} / {data.total_students} Selesai
+                              </span>
+                              <div className="h-1.5 w-20 rounded-full bg-gray-100 dark:bg-gray-700 overflow-hidden">
+                                <div
+                                  className={`h-full rounded-full ${
+                                    data.completed_count === data.total_students ? 'bg-success-500' : 'bg-brand-500'
+                                  }`}
+                                  style={{ width: `${(data.completed_count / data.total_students) * 100}%` }}
+                                ></div>
+                              </div>
+                            </div>
+                          </TableCell>
+                          <TableCell className="py-4 px-4 text-center">
+                            {data.avg_score ? (
+                              <span className="bg-brand-50 text-brand-700 dark:bg-brand-500/20 dark:text-brand-400 px-3 py-1 rounded-lg font-bold border border-brand-200 dark:border-brand-800/50">
+                                {data.avg_score}
+                              </span>
+                            ) : (
+                              <span className="text-gray-400 italic text-xs">-</span>
+                            )}
+                          </TableCell>
+                          <TableCell className="py-4 px-4 text-center">
+                            <div className="flex justify-center">
+                              <svg
+                                className={`w-5 h-5 transition-transform ${isExpanded ? "rotate-90 text-brand-500" : "text-gray-400"}`}
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                              >
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7"></path>
+                              </svg>
+                            </div>
+                          </TableCell>
+                        </TableRow>
+
+                        {isExpanded && (
+                          <TableRow>
+                            <TableCell colSpan={6} className="p-0 border-0">
+                              <div className="bg-gray-50/30 px-8 py-4 dark:bg-gray-900/50 border-b border-gray-100 dark:border-gray-800 animate-fade-in">
+                                <h4 className="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-3">
+                                  Daftar Siswa di {data.industry_name}
+                                </h4>
+                                
+                                {(!data.students || data.students.length === 0) ? (
+                                  <p className="text-xs text-gray-500 italic">Tidak ada data siswa.</p>
+                                ) : (
+                                  <div className="space-y-2">
+                                    {data.students.map((student, sIndex) => (
+                                      <div key={sIndex} className="flex items-center justify-between bg-white dark:bg-gray-800 p-3 rounded-xl border border-gray-100 dark:border-gray-700 shadow-sm hover:border-brand-200 transition-all">
+                                        <div className="flex items-center gap-3">
+                                          <div className="flex h-8 w-8 items-center justify-center rounded-full bg-gray-100 text-gray-600 font-bold text-xs uppercase dark:bg-gray-700 dark:text-gray-300">
+                                            {student.name.charAt(0)}
+                                          </div>
+                                          <div>
+                                            <p className="font-bold text-gray-800 text-xs dark:text-white/90">{student.name}</p>
+                                            <span className="text-[10px] text-gray-500 dark:text-gray-400">
+                                              NIS: {student.nis} • {student.class_name} • {student.major_name}
+                                            </span>
+                                          </div>
+                                        </div>
+                                        
+                                        <div className="flex items-center gap-4">
+                                          <Badge size="sm" color={
+                                            student.status === "selesai" ? "success" : 
+                                            student.status === "aktif" ? "primary" : "warning"
+                                          }>
+                                            {student.status.toUpperCase()}
+                                          </Badge>
+                                          
+                                          {student.score !== null ? (
+                                            <span className="text-xs font-bold text-brand-600 dark:text-brand-400 bg-brand-50 dark:bg-brand-900/20 px-2 py-0.5 rounded border border-brand-100 dark:border-brand-800/50">
+                                              Nilai: {student.score}
+                                            </span>
+                                          ) : (
+                                            <span className="text-[10px] text-gray-400 italic">Belum dinilai</span>
+                                          )}
+                                        </div>
+                                      </div>
+                                    ))}
+                                  </div>
+                                )}
+                              </div>
+                            </TableCell>
+                          </TableRow>
+                        )}
+                      </React.Fragment>
+                    );
+                  })}
                 </TableDataState>
               </TableBody>
             </Table>

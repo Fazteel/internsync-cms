@@ -12,7 +12,7 @@ export default function SignInForm() {
   const navigate = useNavigate();
   const setAuth = useAuthStore((state) => state.setAuth);
   
-  const [email, setEmail] = useState("");
+  const [identifier, setIdentifier] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -39,15 +39,15 @@ export default function SignInForm() {
     e.preventDefault();
     setError("");
 
-    if (!email || !password) {
-      setError("Email dan kata sandi wajib diisi.");
+    if (!identifier || !password) {
+      setError("Email/NIP/NIS dan kata sandi wajib diisi.");
       return;
     }
 
     setIsLoading(true);
 
     try {
-      const response = await authService.login(email, password, isChecked);
+      const response = await authService.login(identifier, password, isChecked);
       
       setAuth(response.user);
       
@@ -57,7 +57,7 @@ export default function SignInForm() {
     } catch (err: unknown) {
       const axiosError = err as { response?: { status: number } };
       if (axiosError.response?.status === 401) {
-        setError("Email atau password salah.");
+        setError("Email/NIP/NIS atau password salah.");
       } else {
         setError("Terjadi kesalahan pada server. Silakan coba lagi.");
       }
@@ -75,7 +75,7 @@ export default function SignInForm() {
               Selamat Datang
             </h1>
             <p className="text-sm text-gray-500 dark:text-gray-400">
-              Masukkan email dan kata sandi Anda untuk masuk ke sistem.
+              Masukkan Email/NIP/NIS dan kata sandi Anda untuk masuk ke sistem.
             </p>
           </div>
           <div>
@@ -90,15 +90,15 @@ export default function SignInForm() {
 
                 <div>
                   <Label>
-                    Email <span className="text-error-500">*</span>{" "}
+                    Email/NIP/NIS <span className="text-error-500">*</span>{" "}
                   </Label>
                   <Input 
-                    type="email"
-                    name="email"
-                    autoComplete="email"
-                    placeholder="Masukkan alamat email" 
-                    value={email}
-                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEmail(e.target.value)}
+                    type="text"
+                    name="identifier"
+                    autoComplete="username"
+                    placeholder="Masukkan Email, NIP, atau NIS" 
+                    value={identifier}
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => setIdentifier(e.target.value)}
                   /> 
                 </div>
                 <div>

@@ -74,7 +74,7 @@ export const userService = {
     });
   },
 
-  resendActivationEmail: async (id: number) => {
-    return await api.post(`/api/v1/admin/users/${id}/resend-activation`);
+  sendResetPasswordEmail: async (id: number) => {
+    return await api.post(`/api/v1/admin/users/${id}/reset-password`);
   },
 };
