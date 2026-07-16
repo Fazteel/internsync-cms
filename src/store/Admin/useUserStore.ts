@@ -51,10 +51,15 @@ interface BackendTeacher {
   };
 }
 
-interface ImportResult {
-  success: number;
-  failed: number;
+export interface ImportResult {
+  success?: boolean;
   message: string;
+  summary?: {
+    total_rows_processed: number;
+    successful_rows: number;
+    failed_rows: number;
+  };
+  error_report_url?: string;
 }
 
 interface UserState {

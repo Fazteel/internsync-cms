@@ -7,6 +7,7 @@ interface AlertProps {
   showLink?: boolean; 
   linkHref?: string; 
   linkText?: string; 
+  children?: React.ReactNode;
 }
 
 const Alert: React.FC<AlertProps> = ({
@@ -16,6 +17,7 @@ const Alert: React.FC<AlertProps> = ({
   showLink = false,
   linkHref = "#",
   linkText = "Learn more",
+  children,
 }) => {
   const variantClasses = {
     success: {
@@ -132,6 +134,12 @@ const Alert: React.FC<AlertProps> = ({
             >
               {linkText}
             </Link>
+          )}
+
+          {children && (
+            <div className="mt-3">
+              {children}
+            </div>
           )}
         </div>
       </div>

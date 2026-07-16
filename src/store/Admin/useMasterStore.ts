@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { masterService } from '../../services/Admin/masterService';
+import { ImportResult } from './useUserStore';
 
 export interface Jurusan {
   id: number;
@@ -56,7 +57,7 @@ interface MasterState {
   addClassroom: (majorId: number, nama: string, isActive: boolean) => Promise<void>;
   editClassroom: (id: number, majorId: number, nama: string, isActive: boolean) => Promise<void>;
   removeClassroom: (id: number) => Promise<void>;
-  importExcel: (file: File) => Promise<void>;
+  importExcel: (file: File) => Promise<ImportResult>;
 }
 
 export const useMasterStore = create<MasterState>((set) => ({

@@ -6,6 +6,7 @@ import Alert from "../../components/ui/alert/Alert";
 import { Modal } from "../../components/ui/modal/index";
 import { useMasterStore, Jurusan, TahunAjaran, Kelas } from "../../store/Admin/useMasterStore";
 import { PageHeader, SelectInput, TablePagination, TableTopControls } from "../../components/common/SharedUI";
+import MasterDataImport from "../../components/common/MasterDataImport";
 
 type AlertVariant = "success" | "warning" | "info" | "error";
 interface AlertInfo { show: boolean; variant: AlertVariant; title: string; message: string; }
@@ -169,31 +170,7 @@ export default function DataMaster() {
     }
   };
 
-  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
 
-    setAlertInfo({ show: true, variant: "info", title: "Memproses...", message: `Sedang mengimpor data dari ${file.name}...` });
-
-    try {
-      await importExcel(file);
-
-      setAlertInfo({ show: true, variant: "success", title: "Berhasil", message: `Data dari ${file.name} sukses diimpor.` });
-
-      fetchMajors();
-      fetchAcademicYears();
-      fetchClassrooms();
-    } catch (err: unknown) {
-      const error = err as { response?: { data?: { message?: string } } };
-      setAlertInfo({
-        show: true,
-        variant: "error",
-        title: "Gagal Import",
-        message: error.response?.data?.message || "File gagal diproses, pastikan format sesuai."
-      });
-    }
-    e.target.value = "";
-  };
 
   const filteredJurusan = majors.filter(j => j.nama.toLowerCase().includes(searchTerm.toLowerCase()) || j.kode.toLowerCase().includes(searchTerm.toLowerCase()));
   const filteredTahunAjaran = academicYears.filter(t => t.tahun.includes(searchTerm) || t.semester.toLowerCase().includes(searchTerm.toLowerCase()));
@@ -222,11 +199,14 @@ export default function DataMaster() {
               </svg>
               Download Template
             </a>
-            <label className="inline-flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700 transition-colors cursor-pointer group">
-              <svg className="w-5 h-5 text-success-500 group-hover:text-success-600 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
-              Import Excel
-              <input type="file" accept=".xlsx, .xls, .csv" className="hidden" onChange={handleFileUpload} />
-            </label>
+            <MasterDataImport
+              onImport={importExcel}
+              onImportSuccess={() => {
+                fetchMajors();
+                fetchAcademicYears();
+                fetchClassrooms();
+              }}
+            />
 
             <button onClick={() => handleOpenModal("add", activeTab)} className="inline-flex items-center justify-center gap-2 rounded-lg bg-brand-500 px-5 py-2.5 text-center font-medium text-white shadow-theme-xs hover:bg-brand-600 transition-colors">
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4"></path></svg>

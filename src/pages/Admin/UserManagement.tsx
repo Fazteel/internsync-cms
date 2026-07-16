@@ -5,6 +5,7 @@ import { Modal } from "../../components/ui/modal/index";
 import { useUserStore, UserAccount } from "../../store/Admin/useUserStore";
 import { useMasterStore } from "../../store/Admin/useMasterStore";
 import { UserPayload } from "../../services/Admin/userService";
+import MasterDataImport from "../../components/common/MasterDataImport";
 import UserTable from "../../components/table/UserTable";
 import { SelectInput } from "../../components/common/SharedUI";
 
@@ -76,40 +77,7 @@ export default function UserManagement() {
     return user.role !== "Siswa";
   });
 
-  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
 
-    setAlertInfo({ show: true, variant: "info", title: "Memproses...", message: `Sedang mengimpor data dari ${file.name}...` });
-
-    try {
-      const result = await importExcel(file);
-      if (result.failed > 0) {
-        setAlertInfo({
-          show: true,
-          variant: "warning",
-          title: "Import Selesai dengan Catatan",
-          message: `${result.success} data berhasil, ${result.failed} data gagal (cek format atau data master).`
-        });
-      } else {
-        setAlertInfo({
-          show: true,
-          variant: "success",
-          title: "Berhasil",
-          message: `Semua data (${result.success}) dari ${file.name} berhasil diimpor.`
-        });
-      }
-    } catch (err: unknown) {
-      const error = err as ApiError;
-      setAlertInfo({
-        show: true,
-        variant: "error",
-        title: "Gagal Import",
-        message: error.response?.data?.message || "File tidak valid atau terjadi kesalahan server."
-      });
-    }
-    e.target.value = "";
-  };
 
   const handleOpenAddModal = () => {
     setModalMode("add");
@@ -229,11 +197,10 @@ export default function UserManagement() {
               </svg>
               Download Template
             </a>
-            <label className="inline-flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300 transition-colors cursor-pointer">
-              <svg className="w-5 h-5 text-accent-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
-              Import Excel
-              <input type="file" accept=".xlsx, .xls, .csv" className="hidden" onChange={handleFileUpload} />
-            </label>
+            <MasterDataImport
+              onImport={importExcel}
+              onImportSuccess={fetchUsers}
+            />
             <button onClick={handleOpenAddModal} className="bg-brand-500 text-white px-4 py-2.5 rounded-lg text-sm font-medium hover:bg-brand-600 transition-all shadow-sm">
               + Tambah {activeTab === "siswa" ? "Siswa" : "Guru/Staff"}
             </button>
