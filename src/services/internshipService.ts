@@ -9,6 +9,10 @@ export interface InternshipApplicationPayload {
 }
 
 export interface InternshipPlacementPayload {
+    pengajuan_id?: number | null;
+    industry_id?: number;
+    pembimbing_id?: number;
+    student_ids?: number[];
     departure_date?: string;
     duration_option?: string;
     final_end_date?: string | null;
@@ -41,8 +45,9 @@ export const internshipService = {
     return response.data;
   },
 
-  submitPlacement: async (id: number, data: InternshipPlacementPayload) => {
-    const response = await api.post(`/api/v1/koordinator/submit-placement/${id}`, data);
+  submitPlacement: async (id: number | null, data: InternshipPlacementPayload) => {
+    const url = id ? `/api/v1/koordinator/submit-placement/${id}` : '/api/v1/koordinator/submit-placement';
+    const response = await api.post(url, data);
     return response.data;
   },
 

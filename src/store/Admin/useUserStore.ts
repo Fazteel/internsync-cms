@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { userService, UserPayload } from '../../services/Admin/userService';
+import { getStorageUrl } from '../../lib/helpers';
 
 export interface UserAccount {
   id: number;
@@ -108,7 +109,7 @@ export const useUserStore = create<UserState>((set, get) => ({
         status: t.user.is_active ? "Aktif" : "Nonaktif",
         phone: t.phone || "",
         address: t.address || "",
-        signature_url: t.signature_path ? `https://api-internsync.smkpgritelagasari.sch.id/storage/${t.signature_path}` : undefined
+        signature_url: t.signature_path ? getStorageUrl(t.signature_path) : undefined
       }));
 
       set({ users: [...mappedStudents, ...mappedTeachers], isLoading: false });

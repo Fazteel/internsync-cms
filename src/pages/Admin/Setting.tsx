@@ -56,8 +56,8 @@ export default function Setting() {
       setMaintenanceMode(settings.maintenance_mode === "true");
       setEnableNotifications(settings.enable_notifications !== "false");
 
-      setSchoolLogo(settings.school_logo || null);
-      setLogoPreview(settings.school_logo || null);
+      setSchoolLogo(settings.school_logo_url || settings.school_logo || null);
+      setLogoPreview(settings.school_logo_url || settings.school_logo || null);
       setYayasanName(settings.yayasan_name || "");
       setNpsn(settings.npsn || "");
       setNss(settings.nss || "");

@@ -54,7 +54,7 @@ interface InternshipState {
   fetchApplications: (type: 'pengajuan' | 'pengiriman' | 'riwayat') => Promise<void>;
   fetchPendingApprovals: (type: 'pengajuan' | 'pengiriman') => Promise<void>;
   submitApplication: (payload: InternshipApplicationPayload) => Promise<void>;
-  submitPlacement: (id: number, payload: InternshipPlacementPayload) => Promise<void>;
+  submitPlacement: (id: number | null, payload: InternshipPlacementPayload) => Promise<void>;
   processHubinApproval: (id: number, action: 'approve' | 'reject', type: 'pengajuan' | 'pengiriman') => Promise<void>;
   extendInternship: (payload: ExtendInternshipPayload) => Promise<void>;
   withdrawStudent: (studentId: number) => Promise<void>;

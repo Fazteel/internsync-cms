@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useInternshipStore, InternshipApplication, AppStudent } from "../../store/useInternshipStore";
 import { useUserStore } from "../../store/Admin/useUserStore";
+import { getStorageUrl } from "../../lib/helpers";
 import { SelectInput, SearchInput } from "../../components/common/SharedUI";
 import { Table, TableBody, TableCell, TableHeader, TableRow } from "../../components/ui/table";
 import { Modal } from "../../components/ui/modal/index";
@@ -112,12 +113,20 @@ export default function InternshipForm({ initialData, onBack, viewMode = 'koordi
 
     const handlePengirimanAction = async (action: 'batal' | 'simpan' | 'pengiriman') => {
         if (action === 'batal') return onBack();
-        if (!initialData?.id) return;
 
         setIsSubmitting(true);
         try {
-            const payload = { departure_date: departureDate, duration_option: durationOption, final_end_date: durationOption === 'custom' ? finalEndDate : null, action };
-            await submitPlacement(initialData.id, payload);
+            const payload = {
+                pengajuan_id: initialData?.id || null,
+                industry_id: Number(industryId),
+                pembimbing_id: Number(pembimbingId),
+                student_ids: selectedStudentIds,
+                departure_date: departureDate,
+                duration_option: durationOption,
+                final_end_date: durationOption === 'custom' ? finalEndDate : null,
+                action
+            };
+            await submitPlacement(initialData?.id || null, payload);
             onBack();
         } catch (error) {
             console.error("Gagal submit pengiriman:", error);
@@ -151,7 +160,7 @@ export default function InternshipForm({ initialData, onBack, viewMode = 'koordi
 
     const handleDownloadLetter = (path?: string) => {
         if (!path) return;
-        window.open(`https://api-internsync.smkpgritelagasari.sch.id/storage/${path}`, '_blank');
+        window.open(getStorageUrl(path), '_blank');
     };
 
     const addStudentToList = (profileId: number) => {
@@ -239,7 +248,7 @@ export default function InternshipForm({ initialData, onBack, viewMode = 'koordi
     let headerTitle = "Buat Pengajuan Baru";
     if (viewMode.includes('hubin')) headerTitle = "Evaluasi Dokumen PKL";
     else if (viewMode === 'koordinator_riwayat') headerTitle = "Riwayat Penempatan PKL";
-    else if (viewMode === 'koordinator_pengiriman') headerTitle = "Proses Pengiriman PKL";
+    else if (viewMode === 'koordinator_pengiriman') headerTitle = initialData ? "Proses Pengiriman PKL" : "Buat Pengiriman Direct";
     else if (isApprovedPengajuan && viewMode === 'koordinator_pengajuan') headerTitle = "Detail Pengajuan PKL";
     else if (initialData) headerTitle = "Lanjut Edit Pengajuan";
 

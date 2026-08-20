@@ -65,7 +65,7 @@ export default function InternshipPlacementList() {
           title="Pengiriman PKL"
           description="Kelola data keberangkatan dan durasi prakerin siswa ke industri tujuan."
         >
-          <div className="flex items-center gap-3 w-full sm:w-auto">
+          <div className="flex flex-wrap items-center gap-3 w-full sm:w-auto">
             <div className="flex flex-col">
               <SelectInput
                 value={filterStatus}
@@ -90,6 +90,15 @@ export default function InternshipPlacementList() {
                 className="rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/20"
               />
             </div>
+            <button
+              onClick={() => handleOpenForm(null)}
+              className="flex items-center gap-2 rounded-lg bg-brand-500 px-4 py-2.5 text-sm font-semibold text-white hover:bg-brand-600 transition-colors shadow-sm"
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+              </svg>
+              Buat Pengiriman
+            </button>
           </div>
         </PageHeader>
 

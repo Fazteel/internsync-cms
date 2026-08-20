@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import PageMeta from "../../components/common/PageMeta";
+import { getStorageUrl } from "../../lib/helpers";
 import { PageHeader, SelectInput, TableDataState, TablePagination, TableTopControls } from "../../components/common/SharedUI";
 import { Table, TableBody, TableCell, TableHeader, TableRow } from "../../components/ui/table";
 import Badge from "../../components/ui/badge/Badge";
@@ -294,7 +295,7 @@ export default function KoordinatorIndustryVisit() {
                                 Dokumen SPPD
                             </span>
                             <button
-                                onClick={() => window.open(`https://api-internsync.smkpgritelagasari.sch.id/storage/${selectedVisit.file_path}`, '_blank')}
+                                onClick={() => window.open(getStorageUrl(selectedVisit.file_path), '_blank')}
                                 className="mt-3 inline-flex items-center gap-2 bg-success-600 text-white px-4 py-2 rounded-lg text-sm font-bold hover:bg-success-700 transition-colors shadow-sm"
                             >
                                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>

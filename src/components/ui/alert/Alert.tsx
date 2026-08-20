@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { Link } from "react-router-dom";
 
 interface AlertProps {
@@ -19,6 +20,13 @@ const Alert: React.FC<AlertProps> = ({
   linkText = "Learn more",
   children,
 }) => {
+  useEffect(() => {
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth",
+    });
+  }, [variant, message]);
+
   const variantClasses = {
     success: {
       container:

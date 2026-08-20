@@ -38,6 +38,14 @@ export default function UserManagement() {
   const [selectedUser, setSelectedUser] = useState<UserAccount | null>(null);
   const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
 
+  // States for filtering and pagination
+  const [filterJurusan, setFilterJurusan] = useState("");
+  const [filterKelas, setFilterKelas] = useState("");
+  const [filterRole, setFilterRole] = useState("");
+  const [filterStatus, setFilterStatus] = useState("");
+  const [rowsPerPage, setRowsPerPage] = useState(10);
+  const [currentPage, setCurrentPage] = useState(1);
+
   const [sendingEmailId, setSendingEmailId] = useState<number | null>(null);
 
   const [name, setName] = useState("");
@@ -72,10 +80,42 @@ export default function UserManagement() {
     }
   }, [alertInfo.show]);
 
-  const displayedUsers = users.filter((user) => {
-    if (activeTab === "siswa") return user.role === "Siswa";
-    return user.role !== "Siswa";
+  // Reset pagination on search term change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm]);
+
+  // Reset filters and pagination when active tab changes
+  useEffect(() => {
+    setCurrentPage(1);
+    setFilterJurusan("");
+    setFilterKelas("");
+    setFilterRole("");
+    setFilterStatus("");
+  }, [activeTab]);
+
+  const filteredUsers = users.filter((user) => {
+    if (activeTab === "siswa") {
+      if (user.role !== "Siswa") return false;
+      if (filterJurusan && user.jurusan !== filterJurusan) return false;
+      if (filterKelas && user.kelas !== filterKelas) return false;
+    } else {
+      if (user.role === "Siswa") return false;
+      if (filterRole && user.role !== filterRole) return false;
+    }
+
+    if (filterStatus && user.status !== filterStatus) return false;
+
+    return true;
   });
+
+  const totalFilteredUsers = filteredUsers.length;
+  const totalPages = Math.ceil(totalFilteredUsers / rowsPerPage);
+  const activePage = Math.min(currentPage, Math.max(1, totalPages));
+
+  const startIndex = (activePage - 1) * rowsPerPage;
+  const endIndex = rowsPerPage === 999999 ? totalFilteredUsers : startIndex + rowsPerPage;
+  const paginatedUsers = filteredUsers.slice(startIndex, endIndex);
 
 
 
@@ -224,18 +264,141 @@ export default function UserManagement() {
               <button onClick={() => setActiveTab("guru")} className={`py-3.5 px-6 text-sm font-medium border-b-2 transition-all ${activeTab === "guru" ? "border-brand-500 text-brand-700" : "border-transparent text-gray-500"}`}>Data Guru & Staff</button>
             </div>
             <div className="relative w-full sm:w-[300px] mb-2 sm:mb-0">
-              <input type="text" placeholder="Cari..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="w-full rounded-lg border border-gray-200 py-2 pl-4 pr-4 text-sm outline-none focus:border-brand-500" />
+              <input type="text" placeholder="Cari..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="w-full rounded-lg border border-gray-200 py-2 pl-4 pr-4 text-sm outline-none focus:border-brand-500 font-medium text-gray-700 dark:bg-gray-900 dark:border-gray-800 dark:text-white" />
+            </div>
+          </div>
+
+          {/* Filter Bar */}
+          <div className="flex flex-wrap items-center gap-4 px-6 py-3.5 bg-gray-50/50 border-b border-gray-150 dark:bg-white/[0.01] dark:border-gray-850">
+            {activeTab === "siswa" ? (
+              <>
+                <div className="flex items-center gap-2">
+                  <span className="text-xs font-semibold text-gray-500 uppercase tracking-wider dark:text-gray-400">Jurusan:</span>
+                  <select
+                    value={filterJurusan}
+                    onChange={(e) => {
+                      setFilterJurusan(e.target.value);
+                      setFilterKelas(""); // Reset kelas filter when jurusan changes
+                      setCurrentPage(1);
+                    }}
+                    className="rounded-lg border border-gray-200 bg-white px-3 py-1.5 text-xs font-semibold text-gray-700 outline-none focus:border-brand-500 dark:bg-gray-900 dark:border-gray-700 dark:text-gray-300 cursor-pointer"
+                  >
+                    <option value="">Semua Jurusan</option>
+                    {majors.map(m => (
+                      <option key={m.id} value={m.kode}>{m.kode}</option>
+                    ))}
+                  </select>
+                </div>
+
+                <div className="flex items-center gap-2">
+                  <span className="text-xs font-semibold text-gray-500 uppercase tracking-wider dark:text-gray-400">Kelas:</span>
+                  <select
+                    value={filterKelas}
+                    onChange={(e) => {
+                      setFilterKelas(e.target.value);
+                      setCurrentPage(1);
+                    }}
+                    className="rounded-lg border border-gray-200 bg-white px-3 py-1.5 text-xs font-semibold text-gray-700 outline-none focus:border-brand-500 dark:bg-gray-900 dark:border-gray-700 dark:text-gray-300 cursor-pointer"
+                  >
+                    <option value="">Semua Kelas</option>
+                    {classrooms
+                      .filter(c => !filterJurusan || c.major_id === majors.find(m => m.kode === filterJurusan)?.id)
+                      .map(c => (
+                        <option key={c.id} value={c.nama}>{c.nama}</option>
+                      ))}
+                  </select>
+                </div>
+              </>
+            ) : (
+              <div className="flex items-center gap-2">
+                <span className="text-xs font-semibold text-gray-500 uppercase tracking-wider dark:text-gray-400">Role:</span>
+                <select
+                  value={filterRole}
+                  onChange={(e) => {
+                    setFilterRole(e.target.value);
+                    setCurrentPage(1);
+                  }}
+                  className="rounded-lg border border-gray-200 bg-white px-3 py-1.5 text-xs font-semibold text-gray-700 outline-none focus:border-brand-500 dark:bg-gray-900 dark:border-gray-700 dark:text-gray-300 cursor-pointer"
+                >
+                  <option value="">Semua Role</option>
+                  <option value="Pembimbing">Pembimbing</option>
+                  <option value="Koordinator">Koordinator</option>
+                  <option value="Hubin">Hubin</option>
+                </select>
+              </div>
+            )}
+
+            <div className="flex items-center gap-2">
+              <span className="text-xs font-semibold text-gray-500 uppercase tracking-wider dark:text-gray-400">Status:</span>
+              <select
+                value={filterStatus}
+                onChange={(e) => {
+                  setFilterStatus(e.target.value);
+                  setCurrentPage(1);
+                }}
+                className="rounded-lg border border-gray-200 bg-white px-3 py-1.5 text-xs font-semibold text-gray-700 outline-none focus:border-brand-500 dark:bg-gray-900 dark:border-gray-700 dark:text-gray-300 cursor-pointer"
+              >
+                <option value="">Semua Status</option>
+                <option value="Aktif">Aktif</option>
+                <option value="Nonaktif">Nonaktif</option>
+              </select>
             </div>
           </div>
 
           <UserTable
-            users={displayedUsers}
+            users={paginatedUsers}
             isLoading={isLoading}
             sendingEmailId={sendingEmailId}
             onSendResetPassword={handleSendResetPasswordEmail}
             onEdit={handleOpenEditModal}
             onDelete={handleOpenConfirm}
           />
+
+          {/* Pagination Controls */}
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-t border-gray-200 px-6 py-4 bg-gray-50/50 dark:border-gray-800 dark:bg-white/[0.02]">
+            <div className="flex items-center gap-2">
+              <span className="text-sm text-gray-500 dark:text-gray-400">Tampilkan:</span>
+              <select
+                value={rowsPerPage === 999999 ? "all" : rowsPerPage.toString()}
+                onChange={(e) => {
+                  const val = e.target.value;
+                  setRowsPerPage(val === "all" ? 999999 : Number(val));
+                  setCurrentPage(1);
+                }}
+                className="rounded-lg border border-gray-200 bg-white px-2.5 py-1.5 text-xs font-semibold text-gray-700 outline-none focus:border-brand-500 dark:bg-gray-900 dark:border-gray-700 dark:text-gray-300 cursor-pointer"
+              >
+                <option value="5">5</option>
+                <option value="10">10</option>
+                <option value="20">20</option>
+                <option value="all">Semua</option>
+              </select>
+              <span className="text-xs text-gray-500 dark:text-gray-400 font-medium">
+                Menampilkan {totalFilteredUsers > 0 ? startIndex + 1 : 0} - {Math.min(endIndex, totalFilteredUsers)} dari {totalFilteredUsers} data
+              </span>
+            </div>
+
+            {rowsPerPage !== 999999 && totalPages > 1 && (
+              <div className="flex items-center gap-2">
+                <button
+                  disabled={activePage === 1}
+                  onClick={() => setCurrentPage((p) => p - 1)}
+                  className="px-3 py-1.5 border border-gray-200 rounded-lg text-xs font-semibold text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed dark:border-gray-700 dark:text-gray-300 dark:hover:bg-gray-800 transition-colors"
+                >
+                  Sebelumnya
+                </button>
+                <span className="text-xs font-bold text-gray-800 dark:text-white/90">
+                  Halaman {activePage} dari {totalPages}
+                </span>
+                <button
+                  disabled={activePage === totalPages}
+                  onClick={() => setCurrentPage((p) => p + 1)}
+                  className="px-3 py-1.5 border border-gray-200 rounded-lg text-xs font-semibold text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed dark:border-gray-700 dark:text-gray-300 dark:hover:bg-gray-800 transition-colors"
+                >
+                  Selanjutnya
+                </button>
+              </div>
+            )}
+          </div>
         </div>
       </div>
 
